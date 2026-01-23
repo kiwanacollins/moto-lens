@@ -82,7 +82,7 @@ const error: MantineColorsTuple = [
 ];
 
 export const theme = createTheme({
-  // Color Palette
+  // Color Palette (Light mode defaults set in MantineProvider)
   colors: {
     // Primary brand color (Electric Blue)
     blue: electricBlue,
@@ -102,6 +102,10 @@ export const theme = createTheme({
 
   primaryColor: 'blue',
   primaryShade: 4, // Index 4 = #0ea5e9 (Electric Blue)
+
+  // Light mode: white background, dark text
+  white: '#ffffff',
+  black: '#0a0a0a',
 
   // Typography
   fontFamily:
@@ -169,7 +173,7 @@ export const theme = createTheme({
     xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
   },
 
-  // Component Default Props (Mobile-first, glove-friendly)
+  // Component Default Props (Mobile-first, glove-friendly, light mode)
   components: {
     Button: {
       defaultProps: {
@@ -186,11 +190,40 @@ export const theme = createTheme({
       defaultProps: {
         size: 'lg', // Large for easy tapping
       },
+      styles: {
+        input: {
+          backgroundColor: '#ffffff',
+          borderColor: '#e4e4e7',
+          color: '#0a0a0a',
+          '&::placeholder': {
+            color: '#71717a',
+          },
+        },
+        label: {
+          color: '#0a0a0a',
+        },
+      },
     },
 
     PasswordInput: {
       defaultProps: {
         size: 'lg',
+      },
+      styles: {
+        input: {
+          backgroundColor: '#ffffff',
+          borderColor: '#e4e4e7',
+          color: '#0a0a0a',
+        },
+        innerInput: {
+          color: '#0a0a0a',
+          '&::placeholder': {
+            color: '#71717a',
+          },
+        },
+        label: {
+          color: '#0a0a0a',
+        },
       },
     },
 
@@ -199,12 +232,22 @@ export const theme = createTheme({
         shadow: 'sm',
         radius: 'md',
       },
+      styles: {
+        root: {
+          backgroundColor: '#ffffff',
+        },
+      },
     },
 
     Card: {
       defaultProps: {
         shadow: 'sm',
         radius: 'md',
+      },
+      styles: {
+        root: {
+          backgroundColor: '#ffffff',
+        },
       },
     },
 
@@ -220,11 +263,46 @@ export const theme = createTheme({
         centered: true,
         radius: 'md',
       },
+      styles: {
+        content: {
+          backgroundColor: '#ffffff',
+        },
+        header: {
+          backgroundColor: '#ffffff',
+        },
+        title: {
+          color: '#0a0a0a',
+        },
+      },
     },
 
     Code: {
       defaultProps: {
         ff: 'JetBrains Mono, monospace',
+      },
+    },
+
+    Text: {
+      styles: {
+        root: {
+          color: '#0a0a0a',
+        },
+      },
+    },
+
+    Title: {
+      styles: {
+        root: {
+          color: '#0a0a0a',
+        },
+      },
+    },
+
+    Anchor: {
+      styles: {
+        root: {
+          color: '#0ea5e9',
+        },
       },
     },
   },
