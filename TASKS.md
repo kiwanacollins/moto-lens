@@ -64,20 +64,20 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Test PWA installability in Chrome DevTools
 
 ### 1.4 Design System Implementation
-- [ ] Create theme configuration file (`src/styles/theme.ts`)
-- [ ] Define color palette:
+- [x] Create theme configuration file (`src/styles/theme.ts`)
+- [x] Define color palette:
   ```typescript
   colors: {
-    carbonBlack: '#0A0A0A',
-    gunmetalGray: '#2C3539',
-    electricBlue: '#00D9FF',
-    // + shades for each
+    electricBlue: '#0ea5e9',  // sky-500 - Primary
+    carbonBlack: '#0a0a0a',   // zinc-900 - Main text
+    gunmetalGray: '#52525b',  // zinc-600 - Secondary text
+    // + full zinc scale + semantic colors
   }
   ```
-- [ ] Configure Mantine theme with brand colors
-- [ ] Set up font loading (Inter + JetBrains Mono)
-- [ ] Create reusable style constants
-- [ ] Test colors in different lighting conditions
+- [x] Configure Mantine theme with brand colors
+- [x] Set up font loading (Inter + JetBrains Mono)
+- [x] Create reusable style constants
+- [x] Test colors in different lighting conditions
 
 **Estimated Time:** 3-4 hours
 

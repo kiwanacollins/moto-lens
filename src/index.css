@@ -2,10 +2,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Brand Colors */
+  /* MotoLens Brand Colors - Professional Mobile-First Design */
+  --electric-blue: #0ea5e9;
+  /* Primary - Electric Blue (sky-500) */
   --carbon-black: #0a0a0a;
-  --gunmetal-gray: #2c3539;
-  --electric-blue: #00d9ff;
+  /* Main text, headings (zinc-900) */
+  --gunmetal-gray: #52525b;
+  /* Secondary text, icons (zinc-600) */
+  --white: #ffffff;
+  /* Light backgrounds */
+
+  /* Zinc Neutrals */
+  --zinc-50: #fafafa;
+  --zinc-100: #f4f4f5;
+  --zinc-200: #e4e4e7;
+  --zinc-300: #d4d4d8;
+  --zinc-400: #a1a1aa;
+  --zinc-500: #71717a;
+  --zinc-600: #52525b;
+  --zinc-700: #3f3f46;
+  --zinc-800: #27272a;
+  --zinc-900: #0a0a0a;
+
+  /* Semantic Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
 
   font-family:
     'Inter',
@@ -16,7 +38,8 @@
     Helvetica,
     Arial,
     sans-serif;
-  line-height: 1.5;
+  line-height: 1.6;
+  /* Improved readability (was 1.5) */
   font-weight: 400;
 
   color-scheme: dark;
@@ -28,8 +51,11 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Mobile-first approach */
+  /* Mobile-first approach - Prevent tap highlight */
   -webkit-tap-highlight-color: transparent;
+
+  /* Minimum font size for mobile (prevent zoom on input focus) */
+  font-size: 16px;
 }
 
 * {
