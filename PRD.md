@@ -141,18 +141,26 @@ This combination:
 - Manufacturer
 
 ### 🔌 VIN API (FINAL DECISION)
-**✅ VINLink Web Service API**
+**✅ Auto.dev API**
 
-#### Why VINLink is the best fit
-- Pre-pay / pay-as-you-go (no monthly lock-in)
-- Strong European & German vehicle coverage
-- Developer-friendly
-- Predictable costs
-- Ideal for low daily usage
+#### Why Auto.dev is the best fit
+- **1,000 FREE API calls/month** (covers entire MVP usage)
+- True pay-as-you-go: **$0.004 per call** after free tier
+- No subscription or monthly commitment required
+- Global coverage including European & German vehicles
+- Developer-friendly with excellent documentation
+- At 1-2 users/day (~60 calls/month), stays **FREE indefinitely**
+- Predictable, transparent pricing
+- Perfect for low-usage MVP scenarios
+
+#### Cost Projection
+- **Month 1–∞:** $0 (under 1,000 free calls)
+- **Even at 1,000 calls/month:** Only $4
+- **Well within $1,000 budget:** ✅
 
 #### Role
 - VIN → authoritative vehicle metadata
-- **VINLink is the source of truth**
+- **Auto.dev is the source of truth**
 - AI only enhances, never replaces VIN data
 
 ---

@@ -49,13 +49,13 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
   ```
 
 ### 1.2 Environment Configuration
-- [ ] Create `.env` file structure
-- [ ] Set up environment variables:
-  - [ ] `VITE_API_BASE_URL`
-  - [ ] `VITE_VINLINK_API_KEY`
-  - [ ] `VITE_GEMINI_API_KEY`
-- [ ] Add `.env.example` template
-- [ ] Update `.gitignore` for secrets
+- [x] Create `.env` file structure
+- [x] Set up environment variables:
+  - [x] `VITE_API_BASE_URL`
+  - [x] `VITE_AUTODEV_API_KEY`
+  - [x] `VITE_GEMINI_API_KEY`
+- [x] Add `.env.example` template
+- [x] Update `.gitignore` for secrets
 
 ### 1.3 Development Tools
 - [ ] Configure ESLint for React + TypeScript
@@ -141,12 +141,12 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [ ] Configure CORS for frontend origin
 - [ ] Create environment config for backend
 
-### 2.2 VINLink API Integration
-- [ ] Sign up for VINLink API account
-- [ ] Test VINLink API with sample VINs
+### 2.2 Auto.dev API Integration
+- [ ] Sign up for Auto.dev API account (1,000 free calls/month)
+- [ ] Test Auto.dev API with sample VINs
 - [ ] Create `/api/vin/decode` endpoint
 - [ ] Implement VIN validation (17 characters)
-- [ ] Parse VINLink response into clean format:
+- [ ] Parse Auto.dev response into clean format:
   ```typescript
   interface VehicleData {
     make: string;
@@ -497,7 +497,7 @@ These must work for MVP to be viable:
 
 1. ✅ Dummy login (admin/admin) works and persists session
 2. ✅ Brand design system (Carbon Black, Gunmetal Gray, Electric Blue) consistently applied
-3. ✅ VINLink API successfully decodes German vehicle VINs
+3. ✅ Auto.dev API successfully decodes German vehicle VINs
 4. ✅ Gemini generates professional-looking (non-AI) responses
 5. ✅ 360° viewer works smoothly on mobile
 6. ✅ PWA installs correctly on Android/iOS with brand colors
@@ -509,14 +509,14 @@ These must work for MVP to be viable:
 
 | Service | Cost Model | Estimated MVP Cost |
 |---------|------------|-------------------|
-| VINLink API | Pay-per-request | $50-100 (testing + early usage) |
+| Auto.dev API | 1,000 free calls/month, then $0.004/call | $0 (under free tier) |
 | Google Gemini/Imagen | Pay-per-request | $100-300 (image generation) |
 | Hosting (Backend) | Free tier / $5-10/mo | $0-20 |
 | Hosting (Frontend) | Free tier | $0 |
 | Domain (optional) | $10-15/year | $0-15 |
-| **Total** | | **$150-435** |
+| **Total** | | **$100-335** |
 
-**Remaining budget for scaling:** $565-850
+**Remaining budget for scaling:** $665-900
 
 ---
 
@@ -527,7 +527,7 @@ These must work for MVP to be viable:
 | Brand colors not visible in bright garage lighting | Test in real conditions; adjust Electric Blue brightness if needed |
 | Fonts not loading properly | Host fonts locally as fallback |
 | AI images look fake | Refine prompts; add "photorealistic" emphasis |
-| VINLink limited German coverage | Test thoroughly before committing; have backup API ready |
+| Auto.dev limited German coverage | Test thoroughly with German VINs; 1,000 free calls for thorough testing |
 | Gemini output sounds AI-generated | Use strict system prompt; implement output templates |
 | 360° viewer too slow | Optimize image sizes; reduce to 8 images; add lazy loading |
 | PWA install issues on iOS | Test on real devices; follow Apple PWA guidelines |
