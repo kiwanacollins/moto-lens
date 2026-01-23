@@ -27,7 +27,7 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
   - [x] Set up manifest.json
   - [x] Configure service worker for shell caching
   - [x] Add app icons (512x512, 192x192)
-- [ ] Set up project folder structure:
+- [x] Set up project folder structure:
   ```
   src/
   ├── components/
