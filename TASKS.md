@@ -162,11 +162,11 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Test with German vehicle VINs (BMW, Audi, Mercedes, VW, Porsche)
 
 ### 2.3 Google Gemini/Imagen Integration
-- [ ] Set up Google Cloud project
-- [ ] Enable Gemini API
-- [ ] Create service account / API key
-- [ ] Create `/api/vehicle/images` endpoint
-- [ ] Implement image generation with prompt template:
+- [x] Set up Google Cloud project
+- [x] Enable Gemini API
+- [x] Create service account / API key
+- [x] Create `/api/vehicle/images` endpoint
+- [x] Implement image generation with prompt template:
   ```
   Photorealistic studio image of a {YEAR} {MAKE} {MODEL},
   {ANGLE} view,
@@ -176,9 +176,9 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
   high detail,
   sharp focus
   ```
-- [ ] Generate 8 angles: front, front-left, left, rear-left, rear, rear-right, right, front-right
-- [ ] Return image URLs or base64 data
-- [ ] Add caching mechanism (in-memory for MVP)
+- [x] Generate 8 angles: front, front-left, left, rear-left, rear, rear-right, right, front-right
+- [x] Return image URLs or base64 data
+- [x] Add caching mechanism (in-memory for MVP)
 
 ### 2.4 AI Parts Information Endpoints
 - [ ] Create `/api/vehicle/summary` endpoint

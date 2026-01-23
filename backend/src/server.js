@@ -14,6 +14,7 @@ dotenv.config({ path: join(__dirname, '..', '.env') });
 // Services
 import autodevService from './services/autodevService.js';
 import vinUtils from './utils/vinValidator.js';
+import geminiImageService from './services/geminiImageService.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -91,15 +92,107 @@ app.post('/api/vin/decode', async (req, res) => {
     }
 });
 
-app.get('/api/vehicle/images/:vin', (req, res) => {
+app.get('/api/vehicle/images/:vin', async (req, res) => {
     const { vin } = req.params;
 
-    // Placeholder response - will be replaced with Gemini/Imagen call
-    res.json({
-        message: 'Vehicle images endpoint ready',
-        vin: vin.toUpperCase(),
-        note: 'Gemini/Imagen integration pending',
-    });
+    try {
+        // First validate the VIN
+        const validation = vinUtils.validateVIN(vin);
+        if (!validation.valid) {
+            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+        }
+
+        // Decode VIN to get vehicle data
+        const apiResponse = await autodevService.decodeVIN(validation.vin);
+        const vehicle = autodevService.parseVehicleData(apiResponse);
+
+        // Check for minimum required data
+        if (!vehicle.make || !vehicle.model || !vehicle.year) {
+            return res.status(400).json({
+                error: 'INSUFFICIENT_DATA',
+                message: 'Vehicle data incomplete - make, model, and year required for image generation'
+            });
+        }
+
+        // Generate images using Gemini
+        const imageResults = await geminiImageService.generateVehicleImages(vehicle);
+
+        return res.json({
+            success: true,
+            vin: validation.vin,
+            vehicle: {
+                make: vehicle.make,
+                model: vehicle.model,
+                year: vehicle.year,
+                trim: vehicle.trim
+            },
+            ...imageResults
+        });
+
+    } catch (err) {
+        // Handle VIN decode errors
+        if (err && err.name === 'VINDecodeError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'VIN_DECODE_ERROR', message: err.message });
+        }
+
+        // Handle image generation errors
+        if (err && err.name === 'VehicleImageError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'IMAGE_GENERATION_ERROR', message: err.message });
+        }
+
+        // Unexpected error
+        console.error('Error generating vehicle images:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to generate vehicle images' });
+    }
+});
+
+// POST vehicle images endpoint (accepts vehicle data directly)
+app.post('/api/vehicle/images', async (req, res) => {
+    const { vehicleData } = req.body || {};
+
+    try {
+        // Validate required vehicle data
+        if (!vehicleData || !vehicleData.make || !vehicleData.model || !vehicleData.year) {
+            return res.status(400).json({
+                error: 'INVALID_DATA',
+                message: 'Vehicle data with make, model, and year is required'
+            });
+        }
+
+        // Generate images using Gemini
+        const imageResults = await geminiImageService.generateVehicleImages(vehicleData);
+
+        return res.json({
+            success: true,
+            vehicle: vehicleData,
+            ...imageResults
+        });
+
+    } catch (err) {
+        // Handle image generation errors
+        if (err && err.name === 'VehicleImageError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'IMAGE_GENERATION_ERROR', message: err.message });
+        }
+
+        // Unexpected error
+        console.error('Error generating vehicle images:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to generate vehicle images' });
+    }
+});
+
+// Cache status endpoint
+app.get('/api/cache/images', (req, res) => {
+    try {
+        const stats = geminiImageService.getCacheStats();
+        return res.json({
+            success: true,
+            cache: stats,
+            timestamp: new Date().toISOString()
+        });
+    } catch (err) {
+        console.error('Error getting cache stats:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to get cache stats' });
+    }
 });
 
 app.get('/api/vehicle/summary/:vin', (req, res) => {
