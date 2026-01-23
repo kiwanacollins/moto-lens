@@ -27,14 +27,14 @@ export function hasValidVinCharacters(vin: string): boolean {
  */
 export function validateVin(vin: string): { valid: boolean; error?: string } {
   const formatted = formatVin(vin);
-  
+
   if (!isValidVinLength(formatted)) {
     return { valid: false, error: 'VIN must be exactly 17 characters' };
   }
-  
+
   if (!hasValidVinCharacters(formatted)) {
     return { valid: false, error: 'VIN contains invalid characters (I, O, Q not allowed)' };
   }
-  
+
   return { valid: true };
 }

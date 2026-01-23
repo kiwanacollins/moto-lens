@@ -13,13 +13,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Auth logic will be implemented here
   const isAuthenticated = false;
 
-  const login = async (_username: string, _password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<boolean> => {
     // Dummy auth logic - to be implemented
+    // TODO: Implement actual authentication
+    console.log('Login attempt:', username, password);
     return false;
   };
 
   const logout = () => {
     // Logout logic - to be implemented
+    // TODO: Implement logout functionality
   };
 
   return (
@@ -29,6 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Custom hook to use auth context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

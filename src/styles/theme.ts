@@ -49,14 +49,16 @@ export const theme = createTheme({
   },
   primaryColor: 'electricBlue',
   primaryShade: 5,
-  
+
   // Font settings
-  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+  fontFamily:
+    'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
   fontFamilyMonospace: 'JetBrains Mono, Monaco, Courier, monospace',
   headings: {
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+    fontFamily:
+      'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
   },
-  
+
   // Mobile-first responsive breakpoints
   breakpoints: {
     xs: '30em', // 480px
@@ -65,10 +67,10 @@ export const theme = createTheme({
     lg: '74em', // 1184px
     xl: '90em', // 1440px
   },
-  
+
   // Default colors for app
   defaultRadius: 'md',
-  
+
   // Component default props
   components: {
     Button: {
@@ -87,7 +89,7 @@ export const theme = createTheme({
       },
     },
   },
-  
+
   // Other theme settings
   other: {
     // Custom brand colors for easy access

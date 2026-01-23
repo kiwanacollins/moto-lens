@@ -1,5 +1,7 @@
 # Copilot Instructions for MotoLens
 
+Dont create quick summary documents or generic design guidelines. Instead, follow these detailed instructions to ensure all UI components, color schemes, typography, and visual styles align with the professional brand identity of MotoLens.:
+
 ## Project Overview
 
 This is a professional **Progressive Web Application (PWA)** called **"MotoLens"** built with React 19, TypeScript, Vite, and Mantine UI. The app is designed for **garage mechanics and auto repair technicians** to decode VINs, visualize German vehicles (BMW, Audi, Mercedes-Benz, VW, Porsche), and identify parts interactively.

@@ -9,10 +9,10 @@ function App() {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
           <MotoLensLogo size={150} />
         </div>
-        
-        <Title 
-          order={1} 
-          style={{ 
+
+        <Title
+          order={1}
+          style={{
             color: BRAND_COLORS.electricBlue,
             textAlign: 'center',
             fontSize: '3rem',
@@ -20,10 +20,10 @@ function App() {
         >
           MOTO LENS
         </Title>
-        
-        <Text 
-          size="lg" 
-          style={{ 
+
+        <Text
+          size="lg"
+          style={{
             textAlign: 'center',
             color: '#fff',
           }}
@@ -32,8 +32,8 @@ function App() {
         </Text>
 
         <Stack gap="md" style={{ marginTop: '2rem' }}>
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             fullWidth
             style={{
               backgroundColor: BRAND_COLORS.electricBlue,
@@ -42,10 +42,10 @@ function App() {
           >
             Get Started
           </Button>
-          
-          <Text 
-            size="sm" 
-            style={{ 
+
+          <Text
+            size="sm"
+            style={{
               textAlign: 'center',
               color: '#A6A7AB',
               fontFamily: 'JetBrains Mono, monospace',
@@ -59,38 +59,52 @@ function App() {
           <Text size="sm" fw={600} style={{ color: BRAND_COLORS.electricBlue }}>
             Brand Colors:
           </Text>
-          <div style={{ 
-            display: 'flex', 
-            gap: '1rem', 
-            flexWrap: 'wrap',
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '1rem',
+              flexWrap: 'wrap',
+            }}
+          >
             <div style={{ textAlign: 'center' }}>
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                backgroundColor: BRAND_COLORS.carbonBlack,
-                border: '2px solid #fff',
-                borderRadius: '8px',
-              }} />
-              <Text size="xs" mt="xs">Carbon Black</Text>
+              <div
+                style={{
+                  width: '80px',
+                  height: '80px',
+                  backgroundColor: BRAND_COLORS.carbonBlack,
+                  border: '2px solid #fff',
+                  borderRadius: '8px',
+                }}
+              />
+              <Text size="xs" mt="xs">
+                Carbon Black
+              </Text>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                backgroundColor: BRAND_COLORS.gunmetalGray,
-                borderRadius: '8px',
-              }} />
-              <Text size="xs" mt="xs">Gunmetal Gray</Text>
+              <div
+                style={{
+                  width: '80px',
+                  height: '80px',
+                  backgroundColor: BRAND_COLORS.gunmetalGray,
+                  borderRadius: '8px',
+                }}
+              />
+              <Text size="xs" mt="xs">
+                Gunmetal Gray
+              </Text>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                backgroundColor: BRAND_COLORS.electricBlue,
-                borderRadius: '8px',
-              }} />
-              <Text size="xs" mt="xs">Electric Blue</Text>
+              <div
+                style={{
+                  width: '80px',
+                  height: '80px',
+                  backgroundColor: BRAND_COLORS.electricBlue,
+                  borderRadius: '8px',
+                }}
+              />
+              <Text size="xs" mt="xs">
+                Electric Blue
+              </Text>
             </div>
           </div>
         </Stack>

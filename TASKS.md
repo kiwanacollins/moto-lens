@@ -58,10 +58,10 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Update `.gitignore` for secrets
 
 ### 1.3 Development Tools
-- [ ] Configure ESLint for React + TypeScript
-- [ ] Set up Prettier
-- [ ] Add basic npm scripts (dev, build, preview)
-- [ ] Test PWA installability in Chrome DevTools
+- [x] Configure ESLint for React + TypeScript
+- [x] Set up Prettier
+- [x] Add basic npm scripts (dev, build, preview)
+- [x] Test PWA installability in Chrome DevTools
 
 ### 1.4 Design System Implementation
 - [ ] Create theme configuration file (`src/styles/theme.ts`)

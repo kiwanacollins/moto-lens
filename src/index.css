@@ -3,11 +3,19 @@
 
 :root {
   /* Brand Colors */
-  --carbon-black: #0A0A0A;
-  --gunmetal-gray: #2C3539;
-  --electric-blue: #00D9FF;
-  
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --carbon-black: #0a0a0a;
+  --gunmetal-gray: #2c3539;
+  --electric-blue: #00d9ff;
+
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -19,7 +27,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
+
   /* Mobile-first approach */
   -webkit-tap-highlight-color: transparent;
 }

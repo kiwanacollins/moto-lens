@@ -1,0 +1,23 @@
+# Prettier ignore file
+# Ignore build artifacts and dependencies
+
+node_modules
+dist
+dist-ssr
+build
+coverage
+
+# Ignore generated files
+*.log
+.env
+.env.*
+
+# Ignore lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# PWA generated files
+dev-dist
+sw.js
+workbox-*.js
