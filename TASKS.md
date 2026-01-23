@@ -113,15 +113,15 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Test on mobile devices
 
 ### 2.3 Protected Routes
-- [ ] Install react-router-dom
-- [ ] Set up routing structure:
-  - [ ] `/login` - LoginPage
-  - [ ] `/` - VinInputPage (protected)
-  - [ ] `/vehicle/:vin` - VehicleViewPage (protected)
-- [ ] Create `ProtectedRoute` component
-- [ ] Implement route guards
-- [ ] Redirect to login if not authenticated
-- [ ] Redirect to home if already authenticated
+- [x] Install react-router-dom
+- [x] Set up routing structure:
+  - [x] `/login` - LoginPage
+  - [x] `/` - VinInputPage (protected)
+  - [x] `/vehicle/:vin` - VehicleViewPage (protected)
+- [x] Create `ProtectedRoute` component
+- [x] Implement route guards
+- [x] Redirect to login if not authenticated
+- [x] Redirect to home if already authenticated
 
 **Estimated Time:** 2-3 hours
 
