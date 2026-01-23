@@ -16,6 +16,9 @@ import autodevService from './services/autodevService.js';
 import vinUtils from './utils/vinValidator.js';
 import geminiImageService from './services/geminiImageService.js';
 
+// Use Gemini service since Imagen 3 has quota limits
+const imageService = geminiImageService;
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -94,6 +97,7 @@ app.post('/api/vin/decode', async (req, res) => {
 
 app.get('/api/vehicle/images/:vin', async (req, res) => {
     const { vin } = req.params;
+    const { refresh, mock } = req.query;
 
     try {
         // First validate the VIN
@@ -114,8 +118,15 @@ app.get('/api/vehicle/images/:vin', async (req, res) => {
             });
         }
 
-        // Generate images using Gemini
-        const imageResults = await geminiImageService.generateVehicleImages(vehicle);
+        // Set mock mode if requested
+        if (mock === 'true') {
+            process.env.USE_MOCK_IMAGES = 'true';
+        }
+
+        // Generate images using configured image service (Imagen 3 or Gemini)
+        const imageResults = await imageService.generateVehicleImagesWithOptions(vehicle, {
+            forceRefresh: refresh === 'true'
+        });
 
         return res.json({
             success: true,
@@ -125,6 +136,10 @@ app.get('/api/vehicle/images/:vin', async (req, res) => {
                 model: vehicle.model,
                 year: vehicle.year,
                 trim: vehicle.trim
+            },
+            options: {
+                forceRefresh: refresh === 'true',
+                mockMode: mock === 'true'
             },
             ...imageResults
         });
@@ -148,7 +163,7 @@ app.get('/api/vehicle/images/:vin', async (req, res) => {
 
 // POST vehicle images endpoint (accepts vehicle data directly)
 app.post('/api/vehicle/images', async (req, res) => {
-    const { vehicleData } = req.body || {};
+    const { vehicleData, options = {} } = req.body || {};
 
     try {
         // Validate required vehicle data
@@ -159,12 +174,18 @@ app.post('/api/vehicle/images', async (req, res) => {
             });
         }
 
-        // Generate images using Gemini
-        const imageResults = await geminiImageService.generateVehicleImages(vehicleData);
+        // Set mock mode if requested
+        if (options.mock === true) {
+            process.env.USE_MOCK_IMAGES = 'true';
+        }
+
+        // Generate images using configured image service
+        const imageResults = await imageService.generateVehicleImagesWithOptions(vehicleData, options);
 
         return res.json({
             success: true,
             vehicle: vehicleData,
+            options,
             ...imageResults
         });
 
@@ -183,7 +204,7 @@ app.post('/api/vehicle/images', async (req, res) => {
 // Cache status endpoint
 app.get('/api/cache/images', (req, res) => {
     try {
-        const stats = geminiImageService.getCacheStats();
+        const stats = imageService.getCacheStats();
         return res.json({
             success: true,
             cache: stats,
@@ -192,6 +213,42 @@ app.get('/api/cache/images', (req, res) => {
     } catch (err) {
         console.error('Error getting cache stats:', err);
         return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to get cache stats' });
+    }
+});
+
+// Clear cache endpoint
+app.delete('/api/cache/images', (req, res) => {
+    try {
+        const result = imageService.clearAllCache();
+        return res.json({
+            success: true,
+            ...result,
+            timestamp: new Date().toISOString(),
+            message: `Cleared ${result.cleared} cache entries`
+        });
+    } catch (err) {
+        console.error('Error clearing cache:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to clear cache' });
+    }
+});
+
+// Clean expired cache entries endpoint
+app.post('/api/cache/images/clean', (req, res) => {
+    try {
+        const statsBefore = imageService.getCacheStats();
+        imageService.cleanCache();
+        const statsAfter = imageService.getCacheStats();
+
+        return res.json({
+            success: true,
+            cleaned: statsBefore.expired,
+            before: statsBefore,
+            after: statsAfter,
+            timestamp: new Date().toISOString()
+        });
+    } catch (err) {
+        console.error('Error cleaning cache:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to clean cache' });
     }
 });
 

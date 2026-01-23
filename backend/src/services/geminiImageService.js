@@ -1,14 +1,30 @@
 /**
  * Google Gemini Image Generation Service
  * 
- * Generates photorealistic vehicle images using Gemini 2.0 Flash model
- * with image generation capabilities.
+ * Generates photorealistic vehicle images using Google Generative AI
+ * with Gemini's native image generation capabilities via AI Studio API.
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import axios from 'axios';
 
-// Initialize Gemini client
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Google Generative AI API configuration  
+const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
+
+// Model for image generation - Gemini 2.0 Flash with image output
+const IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation';
+
+// Helper function to get API key (ensures env is loaded)
+function getApiKey() {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) {
+        throw new Error('GEMINI_API_KEY is not configured in environment');
+    }
+    return key;
+}
+
+// Rate limiting: delay between requests to avoid 429 errors
+const REQUEST_DELAY_MS = 2000; // 2 seconds between requests
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Vehicle image generation angles
 const IMAGE_ANGLES = [
@@ -47,21 +63,22 @@ export async function generateVehicleImages(vehicleData) {
     try {
         console.log(`Generating images for: ${year} ${make} ${model} ${trim || ''}`);
 
-        // Generate images for each angle
-        const imagePromises = IMAGE_ANGLES.map(angle =>
-            generateSingleImage(vehicleData, angle)
-        );
-
-        const results = await Promise.allSettled(imagePromises);
-
-        // Process results - no need for Promise.allSettled since we handle errors in generateSingleImage
+        // Generate images for each angle sequentially with delay to avoid rate limiting
         const images = {};
-        const imageResults = await Promise.all(imagePromises);
 
-        imageResults.forEach((result, index) => {
-            const angle = IMAGE_ANGLES[index];
+        for (let i = 0; i < IMAGE_ANGLES.length; i++) {
+            const angle = IMAGE_ANGLES[i];
+
+            // Add delay between requests to avoid rate limiting
+            if (i > 0) {
+                await sleep(REQUEST_DELAY_MS);
+            }
+
+            const result = await generateSingleImage(vehicleData, angle);
             images[angle] = result;
-        }); const response = {
+        }
+
+        const response = {
             vehicleInfo: {
                 make,
                 model,
@@ -105,52 +122,114 @@ async function generateSingleImage(vehicleData, angle) {
 
     // Create detailed prompt
     const vehicleDescription = trim ? `${year} ${make} ${model} ${trim}` : `${year} ${make} ${model}`;
-
     const prompt = createImagePrompt(vehicleDescription, angle);
 
     try {
-        // Use Gemini 2.0 Flash model with image generation
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash-exp"
-        });
+        console.log(`Generating ${angle} image for: ${vehicleDescription}`);
 
-        console.log(`Generating ${angle} image with prompt: ${prompt.substring(0, 100)}...`);
+        const apiKey = getApiKey();
 
-        // Create a chat session for image generation
-        const chat = model.startChat({
-            generationConfig: {
-                responseMimeType: "application/json",
+        // Use Gemini 2.0 Flash image generation via AI Studio API
+        const response = await axios.post(
+            `${GEMINI_API_BASE_URL}/${IMAGE_MODEL}:generateContent?key=${apiKey}`,
+            {
+                contents: [{
+                    parts: [{
+                        text: `Generate an image: ${prompt}`
+                    }]
+                }],
+                generationConfig: {
+                    responseModalities: ["IMAGE", "TEXT"]
+                }
             },
-        });
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                timeout: 90000 // 90 second timeout for image generation
+            }
+        );
 
-        const result = await chat.sendMessage(`Generate a high-quality automotive photograph: ${prompt}. Return only base64 encoded image data.`);
-        const response = await result.response;
+        // Parse the image response
+        const responseData = response.data;
 
-        // For now, return a placeholder since image generation requires specific setup
-        // This would normally contain the actual image data from Gemini
-        return {
-            success: true,
-            angle,
-            imageData: 'placeholder_base64_data',
-            mimeType: 'image/png',
-            prompt,
-            generatedAt: new Date().toISOString(),
-            note: 'Image generation placeholder - requires Gemini Pro access for actual images'
-        };
+        // Check for inline image data in the response
+        if (responseData.candidates?.[0]?.content?.parts) {
+            const parts = responseData.candidates[0].content.parts;
+
+            // Find the image part
+            const imagePart = parts.find(part => part.inlineData?.mimeType?.startsWith('image/'));
+
+            if (imagePart && imagePart.inlineData?.data) {
+                const base64Image = imagePart.inlineData.data;
+                const mimeType = imagePart.inlineData.mimeType || 'image/png';
+
+                return {
+                    success: true,
+                    angle,
+                    imageData: base64Image,
+                    imageUrl: `data:${mimeType};base64,${base64Image}`,
+                    mimeType,
+                    prompt,
+                    generatedAt: new Date().toISOString(),
+                    fileSize: Math.round(base64Image.length * 0.75),
+                    model: IMAGE_MODEL
+                };
+            }
+        }
+
+        // If no image was generated, throw error to fall back to mock
+        throw new Error('No image data in API response');
 
     } catch (error) {
-        console.error(`Error generating ${angle} image:`, error);
+        console.error(`Error generating ${angle} image:`, error.message);
 
-        // Return a structured error response instead of throwing
+        // Fallback: use mock image for development
+        if (process.env.NODE_ENV === 'development' || process.env.USE_MOCK_IMAGES === 'true') {
+            return generateMockImage(vehicleData, angle, prompt);
+        }
+
+        // Return a structured error response
         return {
             success: false,
             angle,
             error: `Failed to generate ${angle} image: ${error.message}`,
             prompt,
-            generatedAt: new Date().toISOString()
+            generatedAt: new Date().toISOString(),
+            details: error.response?.data || error.message
         };
     }
 }/**
+ * Generate mock image for development/fallback
+ * @param {Object} vehicleData - Vehicle data
+ * @param {string} angle - Image angle
+ * @param {string} prompt - Original prompt
+ * @returns {Object} Mock image response
+ */
+function generateMockImage(vehicleData, angle, prompt) {
+    const { make, model, year } = vehicleData;
+
+    // Generate a placeholder image URL using a service like picsum or via.placeholder
+    const mockImageUrl = `https://via.placeholder.com/1024x576/1e293b/0ea5e9?text=${encodeURIComponent(`${year} ${make} ${model}`)}+${angle.replace('-', ' ')}`;
+
+    // Create a simple base64 encoded placeholder (1x1 transparent pixel)
+    const placeholderBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
+
+    return {
+        success: true,
+        angle,
+        imageData: placeholderBase64,
+        imageUrl: mockImageUrl,
+        mimeType: 'image/png',
+        prompt,
+        generatedAt: new Date().toISOString(),
+        isMock: true,
+        fileSize: 125, // Size of the placeholder
+        note: 'Development/fallback mock image'
+    };
+}
+
+/**
  * Create optimized image prompt for vehicle photography
  * @param {string} vehicleDescription - Full vehicle description
  * @param {string} angle - Image angle
@@ -218,10 +297,21 @@ export function cleanCache() {
  * @returns {Object} Cache stats
  */
 export function getCacheStats() {
+    const now = Date.now();
+    const entries = Array.from(imageCache.entries());
+
+    const validEntries = entries.filter(([_, value]) => now - value.timestamp < CACHE_TTL);
+    const expiredEntries = entries.filter(([_, value]) => now - value.timestamp >= CACHE_TTL);
+
     return {
-        size: imageCache.size,
-        keys: Array.from(imageCache.keys()),
-        totalSize: imageCache.size
+        total: imageCache.size,
+        valid: validEntries.length,
+        expired: expiredEntries.length,
+        keys: validEntries.map(([key]) => key),
+        expiredKeys: expiredEntries.map(([key]) => key),
+        cacheTtlHours: CACHE_TTL / (60 * 60 * 1000),
+        oldestEntry: entries.length > 0 ? Math.min(...entries.map(([_, v]) => v.timestamp)) : null,
+        newestEntry: entries.length > 0 ? Math.max(...entries.map(([_, v]) => v.timestamp)) : null
     };
 }
 
@@ -237,13 +327,44 @@ export class VehicleImageError extends Error {
     }
 }
 
+/**
+ * Clear all cache entries
+ */
+export function clearAllCache() {
+    const size = imageCache.size;
+    imageCache.clear();
+    console.log(`Cleared ${size} cached entries`);
+    return { cleared: size, remaining: imageCache.size };
+}
+
+/**
+ * Generate vehicle images with force refresh option
+ * @param {Object} vehicleData - Vehicle data from VIN decode
+ * @param {boolean} forceRefresh - Skip cache and generate new images
+ * @returns {Promise<Object>} Generated images data
+ */
+export async function generateVehicleImagesWithOptions(vehicleData, options = {}) {
+    const { forceRefresh = false } = options;
+
+    if (forceRefresh) {
+        const { make, model, year, trim } = vehicleData;
+        const cacheKey = `${year}_${make}_${model}_${trim || 'standard'}`.toLowerCase().replace(/\s+/g, '_');
+        imageCache.delete(cacheKey);
+        console.log(`Force refresh: cleared cache for ${cacheKey}`);
+    }
+
+    return generateVehicleImages(vehicleData);
+}
+
 // Clean cache every hour
 setInterval(cleanCache, 60 * 60 * 1000);
 
 export default {
     generateVehicleImages,
+    generateVehicleImagesWithOptions,
     getCachedImages,
     cleanCache,
+    clearAllCache,
     getCacheStats,
     VehicleImageError
 };
