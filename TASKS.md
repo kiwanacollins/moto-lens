@@ -86,14 +86,14 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 ## 🎯 Phase 2: Authentication & Routing
 
 ### 2.1 Dummy Authentication System
-- [ ] Create `AuthContext.tsx` with React Context
-- [ ] Implement dummy auth logic:
-  - [ ] Hardcoded credentials (admin/admin)
-  - [ ] Login function
-  - [ ] Logout function
-  - [ ] isAuthenticated state
-- [ ] Store auth state in localStorage
-- [ ] Create `useAuth` custom hook
+- [x] Create `AuthContext.tsx` with React Context
+- [x] Implement dummy auth logic:
+  - [x] Hardcoded credentials (admin/admin)
+  - [x] Login function
+  - [x] Logout function
+  - [x] isAuthenticated state
+- [x] Store auth state in localStorage
+- [x] Create `useAuth` custom hook
 
 ### 2.2 Login Page
 - [ ] Create `LoginPage.tsx` component
