@@ -23,10 +23,10 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Install custom fonts
   - [x] Inter (primary font) - Google Fonts or local
   - [x] JetBrains Mono (VINs/technical data) - Google Fonts or local
-- [ ] Install and configure vite-plugin-pwa
-  - [ ] Set up manifest.json
-  - [ ] Configure service worker for shell caching
-  - [ ] Add app icons (512x512, 192x192)
+- [x] Install and configure vite-plugin-pwa
+  - [x] Set up manifest.json
+  - [x] Configure service worker for shell caching
+  - [x] Add app icons (512x512, 192x192)
 - [ ] Set up project folder structure:
   ```
   src/
