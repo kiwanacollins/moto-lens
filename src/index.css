@@ -42,9 +42,9 @@
   /* Improved readability (was 1.5) */
   font-weight: 400;
 
-  color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: var(--carbon-black);
+  color-scheme: light;
+  color: var(--carbon-black);
+  background-color: var(--white);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -67,7 +67,7 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--carbon-black);
+  background-color: var(--white);
 }
 
 #root {

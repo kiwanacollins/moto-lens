@@ -96,21 +96,21 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Create `useAuth` custom hook
 
 ### 2.2 Login Page
-- [ ] Create `LoginPage.tsx` component
-- [ ] Design mobile-first login form:
-  - [ ] Username input (Mantine TextInput)
-  - [ ] Password input (Mantine PasswordInput)
-  - [ ] Login button (Electric Blue, large tap target)
-  - [ ] Error message display
-- [ ] Apply brand styling:
-  - [ ] Carbon Black background
-  - [ ] Gunmetal Gray input fields
-  - [ ] Electric Blue accents
-  - [ ] Inter font for labels
-  - [ ] JetBrains Mono for input (optional)
-- [ ] Implement validation
-- [ ] Add smooth transitions
-- [ ] Test on mobile devices
+- [x] Create `LoginPage.tsx` component
+- [x] Design mobile-first login form:
+  - [x] Username input (Mantine TextInput)
+  - [x] Password input (Mantine PasswordInput)
+  - [x] Login button (Electric Blue, large tap target)
+  - [x] Error message display
+- [x] Apply brand styling:
+  - [x] Carbon Black background
+  - [x] Gunmetal Gray input fields
+  - [x] Electric Blue accents
+  - [x] Inter font for labels
+  - [x] JetBrains Mono for input (optional)
+- [x] Implement validation
+- [x] Add smooth transitions
+- [x] Test on mobile devices
 
 ### 2.3 Protected Routes
 - [ ] Install react-router-dom
