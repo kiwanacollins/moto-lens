@@ -130,16 +130,16 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 ## 🎯 Phase 3: Backend API Setup
 
 ### 2.1 Node.js Backend Initialization
-- [ ] Create `/backend` directory
-- [ ] Initialize Node.js project (`npm init`)
-- [ ] Install dependencies:
-  - [ ] express
-  - [ ] cors
-  - [ ] dotenv
-  - [ ] axios (for external API calls)
-- [ ] Set up basic Express server
-- [ ] Configure CORS for frontend origin
-- [ ] Create environment config for backend
+- [x] Create `/backend` directory
+- [x] Initialize Node.js project (`npm init`)
+- [x] Install dependencies:
+  - [x] express
+  - [x] cors
+  - [x] dotenv
+  - [x] axios (for external API calls)
+- [x] Set up basic Express server
+- [x] Configure CORS for frontend origin
+- [x] Create environment config for backend
 
 ### 2.2 Auto.dev API Integration
 - [ ] Sign up for Auto.dev API account (1,000 free calls/month)
