@@ -11,6 +11,10 @@ const __dirname = dirname(__filename);
 // Load environment variables from backend root
 dotenv.config({ path: join(__dirname, '..', '.env') });
 
+// Services
+import autodevService from './services/autodevService.js';
+import vinUtils from './utils/vinValidator.js';
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -36,23 +40,55 @@ app.get('/api/health', (req, res) => {
 });
 
 // Placeholder routes (to be implemented)
-app.get('/api/vin/decode/:vin', (req, res) => {
+// GET decode by path param
+app.get('/api/vin/decode/:vin', async (req, res, next) => {
     const { vin } = req.params;
 
-    // VIN validation (17 characters, alphanumeric)
-    if (!vin || vin.length !== 17) {
-        return res.status(400).json({
-            error: 'Invalid VIN',
-            message: 'VIN must be exactly 17 characters',
-        });
-    }
+    try {
+        const validation = vinUtils.validateVIN(vin);
+        if (!validation.valid) {
+            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+        }
 
-    // Placeholder response - will be replaced with Auto.dev API call
-    res.json({
-        message: 'VIN decode endpoint ready',
-        vin: vin.toUpperCase(),
-        note: 'Auto.dev API integration pending',
-    });
+        // Call Auto.dev service
+        const apiResponse = await autodevService.decodeVIN(validation.vin);
+        const vehicle = autodevService.parseVehicleData(apiResponse);
+
+        return res.json({ success: true, vehicle });
+    } catch (err) {
+        // VINDecodeError from service exposes statusCode
+        if (err && err.name === 'VINDecodeError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'API_ERROR', message: err.message });
+        }
+
+        // Unexpected error
+        console.error('Error decoding VIN:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to decode VIN' });
+    }
+});
+
+// POST decode by JSON body { vin: '...' }
+app.post('/api/vin/decode', async (req, res) => {
+    const { vin } = req.body || {};
+
+    try {
+        const validation = vinUtils.validateVIN(vin);
+        if (!validation.valid) {
+            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+        }
+
+        const apiResponse = await autodevService.decodeVIN(validation.vin);
+        const vehicle = autodevService.parseVehicleData(apiResponse);
+
+        return res.json({ success: true, vehicle });
+    } catch (err) {
+        if (err && err.name === 'VINDecodeError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'API_ERROR', message: err.message });
+        }
+
+        console.error('Error decoding VIN:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to decode VIN' });
+    }
 });
 
 app.get('/api/vehicle/images/:vin', (req, res) => {
