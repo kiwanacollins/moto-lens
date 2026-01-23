@@ -1,0 +1,32 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Carbon Black Background with safe zone for maskable -->
+  <rect width="512" height="512" fill="#0A0A0A"/>
+  
+  <!-- Content within safe zone (80% center) -->
+  <g transform="translate(256, 256)">
+    <!-- Lens Circle - Electric Blue -->
+    <circle r="120" stroke="#00D9FF" stroke-width="10" fill="none"/>
+    <circle r="95" stroke="#00D9FF" stroke-width="7" fill="none" opacity="0.5"/>
+    
+    <!-- Lens Highlight -->
+    <circle cx="-30" cy="-30" r="25" fill="#00D9FF" opacity="0.3"/>
+    
+    <!-- Crosshair/Focus Indicator -->
+    <line x1="0" y1="-140" x2="0" y2="-115" stroke="#00D9FF" stroke-width="5" stroke-linecap="round"/>
+    <line x1="0" y1="115" x2="0" y2="140" stroke="#00D9FF" stroke-width="5" stroke-linecap="round"/>
+    <line x1="-140" y1="0" x2="-115" y2="0" stroke="#00D9FF" stroke-width="5" stroke-linecap="round"/>
+    <line x1="115" y1="0" x2="140" y2="0" stroke="#00D9FF" stroke-width="5" stroke-linecap="round"/>
+    
+    <!-- Gear/Mechanical Element - Gunmetal Gray -->
+    <circle r="40" fill="#2C3539"/>
+    <!-- Gear Teeth -->
+    <path d="M 0,-40 L 8,-48 L -8,-48 Z" fill="#2C3539"/>
+    <path d="M 40,0 L 48,8 L 48,-8 Z" fill="#2C3539"/>
+    <path d="M 0,40 L 8,48 L -8,48 Z" fill="#2C3539"/>
+    <path d="M -40,0 L -48,8 L -48,-8 Z" fill="#2C3539"/>
+    
+    <!-- Inner Circle -->
+    <circle r="22" fill="#0A0A0A"/>
+    <circle r="13" stroke="#00D9FF" stroke-width="2.5" fill="none"/>
+  </g>
+</svg>

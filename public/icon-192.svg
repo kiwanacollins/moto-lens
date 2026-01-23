@@ -1,0 +1,44 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Carbon Black Background -->
+  <rect width="192" height="192" fill="#0A0A0A" rx="30"/>
+  
+  <!-- Lens Circle - Electric Blue -->
+  <circle cx="96" cy="96" r="52" stroke="#00D9FF" stroke-width="5" fill="none"/>
+  <circle cx="96" cy="96" r="41" stroke="#00D9FF" stroke-width="3" fill="none" opacity="0.5"/>
+  
+  <!-- Lens Highlight -->
+  <circle cx="82" cy="82" r="12" fill="#00D9FF" opacity="0.3"/>
+  
+  <!-- Crosshair/Focus Indicator -->
+  <line x1="96" y1="36" x2="96" y2="51" stroke="#00D9FF" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="96" y1="141" x2="96" y2="156" stroke="#00D9FF" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="36" y1="96" x2="51" y2="96" stroke="#00D9FF" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="141" y1="96" x2="156" y2="96" stroke="#00D9FF" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Gear/Mechanical Element - Gunmetal Gray -->
+  <g transform="translate(96, 96)">
+    <circle r="17" fill="#2C3539"/>
+    <!-- Gear Teeth -->
+    <path d="M 0,-17 L 4,-21 L -4,-21 Z" fill="#2C3539"/>
+    <path d="M 17,0 L 21,4 L 21,-4 Z" fill="#2C3539"/>
+    <path d="M 0,17 L 4,21 L -4,21 Z" fill="#2C3539"/>
+    <path d="M -17,0 L -21,4 L -21,-4 Z" fill="#2C3539"/>
+    
+    <!-- Inner Circle -->
+    <circle r="9" fill="#0A0A0A"/>
+    <circle r="6" stroke="#00D9FF" stroke-width="1.5" fill="none"/>
+  </g>
+  
+  <!-- Corner Accent Lines -->
+  <line x1="45" y1="45" x2="60" y2="45" stroke="#00D9FF" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="45" y1="45" x2="45" y2="60" stroke="#00D9FF" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  
+  <line x1="147" y1="45" x2="132" y2="45" stroke="#00D9FF" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="147" y1="45" x2="147" y2="60" stroke="#00D9FF" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  
+  <line x1="45" y1="147" x2="60" y2="147" stroke="#00D9FF" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="45" y1="147" x2="45" y2="132" stroke="#00D9FF" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  
+  <line x1="147" y1="147" x2="132" y2="147" stroke="#00D9FF" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="147" y1="147" x2="147" y2="132" stroke="#00D9FF" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+</svg>
