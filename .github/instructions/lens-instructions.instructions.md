@@ -85,14 +85,12 @@ This is a professional **Progressive Web Application (PWA)** called **"MotoLens"
 **These are your MAIN colors. Use them prominently and consistently.**
 
 **Supporting Neutrals:**
-- **Zinc 50**: `#fafafa` - Light backgrounds, subtle sections
+- **Zinc 50**: `#fafafa` - Light backgrounds, subtle sections, page backgrounds
 - **Zinc 100**: `#f4f4f5` - Hover states, muted backgrounds
-- **Zinc 200**: `#e4e4e7` - Borders, dividers
+- **Zinc 200**: `#e4e4e7` - Borders, dividers, input borders
 - **Zinc 300**: `#d4d4d8` - Disabled states, subtle borders
-- **Zinc 700**: `#3f3f46` - Dark text, dark mode elements
-- **Zinc 800**: `#27272a` - Dark backgrounds
-- **Zinc 900**: `#18181b` - Deepest dark backgrounds
-- **Pure White**: `#ffffff` - Cards, light mode base
+- **Zinc 500**: `#71717a` - Placeholder text
+- **Pure White**: `#ffffff` - Cards, primary page background in light mode
 
 **Semantic Colors (Use Sparingly):**
 - **Success**: `#10b981` (emerald-500) - Success states, confirmations
@@ -155,13 +153,31 @@ This is a professional **Progressive Web Application (PWA)** called **"MotoLens"
 - ❌ Use more than 2-3 colors in a single component
 - ❌ Mix multiple bright accent colors (electric blue is your only accent)
 
-**Mantine Theme Configuration:**
+**Mantine Theme Configuration (Light Mode):**
+
+**Important:** MotoLens uses **light mode** as the default. Set `defaultColorScheme="light"` in `MantineProvider`.
+
+```tsx
+// main.tsx - Set light mode globally
+import { MantineProvider } from '@mantine/core';
+import { theme } from './styles/theme';
+
+<MantineProvider theme={theme} defaultColorScheme="light">
+  <App />
+</MantineProvider>
+```
 
 ```typescript
 import { MantineProvider, createTheme } from '@mantine/core';
 
 const theme = createTheme({
+  // Light mode base colors
+  white: '#ffffff',
+  black: '#0a0a0a',
+  
   primaryColor: 'blue',
+  primaryShade: 4, // Electric Blue at index 4
+  
   colors: {
     blue: [
       '#e0f2fe', // sky-100
@@ -201,6 +217,29 @@ const theme = createTheme({
     md: '1rem',
     lg: '1.5rem',
     xl: '2rem',
+  },
+  
+  // Light mode component defaults
+  components: {
+    TextInput: {
+      styles: {
+        input: {
+          backgroundColor: '#ffffff',
+          borderColor: '#e4e4e7',
+          color: '#0a0a0a',
+        },
+      },
+    },
+    Paper: {
+      styles: {
+        root: { backgroundColor: '#ffffff' },
+      },
+    },
+    Text: {
+      styles: {
+        root: { color: '#0a0a0a' },
+      },
+    },
   },
 });
 
@@ -346,10 +385,12 @@ import { Paper, Card, Group, Text, Badge, Image } from '@mantine/core';
 - **Group components**: Use Mantine `Group` for horizontal layouts
 - **Responsive spacing**: Use Mantine's responsive props (`p={{ base: 'sm', md: 'lg' }}`)
 
-**Backgrounds:**
-- **Primary background**: White in light mode, dark in dark mode
-- **Secondary background**: Mantine gray shades
+**Backgrounds (Light Mode Default):**
+- **Primary background**: White (`#ffffff`) - Main page background
+- **Secondary background**: Zinc-50 (`#fafafa`) or Zinc-100 (`#f4f4f5`) - Subtle sections
+- **Card backgrounds**: White with subtle border (`#e4e4e7`)
 - **NO gradients** unless for data visualization (charts only)
+- **Subtle gradients allowed**: For login/landing pages (e.g., `#f4f4f5 → #ffffff → #e0f2fe`)
 
 ---
 
@@ -707,6 +748,13 @@ Study these products for design reference:
 - Every element should serve a purpose
 - Form follows function
 - Carbon black + electric blue = premium, trustworthy
+
+**Mobile-First Always:**
+- Design for thumbs, not mouse pointers
+- Large touch targets
+- Readable in bright garage environments
+- Fast loading on mobile networks
+- High contrast (carbon black on white, white on carbon black)
 
 **Mobile-First Always:**
 - Design for thumbs, not mouse pointers
