@@ -15,6 +15,7 @@ dotenv.config({ path: join(__dirname, '..', '.env') });
 import autodevService from './services/autodevService.js';
 import vinUtils from './utils/vinValidator.js';
 import geminiImageService from './services/geminiImageService.js';
+import geminiAiService from './services/geminiAiService.js';
 
 // Use Gemini service since Imagen 3 has quota limits
 const imageService = geminiImageService;
@@ -252,26 +253,150 @@ app.post('/api/cache/images/clean', (req, res) => {
     }
 });
 
-app.get('/api/vehicle/summary/:vin', (req, res) => {
+app.get('/api/vehicle/summary/:vin', async (req, res) => {
     const { vin } = req.params;
 
-    // Placeholder response - will be replaced with Gemini call
-    res.json({
-        message: 'Vehicle summary endpoint ready',
-        vin: vin.toUpperCase(),
-        note: 'Gemini integration pending',
-    });
+    try {
+        // Validate VIN
+        const validation = vinUtils.validateVIN(vin);
+        if (!validation.valid) {
+            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+        }
+
+        // Decode VIN to get vehicle data
+        const apiResponse = await autodevService.decodeVIN(validation.vin);
+        const vehicleData = autodevService.parseVehicleData(apiResponse);
+
+        // Generate summary using Gemini
+        const summary = await geminiAiService.generateVehicleSummary(vehicleData);
+
+        return res.json({
+            success: true,
+            vin: validation.vin,
+            vehicle: {
+                make: vehicleData.make,
+                model: vehicleData.model,
+                year: vehicleData.year,
+                engine: vehicleData.engine,
+                bodyType: vehicleData.bodyType,
+                trim: vehicleData.trim
+            },
+            ...summary
+        });
+    } catch (err) {
+        if (err && err.name === 'VINDecodeError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'VIN_DECODE_ERROR', message: err.message });
+        }
+
+        if (err && err.name === 'GeminiAiError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'AI_ERROR', message: err.message });
+        }
+
+        console.error('Error generating vehicle summary:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to generate vehicle summary' });
+    }
 });
 
-app.post('/api/parts/identify', (req, res) => {
-    const { partName, vehicleData } = req.body;
+app.post('/api/parts/identify', async (req, res) => {
+    const { partName, vehicleData } = req.body || {};
 
-    // Placeholder response - will be replaced with Gemini call
-    res.json({
-        message: 'Part identification endpoint ready',
-        partName,
-        note: 'Gemini integration pending',
-    });
+    try {
+        if (!partName) {
+            return res.status(400).json({ error: 'MISSING_PARAM', message: 'partName is required' });
+        }
+
+        // Generate part information using Gemini
+        const partInfo = await geminiAiService.identifyPart({ partName, vehicleData });
+
+        return res.json({
+            success: true,
+            partName,
+            vehicle: vehicleData || null,
+            ...partInfo
+        });
+    } catch (err) {
+        if (err && err.name === 'GeminiAiError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'AI_ERROR', message: err.message });
+        }
+
+        console.error('Error identifying part:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to identify part' });
+    }
+});
+
+app.get('/api/parts/spare-parts/:vin', async (req, res) => {
+    const { vin } = req.params;
+    const { system } = req.query;
+
+    try {
+        // Validate VIN
+        const validation = vinUtils.validateVIN(vin);
+        if (!validation.valid) {
+            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+        }
+
+        // Decode VIN to get vehicle data
+        const apiResponse = await autodevService.decodeVIN(validation.vin);
+        const vehicleData = autodevService.parseVehicleData(apiResponse);
+
+        // Generate spare parts recommendations using Gemini
+        const sparePartsSummary = await geminiAiService.generateSparePartsSummary(vehicleData, system || 'general');
+
+        return res.json({
+            success: true,
+            vin: validation.vin,
+            vehicle: {
+                make: vehicleData.make,
+                model: vehicleData.model,
+                year: vehicleData.year
+            },
+            ...sparePartsSummary
+        });
+    } catch (err) {
+        if (err && err.name === 'VINDecodeError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'VIN_DECODE_ERROR', message: err.message });
+        }
+
+        if (err && err.name === 'GeminiAiError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'AI_ERROR', message: err.message });
+        }
+
+        console.error('Error generating spare parts summary:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to generate spare parts summary' });
+    }
+});
+
+app.post('/api/parts/spare-parts', async (req, res) => {
+    const { vehicleData, system } = req.body || {};
+
+    try {
+        if (!vehicleData || !vehicleData.make || !vehicleData.model || !vehicleData.year) {
+            return res.status(400).json({
+                error: 'MISSING_DATA',
+                message: 'vehicleData with make, model, and year is required'
+            });
+        }
+
+        // Generate spare parts recommendations using Gemini
+        const sparePartsSummary = await geminiAiService.generateSparePartsSummary(vehicleData, system || 'general');
+
+        return res.json({
+            success: true,
+            vehicle: {
+                make: vehicleData.make,
+                model: vehicleData.model,
+                year: vehicleData.year
+            },
+            ...sparePartsSummary
+        });
+    } catch (err) {
+        if (err && err.name === 'GeminiAiError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'AI_ERROR', message: err.message });
+        }
+
+        console.error('Error generating spare parts summary:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to generate spare parts summary' });
+    }
 });
 
 // 404 handler
