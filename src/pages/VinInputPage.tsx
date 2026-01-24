@@ -12,10 +12,12 @@ import {
   Alert,
   Loader,
   ActionIcon,
+  Drawer,
+  Divider,
   rem,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { FiLogOut, FiInfo, FiArrowRight } from 'react-icons/fi';
+import { FiLogOut, FiInfo, FiArrowRight, FiMenu } from 'react-icons/fi';
 import { MdDirectionsCar } from 'react-icons/md';
 
 import { useAuth } from '../contexts/AuthContext';
@@ -28,6 +30,7 @@ export default function VinInputPage() {
   const [vin, setVin] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [menuOpened, setMenuOpened] = useState(false);
 
   const { logout, username } = useAuth();
   const navigate = useNavigate();
@@ -102,52 +105,121 @@ export default function VinInputPage() {
         color: BRAND_COLORS.carbonBlack,
       }}
     >
-      {/* Header with logout button */}
+      {/* Header/Navbar with Mobile Menu */}
       <Paper
         radius={0}
-        p="md"
+        p="sm"
         style={{
           backgroundColor: BRAND_COLORS.white,
           borderBottom: '1px solid #e4e4e7',
         }}
       >
-        <Group justify="space-between" h={60}>
-          <Group>
-            <MdDirectionsCar size={24} style={{ color: BRAND_COLORS.electricBlue }} />
+        <Group justify="space-between" h={48}>
+          {/* Logo Section */}
+          <Group gap="xs">
+            <MdDirectionsCar size={28} style={{ color: BRAND_COLORS.electricBlue }} />
             <Title
               order={3}
               style={{
                 color: BRAND_COLORS.carbonBlack,
                 fontFamily: TYPOGRAPHY.fontFamily,
+                fontSize: rem(20),
+                fontWeight: 700,
               }}
             >
               MotoLens
             </Title>
           </Group>
 
-          <Group gap="sm">
-            <Text size="sm" style={{ color: BRAND_COLORS.gunmetalGray }}>
-              Welcome, {username}
-            </Text>
-            <ActionIcon
-              variant="subtle"
-              color="red"
-              size="lg"
-              onClick={handleLogout}
-              title="Logout"
-            >
-              <FiLogOut size={18} />
-            </ActionIcon>
-          </Group>
+          {/* Mobile Menu Button */}
+          <ActionIcon
+            variant="subtle"
+            color="blue"
+            size="lg"
+            onClick={() => setMenuOpened(true)}
+            title="Menu"
+          >
+            <FiMenu size={24} />
+          </ActionIcon>
         </Group>
       </Paper>
 
+      {/* Mobile Sidebar Menu */}
+      <Drawer
+        opened={menuOpened}
+        onClose={() => setMenuOpened(false)}
+        title="Menu"
+        padding="md"
+        size="xs"
+        position="right"
+        styles={{
+          header: {
+            backgroundColor: BRAND_COLORS.white,
+            borderBottom: '1px solid #e4e4e7',
+          },
+          title: {
+            fontFamily: TYPOGRAPHY.fontFamily,
+            fontWeight: 600,
+            color: BRAND_COLORS.carbonBlack,
+          },
+          content: {
+            backgroundColor: BRAND_COLORS.white,
+          },
+        }}
+      >
+        <Stack gap="md">
+          {/* User Info */}
+          <Paper
+            p="md"
+            radius="md"
+            style={{ backgroundColor: '#f9fafb', border: '1px solid #e5e7eb' }}
+          >
+            <Text size="sm" c="dimmed" ff={TYPOGRAPHY.fontFamily}>
+              Logged in as
+            </Text>
+            <Text size="lg" fw={600} c="dark" ff={TYPOGRAPHY.fontFamily}>
+              {username}
+            </Text>
+          </Paper>
+
+          <Divider />
+
+          {/* Logout Button */}
+          <Button
+            fullWidth
+            color="red"
+            variant="light"
+            leftSection={<FiLogOut size={18} />}
+            onClick={() => {
+              handleLogout();
+              setMenuOpened(false);
+            }}
+            style={{
+              fontFamily: TYPOGRAPHY.fontFamily,
+              fontWeight: 500,
+            }}
+          >
+            Sign Out
+          </Button>
+        </Stack>
+      </Drawer>
+
       {/* Main content */}
-      <Container size="sm" py="xl" px="md">
+      <Container
+        size="sm"
+        py="md"
+        px="md"
+        style={{
+          minHeight: 'calc(100dvh - 48px)',
+          display: 'flex',
+          alignItems: 'flex-start',
+          paddingTop: rem(16),
+        }}
+      >
         {/* Main VIN Input Card */}
         <Paper
           shadow="md"
-          p="xl"
+          p="lg"
           radius="md"
           withBorder
           style={{
@@ -155,37 +227,37 @@ export default function VinInputPage() {
             borderColor: '#e4e4e7',
           }}
         >
-          <Stack gap="lg">
+          <Stack gap="md">
             {/* Title */}
             <div style={{ textAlign: 'center' }}>
               <Title
-                order={1}
+                order={2}
                 style={{
                   color: BRAND_COLORS.carbonBlack,
                   fontFamily: TYPOGRAPHY.fontFamily,
-                  marginBottom: rem(16),
+                  marginBottom: rem(6),
                 }}
               >
                 VIN Decoder
               </Title>
 
-              {/* MotoLens Logo */}
-              <div style={{ marginBottom: rem(6), marginTop: rem(-6) }}>
-                <MotoLensLogo size={250} showCorners={false} />
+              {/* MotoLens Logo - Larger with minimal margin */}
+              <div style={{ marginBottom: rem(6) }}>
+                <MotoLensLogo size={96} showCorners={false} />
               </div>
 
-              <Text size="md" style={{ color: BRAND_COLORS.gunmetalGray }}>
+              <Text size="sm" style={{ color: BRAND_COLORS.gunmetalGray, lineHeight: 1.45 }}>
                 Enter a 17-character VIN to decode vehicle information
               </Text>
             </div>
 
             {/* VIN Input */}
             <TextInput
-              label="Vehicle Identification Number (VIN)"
-              placeholder="Enter 17-character VIN..."
+              label="Vehicle Identification Number"
+              placeholder="17-character VIN"
               value={vin}
               onChange={e => handleVinChange(e.target.value)}
-              size="lg"
+              size="md"
               maxLength={17}
               styles={{
                 label: {
@@ -195,7 +267,7 @@ export default function VinInputPage() {
                 },
                 input: {
                   fontFamily: TYPOGRAPHY.fontMono,
-                  fontSize: rem(16),
+                  fontSize: rem(15),
                   letterSpacing: '0.05em',
                   backgroundColor: '#fafafa',
                   borderColor: '#e4e4e7',
@@ -231,19 +303,24 @@ export default function VinInputPage() {
 
             {/* Submit Button */}
             <Button
-              size="lg"
+              size="md"
               variant="filled"
               color="blue.4"
               onClick={() => handleSubmit()}
               disabled={vin.length !== 17 || loading}
               style={{
                 backgroundColor: BRAND_COLORS.electricBlue,
+                color: BRAND_COLORS.white,
                 fontFamily: TYPOGRAPHY.fontFamily,
                 fontWeight: 600,
-                height: rem(56), // Large touch target for glove-friendly usage
+                height: rem(52),
               }}
               rightSection={
-                loading ? <Loader size="sm" color="white" /> : <FiArrowRight size={20} />
+                loading ? (
+                  <Loader size="sm" color="white" />
+                ) : (
+                  <FiArrowRight size={20} color="white" />
+                )
               }
             >
               {loading ? 'Decoding VIN...' : 'Decode VIN'}
@@ -251,7 +328,7 @@ export default function VinInputPage() {
 
             {/* Info Section */}
             <Paper
-              p="md"
+              p="sm"
               radius="sm"
               style={{
                 backgroundColor: '#e0f2fe',
@@ -264,7 +341,7 @@ export default function VinInputPage() {
                   Supported Brands
                 </Text>
               </Group>
-              <Text size="sm" style={{ color: BRAND_COLORS.carbonBlack }}>
+              <Text size="sm" style={{ color: BRAND_COLORS.carbonBlack, lineHeight: 1.45 }}>
                 BMW, Audi, Mercedes-Benz, Volkswagen, Porsche and other German vehicles
               </Text>
             </Paper>
