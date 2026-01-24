@@ -272,9 +272,9 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 
 ## 🎯 Phase 6: Parts Interaction System
 
-### 5.1 SVG Hotspot System
+### 5.1 SVG Hotspot System (Diagram-Style Arrows)
 - [x] Research SVG overlay technique
-- [x] Create `PartsOverlay` component
+- [x] Create `PartsOverlay` component with professional diagram styling
 - [x] Define hotspot data structure:
   ```typescript
   interface Hotspot {
@@ -285,48 +285,122 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
     radius: number;
   }
   ```
-- [x] Implement hotspot rendering per angle
-- [x] Add tap/click detection
-- [x] Visual feedback on tap (Electric Blue ripple/highlight)
+- [x] Implement diagram-style hotspot rendering:
+  - [x] Red dots marking part locations on vehicle
+  - [x] Red connecting lines from parts to labels
+  - [x] White label boxes positioned outside vehicle boundary
+  - [x] Smart label positioning (left/right based on part location)
+  - [x] Toggle button to show/hide entire overlay
+- [x] Add tap/click detection on dots and labels
+- [x] Visual feedback: Electric Blue highlights, pulse animations
+- [x] Persistent state across angle changes (no reset on rotation)
+- [x] Mobile-optimized: 44px+ tap targets, glove-friendly
+- [x] Professional styling: No AI slop patterns, clean diagram aesthetic
 
-### 5.2 Part Detail Modal
-- [ ] Create `PartDetailModal` component
-- [ ] Style with brand colors:
-  - [ ] Carbon Black background
-  - [ ] Gunmetal Gray content area
-  - [ ] Electric Blue accents
-  - [ ] Inter font for descriptions
-  - [ ] JetBrains Mono for part numbers
-- [ ] Fetch part info from backend on tap
-- [ ] Display:
-  - [ ] Part name
-  - [ ] Function description
-  - [ ] Common failure symptoms
-  - [ ] Related spare parts (max 5)
-- [ ] Add close button (large tap target, Electric Blue)
-- [ ] Smooth modal animations (Mantine)
-- [ ] Mobile-optimized layout
+### 5.2 Part Detail Modal (Arrow System Integration)
+- [ ] Create `PartDetailModal` component matching arrow aesthetic
+- [ ] Style with brand colors and diagram consistency:
+  - [ ] Carbon Black background with white content area
+  - [ ] Electric Blue header matching hotspot accent color
+  - [ ] Inter font for descriptions, JetBrains Mono for part numbers
+  - [ ] Red accent line connecting to clicked part (visual continuity)
+  - [ ] Clean, technical diagram styling (not generic modal)
+- [ ] Fetch part info from backend `/api/parts/identify` endpoint
+- [ ] Display with professional mechanic focus:
+  - [ ] Part name (large, clear heading)
+  - [ ] Function description (technical but accessible)
+  - [ ] Common failure symptoms (practical mechanic insights)
+  - [ ] Related spare parts with part numbers (max 5)
+  - [ ] Visual part location reference (angle + coordinates)
+- [ ] Professional interactions:
+  - [ ] Large close button with Electric Blue styling
+  - [ ] Smooth slide-up animations (mobile-first)
+  - [ ] One-hand operation optimized for garage use
+  - [ ] Tap outside to close, swipe down gesture support
 
-### 5.3 Hotspot Data (MVP - Manual Entry)
-- [ ] Create JSON file with common parts:
-  - [ ] Engine hood
-  - [ ] Front bumper
-  - [ ] Headlights
-  - [ ] Wheels/Tires
-  - [ ] Side mirrors
-  - [ ] Rear bumper
-  - [ ] Tail lights
-  - [ ] Brake calipers
-- [ ] Map hotspots to appropriate angles
+### 5.3 Hotspot Data & Spare Parts Integration
+- [x] Create comprehensive JSON file with 29 common parts:
+  - [x] Engine components: Hood, radiator grille, headlights
+  - [x] Body panels: Bumpers, fenders, doors, quarter panels
+  - [x] Wheels & suspension: Tires, wheels, rocker panels
+  - [x] Electrical: Tail lights, mirrors, windows
+  - [x] Mapped across 8 viewing angles (front, rear, left, right, etc.)
+- [ ] Expand part data for spare parts workflow:
+  - [ ] Add OEM part numbers to hotspots.json
+  - [ ] Include common aftermarket alternatives
+  - [ ] Add failure frequency data for priority ranking
+  - [ ] Link to supplier catalogs (BMW, Audi, Mercedes, VW, Porsche)
+- [ ] Create spare parts display components using arrow aesthetic:
+  - [ ] `SparePartsList` with red dot indicators
+  - [ ] `PartAvailability` status with connecting lines
+  - [ ] `PriceComparison` maintaining diagram styling
+  - [ ] `InstallationGuide` with step-by-step arrows
 - [ ] Test tap accuracy on mobile
 
 **Estimated Time:** 4-5 hours
 
 ---
 
-## 🎯 Phase 7: PWA Features & Polish
+## 🎯 Phase 7: Spare Parts Components (Arrow/Diagram Aesthetic)
 
-### 6.1 PWA Manifest & Icons
+### 6.1 Spare Parts List Display
+- [ ] Create `SparePartsList` component with arrow styling
+- [ ] Design consistent with vehicle hotspot system:
+  - [ ] Red dots for part indicators
+  - [ ] Connecting lines to part information
+  - [ ] White/light backgrounds for readability
+  - [ ] Electric Blue accents for actions
+  - [ ] Professional technical diagram appearance
+- [ ] Display spare parts with mechanic-focused data:
+  - [ ] OEM part numbers (JetBrains Mono)
+  - [ ] Aftermarket alternatives with quality ratings
+  - [ ] Price comparison (OEM vs aftermarket)
+  - [ ] Availability status (in stock, 2-day delivery, etc.)
+  - [ ] Installation difficulty (easy, moderate, expert)
+- [ ] Integrate with existing hotspot data
+- [ ] Filter by vehicle system (engine, electrical, body, etc.)
+
+### 6.2 Part Detail Pages with Arrow Continuity
+- [ ] Create detailed part pages maintaining visual consistency
+- [ ] Visual connection to vehicle hotspot system:
+  - [ ] Show part location on mini vehicle diagram
+  - [ ] Use same red dot + connecting line aesthetic
+  - [ ] Breadcrumb navigation with arrow indicators
+- [ ] Comprehensive part information:
+  - [ ] Technical specifications
+  - [ ] Compatible vehicle years/models
+  - [ ] Installation guides with step arrows
+  - [ ] Common failure modes
+  - [ ] Maintenance intervals
+- [ ] Shopping integration:
+  - [ ] Multiple supplier pricing
+  - [ ] Quality ratings and reviews
+  - [ ] Shipping options and times
+  - [ ] Return policies
+
+### 6.3 Visual Consistency System
+- [ ] Create design tokens for arrow/diagram components:
+  - [ ] Red dot specifications (#ef4444, sizes, shadows)
+  - [ ] Connecting line styles (width, color, animations)
+  - [ ] Label box styling (padding, borders, backgrounds)
+  - [ ] Electric Blue interaction states
+- [ ] Standardize animation patterns:
+  - [ ] Pulse animations for active elements
+  - [ ] Smooth line drawing animations
+  - [ ] Hover/tap feedback consistency
+- [ ] Mobile optimization for garage use:
+  - [ ] High contrast for bright environments
+  - [ ] Large tap targets (44px+) throughout
+  - [ ] One-handed navigation patterns
+  - [ ] Glove-friendly interface elements
+
+**Estimated Time:** 3-4 hours
+
+---
+
+## 🎯 Phase 8: PWA Features & Polish
+
+### 7.1 PWA Manifest & Icons
 - [ ] Create app icons (512x512, 192x192, maskable) with brand colors
   - [ ] Carbon Black background
   - [ ] Electric Blue logo/accent
@@ -339,14 +413,14 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
   - [ ] Orientation: "portrait"
 - [ ] Test install prompt on Android/iOS
 
-### 6.2 Service Worker Configuration
+### 7.2 Service Worker Configuration
 - [ ] Configure workbox via vite-plugin-pwa
 - [ ] Cache app shell (HTML, CSS, JS)
 - [ ] Add offline fallback page
 - [ ] Test offline behavior
 - [ ] Add update notification when new version available
 
-### 6.3 Mobile Optimizations
+### 7.3 Mobile Optimizations
 - [ ] Test on real devices (Android + iOS)
 - [ ] Ensure tap targets are ≥44px
 - [ ] Test with gloves (if possible)
@@ -354,7 +428,7 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [ ] Add loading skeletons for better perceived performance
 - [ ] Test in bright sunlight (contrast check)
 
-### 6.4 Brand Consistency Check
+### 7.4 Brand Consistency Check
 - [ ] Review all pages for consistent color usage
 - [ ] Verify Inter font is used for all UI text
 - [ ] Verify JetBrains Mono for VINs and technical data
@@ -366,9 +440,9 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 
 ---
 
-## 🎯 Phase 8: Testing & Refinement
+## 🎯 Phase 9: Testing & Refinement
 
-### 7.1 Functionality Testing
+### 8.1 Functionality Testing
 - [ ] Test full login → VIN → parts flow
 - [ ] Test dummy authentication (admin/admin)
 - [ ] Test logout functionality
@@ -382,14 +456,14 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [ ] Test offline behavior
 - [ ] Test PWA install and launch
 
-### 7.2 Performance Testing
+### 8.2 Performance Testing
 - [ ] Measure page load times
 - [ ] Check image loading performance
 - [ ] Test on 3G connection
 - [ ] Optimize bundle size if needed
 - [ ] Run Lighthouse audit (PWA, Performance, Accessibility)
 
-### 7.3 UX Testing
+### 8.3 UX Testing
 - [ ] Test one-handed usage
 - [ ] Verify tap target sizes (≥44px)
 - [ ] Check text readability with brand colors
@@ -399,7 +473,7 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [ ] Test with actual mechanic if possible
 - [ ] Gather feedback and iterate
 
-### 7.4 Bug Fixes & Polish
+### 8.4 Bug Fixes & Polish
 - [ ] Fix any identified bugs
 - [ ] Smooth out animations
 - [ ] Add loading states where missing
@@ -410,9 +484,9 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 
 ---
 
-## 🎯 Phase 9: Deployment
+## 🎯 Phase 10: Deployment
 
-### 8.1 Backend Deployment
+### 9.1 Backend Deployment
 - [ ] Choose hosting platform:
   - Option A: Vercel Serverless Functions (recommended for budget)
   - Option B: Railway
@@ -422,7 +496,7 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [ ] Test deployed endpoints
 - [ ] Set up domain/subdomain if needed
 
-### 8.2 Frontend Deployment
+### 9.2 Frontend Deployment
 - [ ] Build production bundle (`npm run build`)
 - [ ] Test production build locally
 - [ ] Deploy to:
@@ -433,7 +507,7 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [ ] Test PWA install from live URL
 - [ ] Verify HTTPS is working
 
-### 8.3 API Keys & Monitoring
+### 9.3 API Keys & Monitoring
 - [ ] Verify all API keys are working in production
 - [ ] Set up basic usage monitoring:
   - [ ] VINLink API usage
@@ -441,7 +515,7 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [ ] Set up budget alerts if platform supports it
 - [ ] Document API costs per request
 
-### 8.4 Documentation
+### 9.4 Documentation
 - [ ] Update README.md with:
   - [ ] Project description
   - [ ] Setup instructions
@@ -454,15 +528,15 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 
 ---
 
-## 🎯 Phase 10: Post-Launch (Optional)
+## 🎯 Phase 11: Post-Launch (Optional)
 
-### 9.1 Monitoring & Feedback
+### 10.1 Monitoring & Feedback
 - [ ] Monitor API costs daily
 - [ ] Gather user feedback
 - [ ] Track any errors/crashes
 - [ ] Monitor performance metrics
 
-### 9.2 Quick Wins
+### 10.2 Quick Wins
 - [ ] Add VIN history (localStorage)
 - [ ] Cache previously decoded VINs
 - [ ] Add more hotspot parts
@@ -479,11 +553,12 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 | 3 | Backend API | 4-6 hours |
 | 4 | VIN Input & Display | 3-4 hours |
 | 5 | 360° Viewer | 3-4 hours |
-| 6 | Parts Interaction | 4-5 hours |
-| 7 | PWA Features | 3-4 hours |
-| 8 | Testing | 3-4 hours |
-| 9 | Deployment | 2-3 hours |
-| **Total** | | **27-37 hours** |
+| 6 | Parts Interaction (Arrow System) | 4-5 hours |
+| 7 | Spare Parts Components (Arrow Aesthetic) | 3-4 hours |
+| 8 | PWA Features | 3-4 hours |
+| 9 | Testing | 3-4 hours |
+| 10 | Deployment | 2-3 hours |
+| **Total** | | **30-41 hours** |
 
 **Realistic Timeline:** 4-5 working days for a focused developer
 
