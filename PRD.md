@@ -463,3 +463,10 @@ Instead:
 
 *Document Version: 1.0*  
 *Last Updated: January 23, 2026*
+
+
+
+
+curl -X POST http://localhost:3001/api/vin/decode \
+  -H "Content-Type: application/json" \
+  -d '{"vin":"WVWZZZCDZMY072001"}'

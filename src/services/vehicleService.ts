@@ -19,7 +19,10 @@ export async function decodeVIN(vin: string): Promise<VehicleData> {
     throw new Error('Failed to decode VIN');
   }
 
-  return response.json();
+  const data = await response.json();
+
+  // Backend wraps response in { success: true, vehicle: {...} }
+  return data.vehicle || data;
 }
 
 /**
@@ -45,17 +48,22 @@ export async function getVehicleImages(vehicleData: VehicleData): Promise<Vehicl
  * Gets AI-generated vehicle summary
  */
 export async function getVehicleSummary(vehicleData: VehicleData): Promise<VehicleSummary> {
-  const response = await fetch(`${API_BASE_URL}/vehicle/summary`, {
-    method: 'POST',
+  const response = await fetch(`${API_BASE_URL}/vehicle/summary/${vehicleData.vin}`, {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(vehicleData),
   });
 
   if (!response.ok) {
     throw new Error('Failed to get vehicle summary');
   }
 
-  return response.json();
+  const data = await response.json();
+
+  // Transform backend response to match frontend interface
+  // Backend returns { summary: [...] } not { bulletPoints: [...] }
+  return {
+    bulletPoints: data.summary || data.bulletPoints || [],
+  };
 }
