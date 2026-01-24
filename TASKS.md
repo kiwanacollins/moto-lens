@@ -181,17 +181,17 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Add caching mechanism (in-memory for MVP)
 
 ### 2.4 AI Parts Information Endpoints
-- [ ] Create `/api/vehicle/summary` endpoint
-  - [ ] Use Vehicle Summary Prompt
-  - [ ] Return 5 bullet points
-- [ ] Create `/api/parts/identify` endpoint
-  - [ ] Use Part Identification Prompt
-  - [ ] Return structured part data
-- [ ] Create `/api/parts/spare-parts` endpoint
-  - [ ] Use Spare Parts Summary Prompt
-  - [ ] Return max 5 items
-- [ ] Implement system prompt for all Gemini calls
-- [ ] Test output quality (should NOT sound AI-generated)
+- [x] Create `/api/vehicle/summary` endpoint
+  - [x] Use Vehicle Summary Prompt
+  - [x] Return 5 bullet points
+- [x] Create `/api/parts/identify` endpoint
+  - [x] Use Part Identification Prompt
+  - [x] Return structured part data
+- [x] Create `/api/parts/spare-parts` endpoint
+  - [x] Use Spare Parts Summary Prompt
+  - [x] Return max 5 items
+- [x] Implement system prompt for all Gemini calls
+- [x] Test output quality (should NOT sound AI-generated)
 
 **Estimated Time:** 4-6 hours
 
