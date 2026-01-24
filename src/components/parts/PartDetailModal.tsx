@@ -6,99 +6,86 @@ import type { PartDetailsResponse } from '../../services/partsService';
 /**
  * Parse markdown-like AI response and convert to structured sections
  */
-function parseAIDescription(description: string): { 
-    sections: Array<{ title: string; content: string[] }>;
+function parseAIDescription(description: string): {
+    sections: Array<{ title: string; content: string[]; kind: 'bullets' | 'paragraphs' }>;
     rawText: string;
 } {
     if (!description) {
         return { sections: [], rawText: '' };
     }
 
-    const sections: Array<{ title: string; content: string[] }> = [];
-    
-    // Split by common markdown section patterns
-    const lines = description.split('\n').map(line => line.trim()).filter(Boolean);
-    
-    let currentSection: { title: string; content: string[] } | null = null;
-    
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        
-        // Check for inline header: **Header:** content (most common pattern)
-        const inlineHeaderMatch = line.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/);
-        if (inlineHeaderMatch) {
-            // Save previous section
-            if (currentSection) {
-                sections.push(currentSection);
-            }
-            
-            const title = inlineHeaderMatch[1].trim();
-            const firstLineContent = inlineHeaderMatch[2].trim();
-            
-            currentSection = { title, content: [] };
-            
-            // Add the content from the same line if any
-            if (firstLineContent) {
-                currentSection.content.push(cleanMarkdown(firstLineContent));
-            }
-            continue;
-        }
-        
-        // Check if this line is a standalone section header (starts with ** and ends with **)
-        const headerMatch = line.match(/^\*\*([^*]+)\*\*:?\s*$/);
-        if (headerMatch) {
-            if (currentSection) {
-                sections.push(currentSection);
-            }
-            currentSection = { title: headerMatch[1].trim(), content: [] };
-            continue;
-        }
-        
-        // Regular content line
-        if (currentSection) {
-            // Clean up bullet markers and markdown
-            const cleanedLine = cleanMarkdown(line.replace(/^[\*\-•]\s*/, '').trim());
-            if (cleanedLine) {
-                // Break long content into shorter sentences for better readability
-                const sentences = cleanedLine.split(/\.\s+/).filter(s => s.trim().length > 0);
-                sentences.forEach((sentence, index) => {
-                    const formattedSentence = sentence.trim() + (index < sentences.length - 1 ? '.' : '');
-                    if (formattedSentence.length > 5) {
-                        currentSection!.content.push(formattedSentence);
-                    }
-                });
-            }
-        } else {
-            // No section yet, create a general one
-            const cleanedLine = cleanMarkdown(line);
-            if (cleanedLine) {
-                currentSection = { title: 'Overview', content: [cleanedLine] };
-            }
-        }
-    }
-    
-    // Don't forget the last section
-    if (currentSection) {
+    const sections: Array<{ title: string; content: string[]; kind: 'bullets' | 'paragraphs' }> = [];
+
+    // Keep blank lines to preserve paragraph intent
+    const lines = description.split('\n').map((l) => l.replace(/\r/g, ''));
+
+    let currentSection: { title: string; content: string[]; kind: 'bullets' | 'paragraphs' } | null = null;
+
+    const pushCurrent = () => {
+        if (!currentSection) return;
+        // Remove empty content lines
+        currentSection.content = currentSection.content.map((c) => c.trim()).filter(Boolean);
+        if (currentSection.content.length === 0) return;
         sections.push(currentSection);
+    };
+
+    for (const rawLine of lines) {
+        const line = rawLine.trim();
+
+        // Paragraph separator
+        if (!line) {
+            if (currentSection?.kind === 'paragraphs') {
+                currentSection.content.push('');
+            }
+            continue;
+        }
+
+        // Header on its own line: **Header**
+        const headerOnly = line.match(/^\*\*([^*]+)\*\*:?\s*$/);
+        if (headerOnly) {
+            pushCurrent();
+            currentSection = { title: cleanMarkdown(headerOnly[1]).trim(), content: [], kind: 'bullets' };
+            continue;
+        }
+
+        // Inline header: **Engine:** blah blah
+        const headerInline = line.match(/^\*\*([^*]+)\*\*\s*:?\s*(.+)$/);
+        if (headerInline) {
+            pushCurrent();
+            const title = cleanMarkdown(headerInline[1]).trim();
+            const rest = cleanMarkdown(headerInline[2]).trim();
+            // These sections are typically paragraph-style (like Technical Overview)
+            currentSection = { title, content: [rest], kind: 'paragraphs' };
+            continue;
+        }
+
+        // Bullet line?
+        const isBullet = /^([\*\-•]|\d+\.)\s+/.test(line);
+        const cleaned = cleanMarkdown(line.replace(/^([\*\-•]|\d+\.)\s+/, ''));
+
+        if (!currentSection) {
+            currentSection = { title: 'Overview', content: [], kind: isBullet ? 'bullets' : 'paragraphs' };
+        }
+
+        // If the section started as bullets but we see a paragraph-like line, switch to paragraphs
+        if (!isBullet && currentSection.kind === 'bullets' && currentSection.content.length > 0) {
+            currentSection.kind = 'paragraphs';
+        }
+
+        currentSection.content.push(cleaned);
     }
-    
-    // Filter out empty sections and sort to prioritize components first
-    const filteredSections = sections.filter(section => section.content.length > 0);
-    
-    filteredSections.sort((a, b) => {
-        const aIsComponents = a.title.toLowerCase().includes('component') || 
-                             a.title.toLowerCase().includes('parts') ||
-                             a.title.toLowerCase().includes('main');
-        const bIsComponents = b.title.toLowerCase().includes('component') || 
-                             b.title.toLowerCase().includes('parts') ||
-                             b.title.toLowerCase().includes('main');
-        
-        if (aIsComponents && !bIsComponents) return -1;
-        if (!aIsComponents && bIsComponents) return 1;
-        return 0;
-    });
-    
-    return { sections: filteredSections, rawText: description };
+
+    pushCurrent();
+
+    // Prioritize components-style sections first (keep relative order otherwise)
+    const isComponentsTitle = (t: string) => {
+        const s = t.toLowerCase();
+        return s.includes('component') || s.includes('subpart') || s.includes('sub-part') || s.includes('made up') || s === 'parts';
+    };
+    const components = sections.filter((s) => isComponentsTitle(s.title));
+    const others = sections.filter((s) => !isComponentsTitle(s.title));
+
+    return { sections: [...components, ...others], rawText: description };
 }
 
 /**
@@ -302,7 +289,38 @@ export function PartDetailModal({
                                                         </Text>
                                                         
                                                         {/* Section content */}
-                                                        {section.content.length === 1 ? (
+                                                        {section.kind === 'paragraphs' ? (
+                                                            <Stack gap={6}>
+                                                                {section.content
+                                                                    .reduce<string[]>((acc, cur) => {
+                                                                        // Merge consecutive lines into paragraphs, with '' as separator
+                                                                        if (cur === '') {
+                                                                            acc.push('');
+                                                                            return acc;
+                                                                        }
+                                                                        const last = acc[acc.length - 1];
+                                                                        if (acc.length === 0 || last === '') {
+                                                                            acc.push(cur);
+                                                                            return acc;
+                                                                        }
+                                                                        acc[acc.length - 1] = `${last} ${cur}`;
+                                                                        return acc;
+                                                                    }, [])
+                                                                    .map((p) => p.trim())
+                                                                    .filter(Boolean)
+                                                                    .map((paragraph, paragraphIndex) => (
+                                                                        <Text
+                                                                            key={paragraphIndex}
+                                                                            c="#52525b"
+                                                                            ff="Inter"
+                                                                            size="sm"
+                                                                            style={{ lineHeight: 1.6 }}
+                                                                        >
+                                                                            {paragraph}
+                                                                        </Text>
+                                                                    ))}
+                                                            </Stack>
+                                                        ) : section.content.length === 1 ? (
                                                             <Text 
                                                                 c="#52525b" 
                                                                 ff="Inter" 
