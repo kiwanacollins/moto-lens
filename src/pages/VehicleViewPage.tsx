@@ -21,6 +21,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { decodeVIN, getVehicleSummary } from '../services/vehicleService';
 import type { VehicleData, VehicleSummary } from '../types/vehicle';
 import Vehicle360Viewer from '../components/vehicle/Vehicle360Viewer';
+import PartsGrid from '../components/parts/PartsGrid';
 
 // Premium spec field component with refined typography
 // Spec card component - individual contained box for each specification
@@ -368,6 +369,13 @@ export default function VehicleViewPage() {
                         </Stack>
                       </Paper>
                     )}
+
+                    {/* Vehicle Systems & Parts Grid */}
+                    <PartsGrid
+                      vehicleMake={vehicleData.make}
+                      vehicleModel={vehicleData.model}
+                      vehicleYear={vehicleData.year}
+                    />
                   </>
                 )}
               </Stack>

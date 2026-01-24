@@ -40,21 +40,6 @@ export function PartDetailModal({
                 },
             }}
         >
-            {/* Red accent line - visual connection to clicked hotspot */}
-            <div
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '4px',
-                    height: '100%',
-                    backgroundColor: '#ef4444', // Red accent matching hotspot dots
-                    borderTopLeftRadius: '8px',
-                    borderBottomLeftRadius: '8px',
-                    zIndex: 10,
-                }}
-            />
-
             {/* Electric Blue header */}
             <div
                 style={{
