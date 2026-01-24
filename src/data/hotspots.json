@@ -1,0 +1,200 @@
+{
+  "common": [
+    {
+      "id": "hood-front",
+      "partName": "Engine Hood",
+      "angle": "front",
+      "coordinates": { "x": 400, "y": 180 },
+      "radius": 50
+    },
+    {
+      "id": "bumper-front",
+      "partName": "Front Bumper",
+      "angle": "front",
+      "coordinates": { "x": 400, "y": 480 },
+      "radius": 60
+    },
+    {
+      "id": "headlight-left",
+      "partName": "Left Headlight",
+      "angle": "front",
+      "coordinates": { "x": 250, "y": 320 },
+      "radius": 40
+    },
+    {
+      "id": "headlight-right",
+      "partName": "Right Headlight",
+      "angle": "front",
+      "coordinates": { "x": 550, "y": 320 },
+      "radius": 40
+    },
+    {
+      "id": "grille-front",
+      "partName": "Front Grille",
+      "angle": "front",
+      "coordinates": { "x": 400, "y": 360 },
+      "radius": 45
+    },
+    {
+      "id": "wheel-front-right",
+      "partName": "Front Right Wheel",
+      "angle": "front-right",
+      "coordinates": { "x": 600, "y": 450 },
+      "radius": 55
+    },
+    {
+      "id": "door-front-right",
+      "partName": "Front Right Door",
+      "angle": "front-right",
+      "coordinates": { "x": 500, "y": 300 },
+      "radius": 60
+    },
+    {
+      "id": "mirror-right",
+      "partName": "Right Side Mirror",
+      "angle": "front-right",
+      "coordinates": { "x": 550, "y": 220 },
+      "radius": 35
+    },
+    {
+      "id": "fender-right",
+      "partName": "Right Front Fender",
+      "angle": "right",
+      "coordinates": { "x": 250, "y": 280 },
+      "radius": 55
+    },
+    {
+      "id": "door-rear-right",
+      "partName": "Rear Right Door",
+      "angle": "right",
+      "coordinates": { "x": 450, "y": 300 },
+      "radius": 60
+    },
+    {
+      "id": "wheel-rear-right",
+      "partName": "Rear Right Wheel",
+      "angle": "right",
+      "coordinates": { "x": 550, "y": 450 },
+      "radius": 55
+    },
+    {
+      "id": "rocker-panel-right",
+      "partName": "Right Rocker Panel",
+      "angle": "right",
+      "coordinates": { "x": 400, "y": 420 },
+      "radius": 45
+    },
+    {
+      "id": "quarter-panel-right",
+      "partName": "Right Quarter Panel",
+      "angle": "rear-right",
+      "coordinates": { "x": 550, "y": 300 },
+      "radius": 55
+    },
+    {
+      "id": "taillight-right",
+      "partName": "Right Tail Light",
+      "angle": "rear-right",
+      "coordinates": { "x": 580, "y": 320 },
+      "radius": 40
+    },
+    {
+      "id": "bumper-rear",
+      "partName": "Rear Bumper",
+      "angle": "rear",
+      "coordinates": { "x": 400, "y": 480 },
+      "radius": 60
+    },
+    {
+      "id": "taillight-left",
+      "partName": "Left Tail Light",
+      "angle": "rear",
+      "coordinates": { "x": 250, "y": 320 },
+      "radius": 40
+    },
+    {
+      "id": "taillight-right-rear",
+      "partName": "Right Tail Light",
+      "angle": "rear",
+      "coordinates": { "x": 550, "y": 320 },
+      "radius": 40
+    },
+    {
+      "id": "trunk-lid",
+      "partName": "Trunk Lid",
+      "angle": "rear",
+      "coordinates": { "x": 400, "y": 220 },
+      "radius": 50
+    },
+    {
+      "id": "rear-glass",
+      "partName": "Rear Window",
+      "angle": "rear",
+      "coordinates": { "x": 400, "y": 180 },
+      "radius": 45
+    },
+    {
+      "id": "quarter-panel-left",
+      "partName": "Left Quarter Panel",
+      "angle": "rear-left",
+      "coordinates": { "x": 250, "y": 300 },
+      "radius": 55
+    },
+    {
+      "id": "wheel-rear-left",
+      "partName": "Rear Left Wheel",
+      "angle": "rear-left",
+      "coordinates": { "x": 200, "y": 450 },
+      "radius": 55
+    },
+    {
+      "id": "door-rear-left",
+      "partName": "Rear Left Door",
+      "angle": "left",
+      "coordinates": { "x": 350, "y": 300 },
+      "radius": 60
+    },
+    {
+      "id": "door-front-left",
+      "partName": "Front Left Door",
+      "angle": "left",
+      "coordinates": { "x": 500, "y": 300 },
+      "radius": 60
+    },
+    {
+      "id": "rocker-panel-left",
+      "partName": "Left Rocker Panel",
+      "angle": "left",
+      "coordinates": { "x": 400, "y": 420 },
+      "radius": 45
+    },
+    {
+      "id": "fender-left",
+      "partName": "Left Front Fender",
+      "angle": "left",
+      "coordinates": { "x": 600, "y": 280 },
+      "radius": 55
+    },
+    {
+      "id": "mirror-left",
+      "partName": "Left Side Mirror",
+      "angle": "front-left",
+      "coordinates": { "x": 250, "y": 220 },
+      "radius": 35
+    },
+    {
+      "id": "wheel-front-left",
+      "partName": "Front Left Wheel",
+      "angle": "front-left",
+      "coordinates": { "x": 200, "y": 450 },
+      "radius": 55
+    },
+    {
+      "id": "door-front-left-fl",
+      "partName": "Front Left Door",
+      "angle": "front-left",
+      "coordinates": { "x": 300, "y": 300 },
+      "radius": 60
+    }
+  ]
+}
