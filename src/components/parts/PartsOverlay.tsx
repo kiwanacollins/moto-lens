@@ -208,32 +208,6 @@ export function PartsOverlay({
                 })}
             </svg>
 
-            {/* Info panel showing part count */}
-            <div
-                style={{
-                    position: 'absolute',
-                    bottom: 12,
-                    left: 12,
-                    background: 'rgba(10, 10, 10, 0.9)',
-                    backdropFilter: 'blur(8px)',
-                    color: '#ffffff',
-                    padding: '8px 14px',
-                    borderRadius: 8,
-                    fontSize: 12,
-                    fontFamily: 'Inter, sans-serif',
-                    fontWeight: 500,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    zIndex: 20,
-                }}
-            >
-                <span style={{ color: '#ef4444', fontWeight: 700 }}>{visibleHotspots.length}</span>
-                <span style={{ color: '#a1a1aa' }}>parts visible</span>
-                <span style={{ color: '#52525b' }}>•</span>
-                <span style={{ color: '#0ea5e9' }}>Tap for details</span>
-            </div>
-
             {/* CSS Animations */}
             <style>{`
         @keyframes pulse-ring {

@@ -156,28 +156,67 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
         handleMove(e.clientX, e.clientY);
     };
 
-    // Touch events
-    const handleTouchStart = (e: React.TouchEvent) => {
-        e.preventDefault();
-        const touch = e.touches[0];
-        handleStart(touch.clientX, touch.clientY);
-    };
+    // Touch events - using useEffect to add non-passive listeners
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
 
-    const handleTouchMove = (e: React.TouchEvent) => {
-        e.preventDefault();
-        const touch = e.touches[0];
-        handleMove(touch.clientX, touch.clientY);
-    };
+        const handleTouchStart = (e: TouchEvent) => {
+            // Only handle touches on the image/overlay areas, not on buttons
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'BUTTON' || target.closest('button')) {
+                return; // Don't interfere with button clicks
+            }
+
+            e.preventDefault();
+            const touch = e.touches[0];
+            handleStart(touch.clientX, touch.clientY);
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            // Only handle if we're already dragging
+            if (!isDragging) return;
+
+            e.preventDefault();
+            const touch = e.touches[0];
+            handleMove(touch.clientX, touch.clientY);
+        };
+
+        const handleTouchEnd = () => {
+            handleEnd();
+        };
+
+        // Add listeners with { passive: false } to allow preventDefault
+        container.addEventListener('touchstart', handleTouchStart, { passive: false });
+        container.addEventListener('touchmove', handleTouchMove, { passive: false });
+        container.addEventListener('touchend', handleTouchEnd);
+
+        return () => {
+            container.removeEventListener('touchstart', handleTouchStart);
+            container.removeEventListener('touchmove', handleTouchMove);
+            container.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, [handleStart, handleMove, handleEnd, isDragging]);
 
     // Navigation functions
     const goToNext = () => {
+        console.log('goToNext clicked, validImages.length:', validImages.length);
         if (validImages.length <= 1) return;
-        setCurrentIndex(prev => (prev + 1) % validImages.length);
+        setCurrentIndex(prev => {
+            const newIndex = (prev + 1) % validImages.length;
+            console.log('Next: current index', prev, '-> new index', newIndex);
+            return newIndex;
+        });
     };
 
     const goToPrev = () => {
+        console.log('goToPrev clicked, validImages.length:', validImages.length);
         if (validImages.length <= 1) return;
-        setCurrentIndex(prev => (prev - 1 + validImages.length) % validImages.length);
+        setCurrentIndex(prev => {
+            const newIndex = (prev - 1 + validImages.length) % validImages.length;
+            console.log('Prev: current index', prev, '-> new index', newIndex);
+            return newIndex;
+        });
     };
 
     // Loading state
@@ -270,9 +309,6 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleEnd}
                 onMouseLeave={handleEnd}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleEnd}
                 style={{
                     cursor: isDragging ? 'grabbing' : 'grab',
                     userSelect: 'none',
@@ -361,34 +397,62 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
                         {validImages.length > 1 && (
                             <Group gap="xs">
                                 <button
-                                    onClick={goToPrev}
+                                    onClick={(e) => {
+                                        e.stopPropagation(); // Prevent event bubbling
+                                        goToPrev();
+                                    }}
                                     style={{
-                                        background: 'rgba(255, 255, 255, 0.2)',
+                                        background: 'rgba(14, 165, 233, 0.9)', // Electric Blue
                                         border: 'none',
-                                        borderRadius: '6px',
-                                        padding: '8px',
+                                        borderRadius: '8px',
+                                        padding: '10px',
                                         cursor: 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
+                                        minWidth: '44px',
+                                        minHeight: '44px',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'rgba(14, 165, 233, 1)';
+                                        e.currentTarget.style.transform = 'scale(1.05)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'rgba(14, 165, 233, 0.9)';
+                                        e.currentTarget.style.transform = 'scale(1)';
                                     }}
                                 >
-                                    <MdRotateLeft size={20} color="white" />
+                                    <MdRotateLeft size={24} color="white" />
                                 </button>
                                 <button
-                                    onClick={goToNext}
+                                    onClick={(e) => {
+                                        e.stopPropagation(); // Prevent event bubbling
+                                        goToNext();
+                                    }}
                                     style={{
-                                        background: 'rgba(255, 255, 255, 0.2)',
+                                        background: 'rgba(14, 165, 233, 0.9)', // Electric Blue
                                         border: 'none',
-                                        borderRadius: '6px',
-                                        padding: '8px',
+                                        borderRadius: '8px',
+                                        padding: '10px',
                                         cursor: 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
+                                        minWidth: '44px',
+                                        minHeight: '44px',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = 'rgba(14, 165, 233, 1)';
+                                        e.currentTarget.style.transform = 'scale(1.05)';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = 'rgba(14, 165, 233, 0.9)';
+                                        e.currentTarget.style.transform = 'scale(1)';
                                     }}
                                 >
-                                    <MdRotateRight size={20} color="white" />
+                                    <MdRotateRight size={24} color="white" />
                                 </button>
                             </Group>
                         )}
