@@ -7,6 +7,8 @@ interface PartsOverlayProps {
     imageWidth: number;
     imageHeight: number;
     onHotspotClick: (hotspot: Hotspot) => void;
+    showLabels: boolean;
+    onToggleLabels: () => void;
 }
 
 // Calculate label position - offset from hotspot to avoid overlap
@@ -37,10 +39,11 @@ export function PartsOverlay({
     hotspots,
     imageWidth,
     imageHeight,
-    onHotspotClick
+    onHotspotClick,
+    showLabels,
+    onToggleLabels
 }: PartsOverlayProps) {
     const [activeHotspot, setActiveHotspot] = useState<string | null>(null);
-    const [showAllLabels, setShowAllLabels] = useState(true);
 
     // Filter hotspots for current angle
     const visibleHotspots = hotspots.filter(h => h.angle === currentAngle);
@@ -49,13 +52,22 @@ export function PartsOverlay({
         <>
             {/* Toggle button */}
             <button
-                onClick={() => setShowAllLabels(!showAllLabels)}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onToggleLabels();
+                }}
+                onTouchEnd={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onToggleLabels();
+                }}
                 style={{
                     position: 'absolute',
                     top: 12,
                     right: 12,
-                    background: showAllLabels ? '#0ea5e9' : 'rgba(255,255,255,0.95)',
-                    color: showAllLabels ? '#ffffff' : '#0a0a0a',
+                    background: showLabels ? '#0ea5e9' : 'rgba(255,255,255,0.95)',
+                    color: showLabels ? '#ffffff' : '#0a0a0a',
                     border: '2px solid #0ea5e9',
                     borderRadius: 8,
                     padding: '8px 14px',
@@ -63,51 +75,52 @@ export function PartsOverlay({
                     fontWeight: 600,
                     fontFamily: 'Inter, sans-serif',
                     cursor: 'pointer',
-                    zIndex: 20,
+                    zIndex: 100,
                     display: 'flex',
                     alignItems: 'center',
                     gap: 6,
                     boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                     transition: 'all 0.2s ease',
+                    pointerEvents: 'auto',
                 }}
             >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 16v-4M12 8h.01" />
                 </svg>
-                {showAllLabels ? 'Hide Labels' : 'Show Labels'}
+                {showLabels ? 'Hide Parts' : 'Show Parts'}
             </button>
 
-            <svg
-                width="100%"
-                height="100%"
-                viewBox={`0 0 ${imageWidth} ${imageHeight}`}
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    pointerEvents: 'none',
-                }}
-            >
-                <defs>
-                    {/* Drop shadow filter for labels */}
-                    <filter id="labelShadow" x="-20%" y="-20%" width="140%" height="140%">
-                        <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.2" />
-                    </filter>
-                </defs>
+            {/* Only show the SVG overlay when showLabels is true */}
+            {showLabels && (
+                <svg
+                    width="100%"
+                    height="100%"
+                    viewBox={`0 0 ${imageWidth} ${imageHeight}`}
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        pointerEvents: 'none',
+                    }}
+                >
+                    <defs>
+                        {/* Drop shadow filter for labels */}
+                        <filter id="labelShadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="2" stdDeviation="3" floodOpacity="0.2" />
+                        </filter>
+                    </defs>
 
-                {visibleHotspots.map(hotspot => {
-                    const { labelX, labelY } = getLabelPosition(hotspot, imageWidth, imageHeight);
-                    const isActive = activeHotspot === hotspot.id;
-                    const showLabel = showAllLabels || isActive;
+                    {visibleHotspots.map(hotspot => {
+                        const { labelX, labelY } = getLabelPosition(hotspot, imageWidth, imageHeight);
+                        const isActive = activeHotspot === hotspot.id;
 
-                    // Calculate text width for background sizing
-                    const textWidth = hotspot.partName.length * 7.5 + 20;
+                        // Calculate text width for background sizing
+                        const textWidth = hotspot.partName.length * 7.5 + 20;
 
-                    return (
-                        <g key={hotspot.id}>
-                            {/* Connecting line from part to label */}
-                            {showLabel && (
+                        return (
+                            <g key={hotspot.id}>
+                                {/* Connecting line from part to label */}
                                 <line
                                     x1={hotspot.coordinates.x}
                                     y1={hotspot.coordinates.y}
@@ -121,45 +134,43 @@ export function PartsOverlay({
                                         transition: 'all 0.2s ease',
                                     }}
                                 />
-                            )}
 
-                            {/* Red dot at the part location */}
-                            <circle
-                                cx={hotspot.coordinates.x}
-                                cy={hotspot.coordinates.y}
-                                r={isActive ? 10 : 7}
-                                fill="#ef4444"
-                                stroke="#ffffff"
-                                strokeWidth="2.5"
-                                style={{
-                                    pointerEvents: 'all',
-                                    cursor: 'pointer',
-                                    filter: isActive ? 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.7))' : 'none',
-                                    transition: 'all 0.2s ease',
-                                }}
-                                onClick={() => onHotspotClick(hotspot)}
-                                onMouseEnter={() => setActiveHotspot(hotspot.id)}
-                                onMouseLeave={() => setActiveHotspot(null)}
-                                onTouchStart={() => setActiveHotspot(hotspot.id)}
-                            />
+                                {/* Red dot at the part location */}
+                                <circle
+                                    cx={hotspot.coordinates.x}
+                                    cy={hotspot.coordinates.y}
+                                    r={isActive ? 10 : 7}
+                                    fill="#ef4444"
+                                    stroke="#ffffff"
+                                    strokeWidth="2.5"
+                                    style={{
+                                        pointerEvents: 'all',
+                                        cursor: 'pointer',
+                                        filter: isActive ? 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.7))' : 'none',
+                                        transition: 'all 0.2s ease',
+                                    }}
+                                    onClick={() => onHotspotClick(hotspot)}
+                                    onMouseEnter={() => setActiveHotspot(hotspot.id)}
+                                    onMouseLeave={() => setActiveHotspot(null)}
+                                    onTouchStart={() => setActiveHotspot(hotspot.id)}
+                                />
 
-                            {/* Pulse ring animation on dot */}
-                            <circle
-                                cx={hotspot.coordinates.x}
-                                cy={hotspot.coordinates.y}
-                                r={12}
-                                fill="none"
-                                stroke="#ef4444"
-                                strokeWidth="2"
-                                style={{
-                                    pointerEvents: 'none',
-                                    opacity: 0.5,
-                                }}
-                                className="pulse-ring"
-                            />
+                                {/* Pulse ring animation on dot */}
+                                <circle
+                                    cx={hotspot.coordinates.x}
+                                    cy={hotspot.coordinates.y}
+                                    r={12}
+                                    fill="none"
+                                    stroke="#ef4444"
+                                    strokeWidth="2"
+                                    style={{
+                                        pointerEvents: 'none',
+                                        opacity: 0.5,
+                                    }}
+                                    className="pulse-ring"
+                                />
 
-                            {/* Label with background */}
-                            {showLabel && (
+                                {/* Label with background */}
                                 <g
                                     style={{
                                         pointerEvents: 'all',
@@ -202,11 +213,11 @@ export function PartsOverlay({
                                         {hotspot.partName}
                                     </text>
                                 </g>
-                            )}
-                        </g>
-                    );
-                })}
-            </svg>
+                            </g>
+                        );
+                    })}
+                </svg>
+            )}
 
             {/* CSS Animations */}
             <style>{`

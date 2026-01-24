@@ -37,6 +37,7 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [imagesLoaded, setImagesLoaded] = useState(false);
     const [showHint, setShowHint] = useState(true);
+    const [showLabels, setShowLabels] = useState(true); // Persist labels visibility across angle changes
     const containerRef = useRef<HTMLDivElement>(null);
     const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -344,6 +345,8 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
                         imageWidth={800}
                         imageHeight={600}
                         onHotspotClick={handleHotspotClick}
+                        showLabels={showLabels}
+                        onToggleLabels={() => setShowLabels(!showLabels)}
                     />
                 )}
 
