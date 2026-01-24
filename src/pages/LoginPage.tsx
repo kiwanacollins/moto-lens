@@ -20,7 +20,7 @@ import { MotoLensLogo } from '../components/MotoLensLogo';
 
 /**
  * LoginPage Component
- * 
+ *
  * Professional mobile-first login page for MotoLens
  * Clean, minimal design - Stripe/Linear inspired
  */
@@ -122,7 +122,7 @@ export default function LoginPage() {
                   duration={200}
                   timingFunction="ease"
                 >
-                  {(styles) => (
+                  {styles => (
                     <Paper
                       p="sm"
                       radius="md"
@@ -146,7 +146,7 @@ export default function LoginPage() {
                 <TextInput
                   placeholder="Username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={e => setUsername(e.target.value)}
                   size="md"
                   leftSection={<FiUser size={18} color={BRAND_COLORS.gunmetalGray} />}
                   styles={{
@@ -173,7 +173,7 @@ export default function LoginPage() {
                 <PasswordInput
                   placeholder="Password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                   size="md"
                   leftSection={<FiLock size={18} color={BRAND_COLORS.gunmetalGray} />}
                   styles={{

@@ -170,7 +170,7 @@ export default function VinInputPage() {
               </Title>
 
               {/* MotoLens Logo */}
-              <div style={{ marginBottom: rem(16) }}>
+              <div style={{ marginBottom: rem(6), marginTop: rem(-6) }}>
                 <MotoLensLogo size={250} showCorners={false} />
               </div>
 

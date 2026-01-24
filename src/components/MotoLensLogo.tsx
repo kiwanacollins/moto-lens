@@ -16,15 +16,7 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
     >
       {/* Lens Circle - Electric Blue */}
       <circle cx="200" cy="200" r="110" stroke="#00D9FF" strokeWidth="10" fill="none" />
-      <circle
-        cx="200"
-        cy="200"
-        r="86"
-        stroke="#00D9FF"
-        strokeWidth="6"
-        fill="none"
-        opacity="0.5"
-      />
+      <circle cx="200" cy="200" r="86" stroke="#00D9FF" strokeWidth="6" fill="none" opacity="0.5" />
 
       {/* Lens Highlight */}
       <circle cx="176" cy="176" r="24" fill="#00D9FF" opacity="0.3" />
