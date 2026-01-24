@@ -262,9 +262,9 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [ ] Test rotation smoothness on mobile devices
 
 ### 4.3 Viewer UI Polish
-- [ ] Add rotation instructions (swipe hint) - Electric Blue text
+- [x] Add rotation instructions (swipe hint) - Electric Blue text
 - [ ] Add angle indicator (optional) - brand colors
-- [ ] Smooth loading transitions with brand styling
+- [x] Smooth loading transitions with brand styling
 - [ ] Test performance on mid-range phones
 - [ ] Add pinch-to-zoom (optional)
 
