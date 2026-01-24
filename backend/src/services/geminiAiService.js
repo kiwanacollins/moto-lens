@@ -9,7 +9,7 @@
 import axios from 'axios';
 
 const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
-const MODEL = 'gemini-2.0-flash';
+const MODEL = 'gemini-2.0-flash'; // Available model from API
 
 // Helper function to get API key
 function getApiKey() {
@@ -219,25 +219,9 @@ async function callGeminiAPI(userPrompt) {
                     topP: 0.8,
                     topK: 10,
                     maxOutputTokens: 2048
-                },
-                safetySettings: [
-                    {
-                        category: 'HARM_CATEGORY_HARASSMENT',
-                        threshold: 'BLOCK_NONE'
-                    },
-                    {
-                        category: 'HARM_CATEGORY_HATE_SPEECH',
-                        threshold: 'BLOCK_NONE'
-                    },
-                    {
-                        category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-                        threshold: 'BLOCK_NONE'
-                    },
-                    {
-                        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                        threshold: 'BLOCK_NONE'
-                    }
-                ]
+                }
+                // Note: Safety settings removed - BLOCK_NONE not allowed for standard API keys
+                // Default safety settings are sufficient for automotive technical content
             },
             {
                 headers: {
@@ -281,11 +265,24 @@ async function callGeminiAPI(userPrompt) {
  * @returns {Array<string>} Array of bullet points
  */
 function parseBulletPoints(text) {
+    console.log('Raw Gemini response:', text.substring(0, 500)); // Debug log
+    
     const lines = text.split('\n').filter(line => line.trim());
-    return lines
-        .filter(line => line.trim().startsWith('•') || /^\d+\./.test(line.trim()))
-        .map(line => line.replace(/^[•\d+.\-]\s*/, '').trim())
-        .filter(line => line.length > 0);
+    
+    // Try multiple bullet formats: •, -, *, or numbered (1., 2., etc.)
+    const bulletPatterns = /^[•\-\*]\s*|^\d+[\.\)]\s*/;
+    
+    const bullets = lines
+        .filter(line => bulletPatterns.test(line.trim()) || line.trim().length > 20) // Also accept long lines
+        .map(line => line.replace(/^[•\-\*\d+.\)]\s*/, '').trim())
+        .filter(line => line.length > 10); // Filter out very short lines
+    
+    // If no bullets found, try to split by double newlines or return as single points
+    if (bullets.length === 0 && text.trim().length > 0) {
+        return text.split(/\n\n+/).map(p => p.trim()).filter(p => p.length > 10).slice(0, 5);
+    }
+    
+    return bullets;
 }
 
 /**
