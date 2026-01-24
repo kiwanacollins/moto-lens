@@ -14,12 +14,22 @@ dotenv.config({ path: join(__dirname, '..', '.env') });
 // Services
 import autodevService from './services/autodevService.js';
 import vinUtils from './utils/vinValidator.js';
-import geminiImageService from './services/geminiImageService.js';
 import geminiAiService from './services/geminiAiService.js';
 import vehicleEnrichmentService from './services/vehicleEnrichmentService.js';
+import {
+    searchVehicleImages,
+    searchPartImages,
+    clearSearchCache,
+    getCacheStats
+} from './services/webImageSearchService.js';
 
-// Use Gemini service since Imagen 3 has quota limits
-const imageService = geminiImageService;
+// Use Web Image Search instead of Gemini for images
+const imageService = {
+    searchVehicleImages,
+    searchPartImages,
+    clearSearchCache,
+    getCacheStats
+};
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -109,7 +119,7 @@ app.post('/api/vin/decode', async (req, res) => {
 
 app.get('/api/vehicle/images/:vin', async (req, res) => {
     const { vin } = req.params;
-    const { refresh, mock } = req.query;
+    const { refresh } = req.query;
 
     try {
         // First validate the VIN
@@ -126,19 +136,12 @@ app.get('/api/vehicle/images/:vin', async (req, res) => {
         if (!vehicle.make || !vehicle.model || !vehicle.year) {
             return res.status(400).json({
                 error: 'INSUFFICIENT_DATA',
-                message: 'Vehicle data incomplete - make, model, and year required for image generation'
+                message: 'Vehicle data incomplete - make, model, and year required for image search'
             });
         }
 
-        // Set mock mode if requested
-        if (mock === 'true') {
-            process.env.USE_MOCK_IMAGES = 'true';
-        }
-
-        // Generate images using configured image service (Imagen 3 or Gemini)
-        const imageResults = await imageService.generateVehicleImagesWithOptions(vehicle, {
-            forceRefresh: refresh === 'true'
-        });
+        // Search for vehicle images using web search APIs
+        const imageResults = await imageService.searchVehicleImages(vehicle);
 
         return res.json({
             success: true,
@@ -149,10 +152,7 @@ app.get('/api/vehicle/images/:vin', async (req, res) => {
                 year: vehicle.year,
                 trim: vehicle.trim
             },
-            options: {
-                forceRefresh: refresh === 'true',
-                mockMode: mock === 'true'
-            },
+            source: 'web-search',
             ...imageResults
         });
 
@@ -162,9 +162,9 @@ app.get('/api/vehicle/images/:vin', async (req, res) => {
             return res.status(err.statusCode || 500).json({ error: err.code || 'VIN_DECODE_ERROR', message: err.message });
         }
 
-        // Handle image generation errors
-        if (err && err.name === 'VehicleImageError') {
-            return res.status(err.statusCode || 500).json({ error: err.code || 'IMAGE_GENERATION_ERROR', message: err.message });
+        // Handle image search errors
+        if (err && err.name === 'VehicleImageSearchError') {
+            return res.status(err.statusCode || 500).json({ error: err.code || 'IMAGE_SEARCH_ERROR', message: err.message });
         }
 
         // Unexpected error
@@ -186,30 +186,112 @@ app.post('/api/vehicle/images', async (req, res) => {
             });
         }
 
-        // Set mock mode if requested
-        if (options.mock === true) {
-            process.env.USE_MOCK_IMAGES = 'true';
-        }
-
-        // Generate images using configured image service
-        const imageResults = await imageService.generateVehicleImagesWithOptions(vehicleData, options);
+        // Search for vehicle images using web search APIs
+        const imageResults = await imageService.searchVehicleImages(vehicleData);
 
         return res.json({
             success: true,
             vehicle: vehicleData,
+            source: 'web-search',
             options,
             ...imageResults
         });
 
     } catch (err) {
-        // Handle image generation errors
-        if (err && err.name === 'VehicleImageError') {
-            return res.status(err.statusCode || 500).json({ error: err.code || 'IMAGE_GENERATION_ERROR', message: err.message });
+        // Handle image search errors
+        if (err && err.name === 'VehicleImageSearchError') {
+            return res.status(err.status || 500).json({
+                error: err.code || 'IMAGE_SEARCH_ERROR',
+                message: err.message
+            });
         }
 
         // Unexpected error
-        console.error('Error generating vehicle images:', err);
-        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to generate vehicle images' });
+        console.error('Error searching vehicle images:', err);
+        return res.status(500).json({
+            error: 'INTERNAL_ERROR',
+            message: 'Failed to search vehicle images'
+        });
+    }
+});
+
+// Parts image search endpoint
+app.get('/api/parts/images', async (req, res) => {
+    const { partName, vin, make, model, year } = req.query;
+
+    try {
+        let vehicleData;
+
+        // Get vehicle data from VIN or query params
+        if (vin) {
+            // Validate and decode VIN
+            const validation = vinUtils.validateVIN(vin);
+            if (!validation.valid) {
+                return res.status(400).json({
+                    error: 'INVALID_VIN',
+                    message: validation.error
+                });
+            }
+
+            // Decode VIN to get vehicle data
+            const apiResponse = await autodevService.decodeVIN(validation.vin);
+            vehicleData = autodevService.parseVehicleData(apiResponse);
+        } else if (make && model && year) {
+            // Use provided vehicle data
+            vehicleData = { make, model, year: parseInt(year) };
+        } else {
+            return res.status(400).json({
+                error: 'INVALID_REQUEST',
+                message: 'Either VIN or vehicle data (make, model, year) is required'
+            });
+        }
+
+        // Validate part name
+        if (!partName || typeof partName !== 'string' || partName.trim().length === 0) {
+            return res.status(400).json({
+                error: 'INVALID_PART_NAME',
+                message: 'Part name is required and must be a non-empty string'
+            });
+        }
+
+        // Search for part images
+        const partResults = await imageService.searchPartImages(partName.trim(), vehicleData);
+
+        return res.json({
+            success: true,
+            partName: partName.trim(),
+            vehicle: {
+                make: vehicleData.make,
+                model: vehicleData.model,
+                year: vehicleData.year
+            },
+            source: 'web-search',
+            ...partResults
+        });
+
+    } catch (err) {
+        // Handle VIN decode errors
+        if (err && err.name === 'VINDecodeError') {
+            return res.status(err.statusCode || 500).json({
+                error: err.code || 'VIN_DECODE_ERROR',
+                message: err.message
+            });
+        }
+
+        // Handle part search errors
+        if (err && err.name === 'PartImageSearchError') {
+            return res.status(err.status || 500).json({
+                error: err.code || 'PART_SEARCH_ERROR',
+                message: err.message
+            });
+        }
+
+        // Unexpected error
+        console.error('Error searching part images:', err);
+        return res.status(500).json({
+            error: 'INTERNAL_ERROR',
+            message: 'Failed to search part images'
+        });
     }
 });
 
@@ -231,16 +313,18 @@ app.get('/api/cache/images', (req, res) => {
 // Clear cache endpoint
 app.delete('/api/cache/images', (req, res) => {
     try {
-        const result = imageService.clearAllCache();
+        imageService.clearSearchCache();
         return res.json({
             success: true,
-            ...result,
-            timestamp: new Date().toISOString(),
-            message: `Cleared ${result.cleared} cache entries`
+            message: 'Cache cleared successfully',
+            timestamp: new Date().toISOString()
         });
     } catch (err) {
         console.error('Error clearing cache:', err);
-        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to clear cache' });
+        return res.status(500).json({
+            error: 'INTERNAL_ERROR',
+            message: 'Failed to clear cache'
+        });
     }
 });
 

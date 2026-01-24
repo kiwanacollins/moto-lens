@@ -9,6 +9,9 @@ import React360Viewer from 'react-360-view';
 // Import styles for mobile optimization
 import './Vehicle360Viewer.css';
 
+// Import vehicle service
+import { getVehicleImages } from '../../services/vehicleService';
+
 interface Vehicle360ViewerProps {
     images: string[];
     loading?: boolean;
@@ -19,6 +22,9 @@ interface Vehicle360ViewerProps {
     dragSensitivity?: 'low' | 'medium' | 'high';
     enableAutoplay?: boolean;
     autoplaySpeed?: number;
+    // Vehicle data for loading images
+    vehicleData?: any;
+    onImagesLoaded?: (images: string[]) => void;
 }
 
 export default function Vehicle360Viewer({
@@ -29,13 +35,15 @@ export default function Vehicle360Viewer({
     height = 400,
     dragSensitivity = 'medium',
     enableAutoplay = false,
-    autoplaySpeed = 2000
+    autoplaySpeed = 2000,
+    vehicleData = null,
+    onImagesLoaded = () => { }
 }: Vehicle360ViewerProps) {
     const [imagesLoaded, setImagesLoaded] = useState(false);
     const [imageErrors, setImageErrors] = useState<number>(0);
     const [showHint, setShowHint] = useState(true);
-
-    // Sample images for testing (placeholder car images)
+    const [backendImages, setBackendImages] = useState<string[]>([]);
+    const [loadingImages, setLoadingImages] = useState(false);    // Sample images for testing (placeholder car images)
     const sampleImages = [
         '/api/placeholder/400/300', // Front
         '/api/placeholder/400/300', // Front-right
@@ -48,7 +56,7 @@ export default function Vehicle360Viewer({
     ];
 
     // Use sample images if no real images provided
-    const viewerImages = images.length > 0 ? images : sampleImages;
+    const viewerImages = backendImages.length > 0 ? backendImages : (images.length > 0 ? images : sampleImages);
 
     // Calculate drag sensitivity settings
     const getSensitivitySettings = () => {
@@ -110,7 +118,30 @@ export default function Vehicle360Viewer({
         });
     }, [viewerImages]);
 
-    if (loading) {
+    // Effect to load images from backend when vehicleData is provided
+    useEffect(() => {
+        if (!vehicleData || backendImages.length > 0) return;
+
+        async function loadBackendImages() {
+            try {
+                setLoadingImages(true);
+                const vehicleImages = await getVehicleImages(vehicleData);
+                const imageUrls = vehicleImages.map(img => img.url);
+                setBackendImages(imageUrls);
+                onImagesLoaded(imageUrls);
+            } catch (error) {
+                console.error('Failed to load vehicle images:', error);
+                // Fallback to sample images on error
+                setBackendImages([]);
+            } finally {
+                setLoadingImages(false);
+            }
+        }
+
+        loadBackendImages();
+    }, [vehicleData, onImagesLoaded, backendImages.length]);
+
+    if (loading || loadingImages) {
         return (
             <Paper
                 shadow="sm"

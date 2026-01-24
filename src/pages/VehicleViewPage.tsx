@@ -20,6 +20,7 @@ import { FiInfo } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { decodeVIN, getVehicleSummary } from '../services/vehicleService';
 import type { VehicleData, VehicleSummary } from '../types/vehicle';
+import Vehicle360Viewer from '../components/vehicle/Vehicle360Viewer';
 
 // Premium spec field component with refined typography
 // Spec card component - individual contained box for each specification
@@ -304,6 +305,14 @@ export default function VehicleViewPage() {
                         </Text>
                       </Box>
                     </Paper>
+
+                    {/* 360° Vehicle Viewer */}
+                    <Vehicle360Viewer
+                      vehicleData={vehicleData}
+                      vehicleName={`${vehicleData.year} ${vehicleData.make} ${vehicleData.model}`}
+                      height={500}
+                      dragSensitivity="medium"
+                    />
 
                     {/* Vehicle Summary Card */}
                     {vehicleSummary && (

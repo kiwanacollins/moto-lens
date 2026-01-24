@@ -1,5 +1,7 @@
 # 📋 MOTO LENS - Development Tasks
 
+WVWZZZCDZMW072001
+
 ## Project Overview
 Building a mobile-first PWA for German vehicle VIN decoding and interactive part identification.
 
@@ -161,24 +163,16 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Add error handling for invalid VINs
 - [x] Test with German vehicle VINs (BMW, Audi, Mercedes, VW, Porsche)
 
-### 2.3 Google Gemini/Imagen Integration
-- [x] Set up Google Cloud project
-- [x] Enable Gemini API
-- [x] Create service account / API key
-- [x] Create `/api/vehicle/images` endpoint
-- [x] Implement image generation with prompt template:
-  ```
-  Photorealistic studio image of a {YEAR} {MAKE} {MODEL},
-  {ANGLE} view,
-  neutral background,
-  automotive photography,
-  realistic lighting,
-  high detail,
-  sharp focus
-  ```
-- [x] Generate 8 angles: front, front-left, left, rear-left, rear, rear-right, right, front-right
-- [x] Return image URLs or base64 data
-- [x] Add caching mechanism (in-memory for MVP)
+### 2.3 Web Image Search API Integration (UPDATED)
+- [ ] Sign up for SerpApi account (1,000 free searches/month)
+- [ ] Get Google Custom Search Engine API key (100/day free)
+- [ ] Get Microsoft Bing Image Search API key (1,000/month free)
+- [ ] Test image search APIs with German vehicle queries
+- [ ] Create `/api/vehicle/images` endpoint using web search
+- [ ] Create `/api/parts/images` endpoint for spare parts
+- [ ] Implement image deduplication and quality filtering
+- [ ] Add caching mechanism for search results
+- [ ] Compare costs vs Gemini (should be 50-100x cheaper)
 
 ### 2.4 AI Parts Information Endpoints
 - [x] Create `/api/vehicle/summary` endpoint
@@ -253,13 +247,17 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Set up drag sensitivity
 - [x] Add loading spinner while images load
 
-### 4.2 Integrate AI-Generated Images
-- [ ] Load 8 angle images from backend
-- [ ] Display in 360° viewer
-- [ ] Add image preloading
-- [ ] Optimize image sizes for mobile
-- [ ] Add fallback for failed image loads
-- [ ] Test rotation smoothness on mobile devices
+### 4.2 Integrate Web Image Search (UPDATED - No More AI Generation)
+- [x] Load 8 angle images from backend
+- [x] Display in 360° viewer
+- [x] Add image preloading
+- [ ] Replace Gemini with SerpApi/Bing web image search
+- [ ] Implement WebImageSearchService class
+- [ ] Add Google Custom Search Engine as backup
+- [ ] Create parts image search endpoint
+- [ ] Test with German vehicles (BMW, Audi, VW, Mercedes, Porsche)
+- [ ] Update frontend to handle web search results
+- [ ] Remove AI generation code completely
 
 ### 4.3 Viewer UI Polish
 - [x] Add rotation instructions (swipe hint) - Electric Blue text
@@ -510,13 +508,15 @@ These must work for MVP to be viable:
 | Service | Cost Model | Estimated MVP Cost |
 |---------|------------|-------------------|
 | Auto.dev API | 1,000 free calls/month, then $0.004/call | $0 (under free tier) |
-| Google Gemini/Imagen | Pay-per-request | $100-300 (image generation) |
+| SerpApi (Images) | 1,000 free searches/month, then $50/5k | $0-50 (much cheaper than Gemini) |
+| Bing Image Search | 1,000 free/month, then $2/1k | $0-20 (excellent backup) |
+| Google Custom Search | 100/day free, then $5/1k | $0-15 (occasional use) |
 | Hosting (Backend) | Free tier / $5-10/mo | $0-20 |
 | Hosting (Frontend) | Free tier | $0 |
 | Domain (optional) | $10-15/year | $0-15 |
-| **Total** | | **$100-335** |
+| **Total** | | **$0-120** (vs previous $100-335) |
 
-**Remaining budget for scaling:** $665-900
+**Remaining budget for scaling:** $880-1000 (much better!)
 
 ---
 
@@ -526,12 +526,12 @@ These must work for MVP to be viable:
 |------|-----------|
 | Brand colors not visible in bright garage lighting | Test in real conditions; adjust Electric Blue brightness if needed |
 | Fonts not loading properly | Host fonts locally as fallback |
-| AI images look fake | Refine prompts; add "photorealistic" emphasis |
+| Web image search returns low quality images | Filter by size/quality; use multiple APIs (SerpApi + Bing + Google) |
 | Auto.dev limited German coverage | Test thoroughly with German VINs; 1,000 free calls for thorough testing |
-| Gemini output sounds AI-generated | Use strict system prompt; implement output templates |
-| 360° viewer too slow | Optimize image sizes; reduce to 8 images; add lazy loading |
+| Image search APIs return irrelevant results | Use specific queries; filter by relevance; combine multiple search terms |
+| 360° viewer too slow with web images | Optimize image loading; use thumbnails; progressive enhancement |
 | PWA install issues on iOS | Test on real devices; follow Apple PWA guidelines |
-| Costs exceed budget | Implement aggressive caching; limit test requests |
+| Image search costs exceed budget | Use free tiers first; implement smart caching; limit searches per user |
 | Login too simple (security concerns) | Document as MVP only; plan JWT implementation for production |
 
 ---
@@ -543,8 +543,8 @@ These must work for MVP to be viable:
 - **Brand colors:** Carbon Black, Gunmetal Gray, Electric Blue
 - **Fonts:** Inter (UI), JetBrains Mono (VINs/technical)
 - **German vehicles only** - Focused scope for MVP
-- **8 angles minimum** - Balance between quality and cost
-- **Manual hotspot placement** - No AI-based detection in MVP
+- **Web image search only** - No AI generation, real car photos from web
+- **SerpApi + Bing + Google** - Multiple search APIs for best coverage
 - **No user accounts** - Reduces complexity significantly
 - **localStorage for auth state** - Simple session management
 

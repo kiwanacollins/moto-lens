@@ -10,8 +10,8 @@ import axios from 'axios';
 // Google Generative AI API configuration  
 const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-// Model for image generation - Gemini 2.0 Flash with image output
-const IMAGE_MODEL = 'gemini-2.0-flash-exp-image-generation';
+// Model for image generation - Imagen 4 (available in your account)
+const IMAGE_MODEL = 'imagen-4.0-generate-001';
 
 // Helper function to get API key (ensures env is loaded)
 function getApiKey() {
@@ -129,53 +129,47 @@ async function generateSingleImage(vehicleData, angle) {
 
         const apiKey = getApiKey();
 
-        // Use Gemini 2.0 Flash image generation via AI Studio API
+        // Use Imagen 4 API endpoint for image generation
         const response = await axios.post(
-            `${GEMINI_API_BASE_URL}/${IMAGE_MODEL}:generateContent?key=${apiKey}`,
+            `${GEMINI_API_BASE_URL}/${IMAGE_MODEL}:predict?key=${apiKey}`,
             {
-                contents: [{
-                    parts: [{
-                        text: `Generate an image: ${prompt}`
-                    }]
+                instances: [{
+                    prompt: prompt
                 }],
-                generationConfig: {
-                    responseModalities: ["IMAGE", "TEXT"]
+                parameters: {
+                    sampleCount: 1,
+                    aspectRatio: "16:9",
+                    safetyFilterLevel: "block_only_high",
+                    personGeneration: "dont_allow"
                 }
             },
             {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                timeout: 90000 // 90 second timeout for image generation
+                timeout: 120000 // 120 second timeout for image generation
             }
         );
 
-        // Parse the image response
+        // Parse the Imagen response
         const responseData = response.data;
 
-        // Check for inline image data in the response
-        if (responseData.candidates?.[0]?.content?.parts) {
-            const parts = responseData.candidates[0].content.parts;
+        // Imagen returns predictions array with bytesBase64Encoded
+        if (responseData.predictions?.[0]?.bytesBase64Encoded) {
+            const base64Image = responseData.predictions[0].bytesBase64Encoded;
+            const mimeType = responseData.predictions[0].mimeType || 'image/png';
 
-            // Find the image part
-            const imagePart = parts.find(part => part.inlineData?.mimeType?.startsWith('image/'));
-
-            if (imagePart && imagePart.inlineData?.data) {
-                const base64Image = imagePart.inlineData.data;
-                const mimeType = imagePart.inlineData.mimeType || 'image/png';
-
-                return {
-                    success: true,
-                    angle,
-                    imageData: base64Image,
-                    imageUrl: `data:${mimeType};base64,${base64Image}`,
-                    mimeType,
-                    prompt,
-                    generatedAt: new Date().toISOString(),
-                    fileSize: Math.round(base64Image.length * 0.75),
-                    model: IMAGE_MODEL
-                };
-            }
+            return {
+                success: true,
+                angle,
+                imageData: base64Image,
+                imageUrl: `data:${mimeType};base64,${base64Image}`,
+                mimeType,
+                prompt,
+                generatedAt: new Date().toISOString(),
+                fileSize: Math.round(base64Image.length * 0.75),
+                model: IMAGE_MODEL
+            };
         }
 
         // If no image was generated, throw error to fall back to mock

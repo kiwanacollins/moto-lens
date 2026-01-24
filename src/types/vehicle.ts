@@ -28,6 +28,7 @@ export interface VehicleData {
 export interface VehicleImage {
   angle: string;
   url: string;
+  isBase64?: boolean;
 }
 
 export interface VehicleSummary {
