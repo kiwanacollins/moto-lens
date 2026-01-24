@@ -22,7 +22,23 @@ import { useAuth } from '../contexts/AuthContext';
 import { decodeVIN, getVehicleSummary } from '../services/vehicleService';
 import type { VehicleData, VehicleSummary } from '../types/vehicle';
 
-export default function VehicleViewPage() {
+// Helper component for field display
+const DataField = ({
+  label,
+  value
+}: {
+  label: string;
+  value: string;
+}) => (
+  <div>
+    <Text size="sm" c="dark.6" ff="Inter" fw={500} tt="uppercase" mb="xs">
+      {label}
+    </Text>
+    <Text size="lg" c="dark.9" ff="Inter" fw={600}>
+      {value}
+    </Text>
+  </div>
+); export default function VehicleViewPage() {
   const { vin } = useParams<{ vin: string }>();
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -79,6 +95,9 @@ export default function VehicleViewPage() {
             <Loader size="lg" color="blue.4" />
             <Text size="lg" c="dark.9" ff="Inter" fw={500}>
               Loading vehicle information...
+            </Text>
+            <Text size="sm" c="dark.6" ff="Inter" ta="center">
+              Gathering complete vehicle specifications
             </Text>
           </Stack>
         </Paper>
@@ -185,34 +204,73 @@ export default function VehicleViewPage() {
 
                       {/* Technical Specifications */}
                       <Stack gap="md">
+                        {/* Row 1: Engine & Body Type */}
                         <Group justify="space-between" wrap="wrap">
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} tt="uppercase">
-                              Engine
-                            </Text>
-                            <Text size="lg" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.engine}
-                            </Text>
-                          </div>
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} tt="uppercase">
-                              Body Type
-                            </Text>
-                            <Text size="lg" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.bodyType}
-                            </Text>
-                          </div>
+                          <DataField
+                            label="Engine"
+                            value={vehicleData.engine || 'Not specified'}
+                          />
+                          <DataField
+                            label="Body Type"
+                            value={vehicleData.bodyType || 'Not specified'}
+                          />
                         </Group>
 
+                        {/* Row 2: Transmission & Drivetrain */}
                         <Group justify="space-between" wrap="wrap">
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} tt="uppercase">
-                              Manufacturer
-                            </Text>
-                            <Text size="lg" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.manufacturer}
-                            </Text>
-                          </div>
+                          <DataField
+                            label="Transmission"
+                            value={vehicleData.transmission || 'Not specified'}
+                          />
+                          <DataField
+                            label="Drivetrain"
+                            value={vehicleData.drivetrain || 'Not specified'}
+                          />
+                        </Group>
+
+                        {/* Row 3: Additional Enhanced Data */}
+                        {(vehicleData.fuelType || vehicleData.horsepower) && (
+                          <Group justify="space-between" wrap="wrap">
+                            {vehicleData.fuelType && (
+                              <DataField
+                                label="Fuel Type"
+                                value={vehicleData.fuelType}
+                              />
+                            )}
+                            {vehicleData.horsepower && (
+                              <DataField
+                                label="Power"
+                                value={vehicleData.horsepower}
+                              />
+                            )}
+                          </Group>
+                        )}
+
+                        {/* Row 4: Manufacturer (Always from API) */}
+                        <Group justify="space-between" wrap="wrap">
+                          <DataField
+                            label="Manufacturer"
+                            value={vehicleData.manufacturer}
+                          />
+                          {(vehicleData.doors || vehicleData.seats) && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} tt="uppercase" mb="xs">
+                                Configuration
+                              </Text>
+                              <Group gap="md">
+                                {vehicleData.doors && (
+                                  <Text size="lg" c="dark.9" ff="Inter" fw={600}>
+                                    {vehicleData.doors} doors
+                                  </Text>
+                                )}
+                                {vehicleData.seats && (
+                                  <Text size="lg" c="dark.9" ff="Inter" fw={600}>
+                                    {vehicleData.seats} seats
+                                  </Text>
+                                )}
+                              </Group>
+                            </div>
+                          )}
                         </Group>
 
                         <Divider color="zinc.2" />

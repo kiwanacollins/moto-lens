@@ -16,6 +16,7 @@ import autodevService from './services/autodevService.js';
 import vinUtils from './utils/vinValidator.js';
 import geminiImageService from './services/geminiImageService.js';
 import geminiAiService from './services/geminiAiService.js';
+import vehicleEnrichmentService from './services/vehicleEnrichmentService.js';
 
 // Use Gemini service since Imagen 3 has quota limits
 const imageService = geminiImageService;
@@ -82,10 +83,20 @@ app.post('/api/vin/decode', async (req, res) => {
             return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
         }
 
+        // Decode VIN from external API
         const apiResponse = await autodevService.decodeVIN(validation.vin);
         const vehicle = autodevService.parseVehicleData(apiResponse);
 
-        return res.json({ success: true, vehicle });
+        // Enrich vehicle data with AI predictions for missing fields
+        console.log('Original vehicle data:', vehicle);
+        const enrichedVehicle = await vehicleEnrichmentService.enrichVehicleData(vehicle);
+        console.log('Enriched vehicle data:', enrichedVehicle);
+
+        return res.json({
+            success: true,
+            vehicle: enrichedVehicle,
+            enrichmentApplied: enrichedVehicle._enriched || false
+        });
     } catch (err) {
         if (err && err.name === 'VINDecodeError') {
             return res.status(err.statusCode || 500).json({ error: err.code || 'API_ERROR', message: err.message });

@@ -193,6 +193,24 @@ Format: Number each part 1-5. Use bullet points for details. Be specific with nu
 }
 
 /**
+ * Generic AI response generation for vehicle enrichment
+ * @param {string} prompt - User prompt
+ * @returns {Promise<string>} Generated response
+ */
+export async function generateResponse(prompt) {
+    try {
+        return await callGeminiAPI(prompt);
+    } catch (error) {
+        console.error('Error generating AI response:', error);
+        throw new GeminiAiError(
+            error.message || 'Failed to generate AI response',
+            'AI_GENERATION_FAILED',
+            500
+        );
+    }
+}
+
+/**
  * Call Gemini API with system prompt
  * @param {string} userPrompt - User prompt
  * @returns {Promise<string>} API response text
