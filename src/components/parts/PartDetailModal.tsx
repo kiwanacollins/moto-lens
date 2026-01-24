@@ -1,6 +1,93 @@
-import { Modal, Title, Text, Group, Button, Stack, Code, Badge } from '@mantine/core';
-import { MdClose } from 'react-icons/md';
+import { Modal, Title, Text, Group, Button, Stack, Code, Badge, Image, List, ThemeIcon } from '@mantine/core';
+import { MdClose, MdCheckCircle } from 'react-icons/md';
 import type { PartInfo, Hotspot } from '../../types/parts';
+import type { PartDetailsResponse } from '../../services/partsService';
+
+/**
+ * Parse markdown-like AI response and convert to structured sections
+ */
+function parseAIDescription(description: string): { 
+    sections: Array<{ title: string; content: string[] }>;
+    rawText: string;
+} {
+    if (!description) {
+        return { sections: [], rawText: '' };
+    }
+
+    const sections: Array<{ title: string; content: string[] }> = [];
+    
+    // Split by common markdown section patterns
+    const lines = description.split('\n').map(line => line.trim()).filter(Boolean);
+    
+    let currentSection: { title: string; content: string[] } | null = null;
+    
+    for (const line of lines) {
+        // Check if this line is a section header (starts with ** and ends with **)
+        const headerMatch = line.match(/^\*\*([^*]+)\*\*:?\s*$/);
+        if (headerMatch) {
+            if (currentSection) {
+                sections.push(currentSection);
+            }
+            currentSection = { title: headerMatch[1].trim(), content: [] };
+            continue;
+        }
+        
+        // Check for inline header: **Header:** content
+        const inlineHeaderMatch = line.match(/^\*\*([^*]+)\*\*:?\s*(.+)$/);
+        if (inlineHeaderMatch) {
+            if (currentSection) {
+                sections.push(currentSection);
+            }
+            const content = inlineHeaderMatch[2].trim();
+            currentSection = { 
+                title: inlineHeaderMatch[1].trim(), 
+                content: content ? [cleanMarkdown(content)] : [] 
+            };
+            continue;
+        }
+        
+        // Regular content line (bullet point or text)
+        if (currentSection) {
+            // Clean up bullet markers and markdown
+            const cleanedLine = cleanMarkdown(line.replace(/^[\*\-•]\s*/, '').trim());
+            if (cleanedLine) {
+                currentSection.content.push(cleanedLine);
+            }
+        } else {
+            // No section yet, create a general one
+            currentSection = { title: 'Overview', content: [cleanMarkdown(line)] };
+        }
+    }
+    
+    // Don't forget the last section
+    if (currentSection) {
+        sections.push(currentSection);
+    }
+    
+    // Sort sections to prioritize components first
+    sections.sort((a, b) => {
+        const aIsComponents = a.title.toLowerCase().includes('component') || a.title.toLowerCase().includes('parts');
+        const bIsComponents = b.title.toLowerCase().includes('component') || b.title.toLowerCase().includes('parts');
+        
+        if (aIsComponents && !bIsComponents) return -1;
+        if (!aIsComponents && bIsComponents) return 1;
+        return 0;
+    });
+    
+    return { sections, rawText: description };
+}
+
+/**
+ * Clean markdown formatting from text
+ */
+function cleanMarkdown(text: string): string {
+    return text
+        .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold **text**
+        .replace(/\*([^*]+)\*/g, '$1')     // Remove italic *text*
+        .replace(/`([^`]+)`/g, '$1')       // Remove inline code
+        .replace(/^\s*[\*\-•]\s*/, '')     // Remove leading bullets
+        .trim();
+}
 
 interface PartDetailModalProps {
     opened: boolean;
@@ -8,6 +95,7 @@ interface PartDetailModalProps {
     partInfo: PartInfo | null;
     clickedHotspot: Hotspot | null;
     loading?: boolean;
+    partDetails?: PartDetailsResponse | null;
 }
 
 export function PartDetailModal({
@@ -15,13 +103,14 @@ export function PartDetailModal({
     onClose,
     partInfo,
     clickedHotspot: _clickedHotspot,
-    loading = false
+    loading = false,
+    partDetails
 }: PartDetailModalProps) {
     return (
         <Modal
             opened={opened}
             onClose={onClose}
-            size="md"
+            size="lg"
             radius="md"
             centered
             withCloseButton={false}
@@ -34,9 +123,14 @@ export function PartDetailModal({
                     backgroundColor: '#0a0a0a', // Carbon Black background
                     border: 'none',
                     position: 'relative',
+                    width: '115% !important', // 15% wider
+                    maxWidth: 'min(95vw, 600px)', // Responsive max width
                 },
                 body: {
                     padding: 0,
+                },
+                inner: {
+                    minHeight: '67.5vh', // 35% taller (50vh * 1.35)
                 },
             }}
         >
@@ -93,13 +187,15 @@ export function PartDetailModal({
                 </Group>
             </div>
 
-            {/* White content area */}
+            {/* White content area - scrollable */}
             <div
                 style={{
                     backgroundColor: '#ffffff',
-                    padding: '24px',
+                    padding: '34px', // Slightly more padding for larger modal
                     borderBottomLeftRadius: '8px',
                     borderBottomRightRadius: '8px',
+                    maxHeight: '95vh', // Increased to accommodate larger modal
+                    overflowY: 'auto',
                 }}
             >
                 {loading ? (
@@ -131,37 +227,103 @@ export function PartDetailModal({
                     </Stack>
                 ) : partInfo ? (
                     <Stack gap="lg">
-                        {/* Part number - technical data with JetBrains Mono */}
-                        {partInfo.partNumber && (
-                            <Group>
-                                <Text c="#52525b" ff="Inter" size="sm" fw={500}>
-                                    Part Number:
-                                </Text>
-                                <Code
-                                    ff="JetBrains Mono"
-                                    fw={500}
-                                    c="#0a0a0a"
+                        {/* Part Image - if available from SerpApi */}
+                        {partDetails?.image && (
+                            <div>
+                                <Image
+                                    src={partDetails.image.url}
+                                    alt={partDetails.image.title || partInfo.name}
+                                    height={200}
+                                    fit="contain"
+                                    radius="md"
                                     style={{
-                                        backgroundColor: '#f4f4f5',
+                                        backgroundColor: '#f8fafc',
                                         border: '1px solid #e4e4e7',
-                                        borderRadius: '4px',
-                                        padding: '4px 8px',
                                     }}
-                                >
-                                    {partInfo.partNumber}
-                                </Code>
-                            </Group>
+                                    fallbackSrc="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjRmNGY1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzUyNTI1YiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9IjAuM2VtIj5ObyBJbWFnZSBBdmFpbGFibGU8L3RleHQ+PC9zdmc+"
+                                />
+                                {partDetails.image.title && (
+                                    <Text size="xs" c="#71717a" ff="Inter" mt="xs" ta="center">
+                                        {partDetails.image.title}
+                                    </Text>
+                                )}
+                            </div>
                         )}
 
-                        {/* Function description - Inter font for readability */}
+                        {/* Function description - Parsed AI content */}
                         {partInfo.description && (
                             <div>
                                 <Text c="#0a0a0a" ff="Inter" fw={600} size="sm" mb="xs">
                                     Function & Description
                                 </Text>
-                                <Text c="#52525b" ff="Inter" size="sm" style={{ lineHeight: 1.6 }}>
-                                    {partInfo.description}
-                                </Text>
+                                {(() => {
+                                    const { sections } = parseAIDescription(partInfo.description);
+                                    
+                                    if (sections.length > 0) {
+                                        return (
+                                            <Stack gap="md">
+                                                {sections.map((section, sectionIndex) => (
+                                                    <div key={sectionIndex}>
+                                                        {/* Section title */}
+                                                        <Text 
+                                                            c="#0ea5e9" 
+                                                            ff="Inter" 
+                                                            fw={600} 
+                                                            size="xs" 
+                                                            tt="uppercase"
+                                                            mb={4}
+                                                            style={{ letterSpacing: '0.5px' }}
+                                                        >
+                                                            {section.title}
+                                                        </Text>
+                                                        
+                                                        {/* Section content */}
+                                                        {section.content.length === 1 ? (
+                                                            <Text 
+                                                                c="#52525b" 
+                                                                ff="Inter" 
+                                                                size="sm" 
+                                                                style={{ lineHeight: 1.6 }}
+                                                            >
+                                                                {section.content[0]}
+                                                            </Text>
+                                                        ) : (
+                                                            <List
+                                                                spacing="xs"
+                                                                size="sm"
+                                                                icon={
+                                                                    <ThemeIcon color="blue.4" size={16} radius="xl">
+                                                                        <MdCheckCircle size={10} />
+                                                                    </ThemeIcon>
+                                                                }
+                                                            >
+                                                                {section.content.map((item, itemIndex) => (
+                                                                    <List.Item key={itemIndex}>
+                                                                        <Text 
+                                                                            c="#52525b" 
+                                                                            ff="Inter" 
+                                                                            size="sm" 
+                                                                            style={{ lineHeight: 1.5 }}
+                                                                        >
+                                                                            {item}
+                                                                        </Text>
+                                                                    </List.Item>
+                                                                ))}
+                                                            </List>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </Stack>
+                                        );
+                                    }
+                                    
+                                    // Fallback: plain text if parsing fails
+                                    return (
+                                        <Text c="#52525b" ff="Inter" size="sm" style={{ lineHeight: 1.6 }}>
+                                            {cleanMarkdown(partInfo.description)}
+                                        </Text>
+                                    );
+                                })()}
                             </div>
                         )}
 
@@ -185,7 +347,7 @@ export function PartDetailModal({
                                                 }}
                                             />
                                             <Text c="#52525b" ff="Inter" size="sm" style={{ lineHeight: 1.5 }}>
-                                                {symptom}
+                                                {cleanMarkdown(symptom)}
                                             </Text>
                                         </Group>
                                     ))}

@@ -106,6 +106,7 @@ export async function identifyPart(params) {
     const userPrompt = `Provide technical specifications for the ${partName}${vehicleContext}.
 
 Include:
+0. Main components/subparts that make up this ${partName} (list 3-5 key components)
 1. Part function and purpose in the vehicle system
 2. Common OEM part number(s) or equivalents
 3. Typical replacement cost range (if applicable)

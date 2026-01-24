@@ -21,6 +21,7 @@ import {
 } from 'react-icons/fi';
 import { PartDetailModal } from '../parts/PartDetailModal';
 import type { PartInfo } from '../../types/parts';
+import { getPartDetails, type PartDetailsResponse } from '../../services/partsService';
 
 // Universal automotive parts that apply to all vehicles
 const universalPartsData: Array<{
@@ -364,19 +365,52 @@ export function PartsGrid({ vehicleMake, vehicleModel, vehicleYear }: PartsGridP
     const [selectedPart, setSelectedPart] = useState<PartInfo | null>(null);
     const [modalOpened, setModalOpened] = useState(false);
     const [selectedHotspot, setSelectedHotspot] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+    const [partDetails, setPartDetails] = useState<PartDetailsResponse | null>(null);
 
-    const handlePartClick = (partData: typeof universalPartsData[0]) => {
-        // Create a simplified PartInfo structure since we'll fetch details from Gemini
-        const simplePartInfo: PartInfo = {
-            id: partData.id,
-            name: partData.name,
-            description: partData.description,
-            partNumber: 'Universal', // Will be populated by Gemini
-            symptoms: [], // Will be populated by Gemini
-            spareParts: [] // Will be populated by Gemini
-        };
+    const handlePartClick = async (partData: typeof universalPartsData[0]) => {
+        setLoading(true);
+        setModalOpened(true);
 
-        setSelectedPart(simplePartInfo);
+        try {
+            // Fetch enhanced part details with image and AI description
+            const vehicleData = vehicleMake && vehicleModel && vehicleYear
+                ? { make: vehicleMake, model: vehicleModel, year: vehicleYear }
+                : undefined;
+
+            const details = await getPartDetails(partData.name, partData.id, vehicleData);
+
+            // Convert to PartInfo format for the modal
+            const partInfo: PartInfo = {
+                id: details.partId,
+                name: details.partName,
+                description: details.description,
+                partNumber: details.partNumber,
+                symptoms: details.symptoms,
+                spareParts: details.spareParts || []
+            };
+
+            setSelectedPart(partInfo);
+            setPartDetails(details);
+        } catch (error) {
+            console.error('Failed to fetch part details:', error);
+
+            // Fallback to basic info
+            const fallbackPartInfo: PartInfo = {
+                id: partData.id,
+                name: partData.name,
+                description: partData.description,
+                partNumber: 'Universal',
+                symptoms: [],
+                spareParts: []
+            };
+
+            setSelectedPart(fallbackPartInfo);
+            setPartDetails(null);
+        } finally {
+            setLoading(false);
+        }
+
         setSelectedHotspot({
             id: partData.id,
             partName: partData.name,
@@ -384,11 +418,14 @@ export function PartsGrid({ vehicleMake, vehicleModel, vehicleYear }: PartsGridP
             coordinates: { x: 0, y: 0 },
             radius: 0
         });
-        setModalOpened(true);
-    }; const handleCloseModal = () => {
+    };
+
+    const handleCloseModal = () => {
         setModalOpened(false);
         setSelectedPart(null);
         setSelectedHotspot(null);
+        setPartDetails(null);
+        setLoading(false);
     };
 
     return (
@@ -523,7 +560,8 @@ export function PartsGrid({ vehicleMake, vehicleModel, vehicleYear }: PartsGridP
                 onClose={handleCloseModal}
                 partInfo={selectedPart}
                 clickedHotspot={selectedHotspot}
-                loading={false}
+                loading={loading}
+                partDetails={partDetails}
             />
         </>
     );

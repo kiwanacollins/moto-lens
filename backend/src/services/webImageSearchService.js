@@ -115,8 +115,12 @@ export async function searchVehicleImages(vehicleData) {
 /**
  * Search for spare parts images (fast single request)
  */
-export async function searchPartImages(partName, vehicleData) {
-    const { make, model, year } = vehicleData;
+export async function searchPartImages(partName, vehicleData = {}) {
+    // Handle missing or incomplete vehicle data gracefully
+    const make = vehicleData?.make || 'automotive';
+    const model = vehicleData?.model || '';
+    const year = vehicleData?.year || '';
+    
     const cacheKey = `part_${make}_${model}_${partName}`.toLowerCase().replace(/\s+/g, '_');
 
     // Check cache
@@ -129,16 +133,19 @@ export async function searchPartImages(partName, vehicleData) {
     const serpApiKey = process.env.SERPAPI_KEY;
 
     if (!serpApiKey) {
+        console.warn('⚠️ No SERPAPI_KEY configured');
         return { partName, images: [], source: 'no-api-key' };
     }
 
     try {
-        console.log(`🔍 SerpApi part search: ${partName} for ${make} ${model}`);
+        // Build search query with available context
+        const searchTerms = [make, model, partName, 'auto part'].filter(Boolean).join(' ');
+        console.log(`🔍 SerpApi part search: "${searchTerms}"`);
 
         const response = await axios.get(SERPAPI_BASE_URL, {
             params: {
                 engine: 'google_images',
-                q: `${make} ${model} ${partName} auto part`,
+                q: searchTerms,
                 num: 8,
                 api_key: serpApiKey,
                 safe: 'active'
