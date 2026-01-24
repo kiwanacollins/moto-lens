@@ -15,13 +15,13 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
       xmlns="http://www.w3.org/2000/svg"
     >
       {/* Lens Circle - Electric Blue */}
-      <circle cx="200" cy="200" r="110" stroke="#00D9FF" stroke-width="10" fill="none" />
+      <circle cx="200" cy="200" r="110" stroke="#00D9FF" strokeWidth="10" fill="none" />
       <circle
         cx="200"
         cy="200"
         r="86"
         stroke="#00D9FF"
-        stroke-width="6"
+        strokeWidth="6"
         fill="none"
         opacity="0.5"
       />
@@ -36,8 +36,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
         x2="200"
         y2="106"
         stroke="#00D9FF"
-        stroke-width="5"
-        stroke-linecap="round"
+        strokeWidth="5"
+        strokeLinecap="round"
       />
       <line
         x1="200"
@@ -45,8 +45,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
         x2="200"
         y2="325"
         stroke="#00D9FF"
-        stroke-width="5"
-        stroke-linecap="round"
+        strokeWidth="5"
+        strokeLinecap="round"
       />
       <line
         x1="75"
@@ -54,8 +54,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
         x2="106"
         y2="200"
         stroke="#00D9FF"
-        stroke-width="5"
-        stroke-linecap="round"
+        strokeWidth="5"
+        strokeLinecap="round"
       />
       <line
         x1="294"
@@ -63,8 +63,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
         x2="325"
         y2="200"
         stroke="#00D9FF"
-        stroke-width="5"
-        stroke-linecap="round"
+        strokeWidth="5"
+        strokeLinecap="round"
       />
 
       {/* Gear/Mechanical Element - Gunmetal Gray */}
@@ -78,7 +78,7 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
 
         {/* Inner Circle */}
         <circle r="20" fill="#0A0A0A" />
-        <circle r="12" stroke="#00D9FF" stroke-width="2" fill="none" />
+        <circle r="12" stroke="#00D9FF" strokeWidth="2" fill="none" />
       </g>
 
       {/* Corner Accent Lines */}
@@ -90,8 +90,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
             x2="125"
             y2="94"
             stroke="#00D9FF"
-            stroke-width="3"
-            stroke-linecap="round"
+            strokeWidth="3"
+            strokeLinecap="round"
             opacity="0.7"
           />
           <line
@@ -100,8 +100,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
             x2="94"
             y2="125"
             stroke="#00D9FF"
-            stroke-width="3"
-            stroke-linecap="round"
+            strokeWidth="3"
+            strokeLinecap="round"
             opacity="0.7"
           />
 
@@ -111,8 +111,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
             x2="275"
             y2="94"
             stroke="#00D9FF"
-            stroke-width="3"
-            stroke-linecap="round"
+            strokeWidth="3"
+            strokeLinecap="round"
             opacity="0.7"
           />
           <line
@@ -121,8 +121,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
             x2="306"
             y2="125"
             stroke="#00D9FF"
-            stroke-width="3"
-            stroke-linecap="round"
+            strokeWidth="3"
+            strokeLinecap="round"
             opacity="0.7"
           />
 
@@ -132,8 +132,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
             x2="125"
             y2="306"
             stroke="#00D9FF"
-            stroke-width="3"
-            stroke-linecap="round"
+            strokeWidth="3"
+            strokeLinecap="round"
             opacity="0.7"
           />
           <line
@@ -142,8 +142,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
             x2="94"
             y2="275"
             stroke="#00D9FF"
-            stroke-width="3"
-            stroke-linecap="round"
+            strokeWidth="3"
+            strokeLinecap="round"
             opacity="0.7"
           />
 
@@ -153,8 +153,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
             x2="275"
             y2="306"
             stroke="#00D9FF"
-            stroke-width="3"
-            stroke-linecap="round"
+            strokeWidth="3"
+            strokeLinecap="round"
             opacity="0.7"
           />
           <line
@@ -163,8 +163,8 @@ export const MotoLensLogo: React.FC<MotoLensLogoProps> = ({ size = 120, showCorn
             x2="306"
             y2="275"
             stroke="#00D9FF"
-            stroke-width="3"
-            stroke-linecap="round"
+            strokeWidth="3"
+            strokeLinecap="round"
             opacity="0.7"
           />
         </>

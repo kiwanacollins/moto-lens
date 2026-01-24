@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -34,10 +34,11 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate('/');
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
