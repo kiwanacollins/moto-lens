@@ -306,9 +306,9 @@ export default function VehicleViewPage() {
                       </Box>
                     </Paper>
 
-                    {/* 360° Vehicle Viewer */}
+                    {/* 360° Vehicle Viewer - Now using web search images */}
                     <Vehicle360Viewer
-                      vehicleData={vehicleData}
+                      vin={vehicleData.vin}
                       vehicleName={`${vehicleData.year} ${vehicleData.make} ${vehicleData.model}`}
                       height={500}
                       dragSensitivity="medium"

@@ -98,7 +98,7 @@ export async function searchVehicleImages(vehicleData) {
         const processedImages = processSearchResults(allImages);
 
         // If no images found and no API keys configured, provide fallback demo images
-        const finalImages = processedImages.length > 0 ? processedImages : generateFallbackImages(vehicle);
+        const finalImages = processedImages.length > 0 ? processedImages : generateFallbackImages({ make, model, year, trim });
 
         const response = {
             vehicleInfo: { make, model, year, trim },
@@ -225,7 +225,7 @@ export async function searchPartImages(partName, vehicleData) {
  */
 async function searchWithSerpApi(query) {
     const { serpApi } = getApiKeys();
-    
+
     if (!serpApi) {
         console.log('SerpApi key not configured, skipping');
         return [];
@@ -244,7 +244,7 @@ async function searchWithSerpApi(query) {
         });
 
         const results = response.data.images_results || [];
-        
+
         return results.map(result => ({
             title: result.title || 'Untitled',
             url: result.original || result.link,
@@ -266,7 +266,7 @@ async function searchWithSerpApi(query) {
  */
 async function searchWithGoogleLens(query) {
     const { serpApi } = getApiKeys();
-    
+
     if (!serpApi) {
         return [];
     }
@@ -282,7 +282,7 @@ async function searchWithGoogleLens(query) {
         });
 
         const visualMatches = response.data.visual_matches || [];
-        
+
         return visualMatches.map(match => ({
             title: match.title || 'Visual Match',
             url: match.link,
@@ -304,7 +304,7 @@ async function searchWithGoogleLens(query) {
  */
 async function searchWithBing(query) {
     const { bingApi } = getApiKeys();
-    
+
     if (!bingApi) {
         console.log('Bing API key not configured, skipping');
         return [];
@@ -326,7 +326,7 @@ async function searchWithBing(query) {
         });
 
         const results = response.data.value || [];
-        
+
         return results.map(result => ({
             title: result.name || 'Untitled',
             url: result.contentUrl,
@@ -348,7 +348,7 @@ async function searchWithBing(query) {
  */
 function processSearchResults(results) {
     // Remove duplicates based on URL
-    const uniqueResults = results.filter((result, index, array) => 
+    const uniqueResults = results.filter((result, index, array) =>
         array.findIndex(r => r.url === result.url) === index
     );
 
@@ -375,7 +375,7 @@ function processSearchResults(results) {
         // Prefer larger images
         const aSize = (a.width || 0) * (a.height || 0);
         const bSize = (b.width || 0) * (b.height || 0);
-        
+
         if (aSize !== bSize) {
             return bSize - aSize;
         }
@@ -384,7 +384,7 @@ function processSearchResults(results) {
         const preferredSources = ['google', 'bing'];
         const aPreferred = preferredSources.includes(a.searchEngine);
         const bPreferred = preferredSources.includes(b.searchEngine);
-        
+
         if (aPreferred !== bPreferred) {
             return bPreferred ? 1 : -1;
         }
@@ -394,7 +394,7 @@ function processSearchResults(results) {
 
     // Return top 8 results mapped to MotoLens format
     const angles = ['front', 'front-left', 'left', 'rear-left', 'rear', 'rear-right', 'right', 'front-right'];
-    
+
     return sorted.slice(0, 8).map((result, index) => ({
         angle: angles[index] || 'front',
         imageUrl: result.url,
@@ -441,9 +441,9 @@ class PartImageSearchError extends Error {
 function generateFallbackImages(vehicleData) {
     const { make, model, year } = vehicleData;
     const angles = ['front', 'front-left', 'left', 'rear-left', 'rear', 'rear-right', 'right', 'front-right'];
-    
+
     console.log(`Generating fallback demo images for ${year} ${make} ${model}`);
-    
+
     // Use high-quality placeholder images that look like actual cars
     const baseUrl = 'https://via.placeholder.com/800x600';
     const makeColors = {
@@ -453,9 +453,9 @@ function generateFallbackImages(vehicleData) {
         'Volkswagen': '0ea5e9', // Electric Blue (MotoLens brand color)
         'Porsche': 'dc2626', // Red
     };
-    
+
     const color = makeColors[make] || '6b7280'; // Default gray
-    
+
     return angles.map((angle, index) => ({
         angle,
         imageUrl: `${baseUrl}/${color}/ffffff?text=${encodeURIComponent(`${year} ${make} ${model} - ${angle.replace('-', ' ')}`)}`,

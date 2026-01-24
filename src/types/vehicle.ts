@@ -27,8 +27,20 @@ export interface VehicleData {
 
 export interface VehicleImage {
   angle: string;
-  url: string;
-  isBase64?: boolean;
+  imageUrl: string;
+  thumbnail?: string;
+  title?: string;
+  source?: string;
+  searchEngine?: string;
+  width?: number;
+  height?: number;
+  success: boolean;
+  error?: string | null;
+  model: string;
+  isBase64: boolean;
+  generatedAt?: string;
+  // Legacy fields for backward compatibility
+  url?: string;
 }
 
 export interface VehicleSummary {
