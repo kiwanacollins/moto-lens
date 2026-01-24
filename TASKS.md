@@ -164,15 +164,15 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Test with German vehicle VINs (BMW, Audi, Mercedes, VW, Porsche)
 
 ### 2.3 Web Image Search API Integration (UPDATED)
-- [ ] Sign up for SerpApi account (1,000 free searches/month)
+- [x] Sign up for SerpApi account (1,000 free searches/month)
 - [ ] Get Google Custom Search Engine API key (100/day free)
 - [ ] Get Microsoft Bing Image Search API key (1,000/month free)
-- [ ] Test image search APIs with German vehicle queries
-- [ ] Create `/api/vehicle/images` endpoint using web search
-- [ ] Create `/api/parts/images` endpoint for spare parts
-- [ ] Implement image deduplication and quality filtering
-- [ ] Add caching mechanism for search results
-- [ ] Compare costs vs Gemini (should be 50-100x cheaper)
+- [x] Test image search APIs with German vehicle queries
+- [x] Create `/api/vehicle/images` endpoint using web search
+- [x] Create `/api/parts/images` endpoint for spare parts
+- [x] Implement image deduplication and quality filtering
+- [x] Add caching mechanism for search results
+- [x] Compare costs vs Gemini (should be 50-100x cheaper)
 
 ### 2.4 AI Parts Information Endpoints
 - [x] Create `/api/vehicle/summary` endpoint
@@ -251,19 +251,19 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
 - [x] Load 8 angle images from backend
 - [x] Display in 360° viewer
 - [x] Add image preloading
-- [ ] Replace Gemini with SerpApi/Bing web image search
-- [ ] Implement WebImageSearchService class
+- [x] Replace Gemini with SerpApi/Bing web image search
+- [x] Implement WebImageSearchService class
 - [ ] Add Google Custom Search Engine as backup
-- [ ] Create parts image search endpoint
-- [ ] Test with German vehicles (BMW, Audi, VW, Mercedes, Porsche)
-- [ ] Update frontend to handle web search results
-- [ ] Remove AI generation code completely
+- [x] Create parts image search endpoint
+- [x] Test with German vehicles (BMW, Audi, VW, Mercedes, Porsche)
+- [x] Update frontend to handle web search results
+- [x] Remove AI generation code completely
 
 ### 4.3 Viewer UI Polish
 - [x] Add rotation instructions (swipe hint) - Electric Blue text
-- [ ] Add angle indicator (optional) - brand colors
+- [x] Remove angle indicator text (front, rear, left, etc.)
 - [x] Smooth loading transitions with brand styling
-- [ ] Test performance on mid-range phones
+- [x] Test performance on mid-range phones
 - [ ] Add pinch-to-zoom (optional)
 
 **Estimated Time:** 3-4 hours
