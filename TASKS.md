@@ -325,17 +325,17 @@ Building a mobile-first PWA for German vehicle VIN decoding and interactive part
   - [x] Wheels & suspension: Tires, wheels, rocker panels
   - [x] Electrical: Tail lights, mirrors, windows
   - [x] Mapped across 8 viewing angles (front, rear, left, right, etc.)
-- [ ] Expand part data for spare parts workflow:
-  - [ ] Add OEM part numbers to hotspots.json
-  - [ ] Include common aftermarket alternatives
-  - [ ] Add failure frequency data for priority ranking
-  - [ ] Link to supplier catalogs (BMW, Audi, Mercedes, VW, Porsche)
-- [ ] Create spare parts display components using arrow aesthetic:
-  - [ ] `SparePartsList` with red dot indicators
-  - [ ] `PartAvailability` status with connecting lines
-  - [ ] `PriceComparison` maintaining diagram styling
-  - [ ] `InstallationGuide` with step-by-step arrows
-- [ ] Test tap accuracy on mobile
+- [x] Expand part data for spare parts workflow:
+  - [x] Add OEM part numbers to hotspots.json
+  - [x] Include common aftermarket alternatives
+  - [x] Add failure frequency data for priority ranking
+  - [x] Link to supplier catalogs (BMW, Audi, Mercedes, VW, Porsche)
+- [x] Create spare parts display components using arrow aesthetic:
+  - [x] `SparePartsList` with red dot indicators
+  - [x] `PartAvailability` status with connecting lines
+  - [x] `PriceComparison` maintaining diagram styling
+  - [x] `InstallationGuide` with step-by-step arrows
+- [x] Test tap accuracy on mobile
 
 **Estimated Time:** 4-5 hours
 

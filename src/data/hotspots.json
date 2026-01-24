@@ -8,7 +8,45 @@
                 "x": 400,
                 "y": 180
             },
-            "radius": 50
+            "radius": 50,
+            "oemPartNumbers": {
+                "bmw": "41617376943",
+                "audi": "8V0823031A",
+                "mercedes": "A0008801057",
+                "vw": "5G0823031D",
+                "porsche": "99151203100"
+            },
+            "aftermarketAlternatives": [
+                {
+                    "brand": "Febi Bilstein",
+                    "partNumber": "103922",
+                    "qualityRating": 4.2,
+                    "priceRange": "$380-450"
+                },
+                {
+                    "brand": "Genuine Parts",
+                    "partNumber": "GPH-4001",
+                    "qualityRating": 4.5,
+                    "priceRange": "$320-390"
+                }
+            ],
+            "failureFrequency": {
+                "rating": "low",
+                "commonIssues": [
+                    "Corrosion at hinges",
+                    "Dents from impacts",
+                    "Paint damage"
+                ],
+                "avgLifespanYears": 15,
+                "replacementFrequency": "rare"
+            },
+            "supplierCatalogs": {
+                "bmw": "https://www.bmw.com/parts",
+                "audi": "https://parts.audi.com",
+                "mercedes": "https://parts.mercedes-benz.com",
+                "vw": "https://parts.vw.com",
+                "porsche": "https://parts.porsche.com"
+            }
         },
         {
             "id": "bumper-front",
@@ -18,7 +56,45 @@
                 "x": 400,
                 "y": 480
             },
-            "radius": 60
+            "radius": 60,
+            "oemPartNumbers": {
+                "bmw": "51118056046",
+                "audi": "8V0807221A",
+                "mercedes": "A2228850325",
+                "vw": "5G0807221",
+                "porsche": "99750541100"
+            },
+            "aftermarketAlternatives": [
+                {
+                    "brand": "Van Wezel",
+                    "partNumber": "0657574",
+                    "qualityRating": 4.1,
+                    "priceRange": "$280-350"
+                },
+                {
+                    "brand": "Prasco",
+                    "partNumber": "BM0421001",
+                    "qualityRating": 4.3,
+                    "priceRange": "$320-420"
+                }
+            ],
+            "failureFrequency": {
+                "rating": "medium",
+                "commonIssues": [
+                    "Impact damage from accidents",
+                    "Parking lot scratches",
+                    "Mounting bracket wear"
+                ],
+                "avgLifespanYears": 8,
+                "replacementFrequency": "occasional"
+            },
+            "supplierCatalogs": {
+                "bmw": "https://www.bmw.com/parts",
+                "audi": "https://parts.audi.com",
+                "mercedes": "https://parts.mercedes-benz.com",
+                "vw": "https://parts.vw.com",
+                "porsche": "https://parts.porsche.com"
+            }
         },
         {
             "id": "headlight-left",
@@ -28,7 +104,46 @@
                 "x": 250,
                 "y": 320
             },
-            "radius": 40
+            "radius": 40,
+            "oemPartNumbers": {
+                "bmw": "63117419629",
+                "audi": "8V0941043C",
+                "mercedes": "A2228203061",
+                "vw": "5G1941005F",
+                "porsche": "99763115304"
+            },
+            "aftermarketAlternatives": [
+                {
+                    "brand": "Hella",
+                    "partNumber": "1EL010732041",
+                    "qualityRating": 4.6,
+                    "priceRange": "$650-850"
+                },
+                {
+                    "brand": "Magneti Marelli",
+                    "partNumber": "711307023110",
+                    "qualityRating": 4.4,
+                    "priceRange": "$580-720"
+                }
+            ],
+            "failureFrequency": {
+                "rating": "medium",
+                "commonIssues": [
+                    "LED module failure",
+                    "Condensation buildup",
+                    "Ballast malfunction",
+                    "Lens clouding"
+                ],
+                "avgLifespanYears": 6,
+                "replacementFrequency": "common"
+            },
+            "supplierCatalogs": {
+                "bmw": "https://www.bmw.com/parts",
+                "audi": "https://parts.audi.com",
+                "mercedes": "https://parts.mercedes-benz.com",
+                "vw": "https://parts.vw.com",
+                "porsche": "https://parts.porsche.com"
+            }
         },
         {
             "id": "headlight-right",
@@ -38,7 +153,46 @@
                 "x": 550,
                 "y": 320
             },
-            "radius": 40
+            "radius": 40,
+            "oemPartNumbers": {
+                "bmw": "63117419630",
+                "audi": "8V0941044C",
+                "mercedes": "A2228203161",
+                "vw": "5G1941006F",
+                "porsche": "99763115404"
+            },
+            "aftermarketAlternatives": [
+                {
+                    "brand": "Hella",
+                    "partNumber": "1EL010732051",
+                    "qualityRating": 4.6,
+                    "priceRange": "$650-850"
+                },
+                {
+                    "brand": "Magneti Marelli",
+                    "partNumber": "711307023120",
+                    "qualityRating": 4.4,
+                    "priceRange": "$580-720"
+                }
+            ],
+            "failureFrequency": {
+                "rating": "medium",
+                "commonIssues": [
+                    "LED module failure",
+                    "Condensation buildup",
+                    "Ballast malfunction",
+                    "Lens clouding"
+                ],
+                "avgLifespanYears": 6,
+                "replacementFrequency": "common"
+            },
+            "supplierCatalogs": {
+                "bmw": "https://www.bmw.com/parts",
+                "audi": "https://parts.audi.com",
+                "mercedes": "https://parts.mercedes-benz.com",
+                "vw": "https://parts.vw.com",
+                "porsche": "https://parts.porsche.com"
+            }
         },
         {
             "id": "grille-front",
@@ -48,7 +202,45 @@
                 "x": 400,
                 "y": 360
             },
-            "radius": 45
+            "radius": 45,
+            "oemPartNumbers": {
+                "bmw": "51137379310",
+                "audi": "8V0853651T94",
+                "mercedes": "A2228800483",
+                "vw": "5G0853651ULM",
+                "porsche": "99750542300"
+            },
+            "aftermarketAlternatives": [
+                {
+                    "brand": "Blic",
+                    "partNumber": "6502070545992P",
+                    "qualityRating": 3.9,
+                    "priceRange": "$180-250"
+                },
+                {
+                    "brand": "Van Wezel",
+                    "partNumber": "0657518",
+                    "qualityRating": 4.1,
+                    "priceRange": "$220-290"
+                }
+            ],
+            "failureFrequency": {
+                "rating": "low",
+                "commonIssues": [
+                    "Stone chip damage",
+                    "Chrome peeling",
+                    "Mounting clip failure"
+                ],
+                "avgLifespanYears": 10,
+                "replacementFrequency": "rare"
+            },
+            "supplierCatalogs": {
+                "bmw": "https://www.bmw.com/parts",
+                "audi": "https://parts.audi.com",
+                "mercedes": "https://parts.mercedes-benz.com",
+                "vw": "https://parts.vw.com",
+                "porsche": "https://parts.porsche.com"
+            }
         },
         {
             "id": "wheel-front-right",
@@ -58,7 +250,52 @@
                 "x": 600,
                 "y": 450
             },
-            "radius": 55
+            "radius": 55,
+            "oemPartNumbers": {
+                "bmw": "36116796244",
+                "audi": "8V0601025BZ17",
+                "mercedes": "A2224010300",
+                "vw": "5G0601025AF",
+                "porsche": "99736216600"
+            },
+            "aftermarketAlternatives": [
+                {
+                    "brand": "BBS",
+                    "partNumber": "CH-R",
+                    "qualityRating": 4.8,
+                    "priceRange": "$350-450"
+                },
+                {
+                    "brand": "OZ Racing",
+                    "partNumber": "W01886205A4",
+                    "qualityRating": 4.7,
+                    "priceRange": "$300-400"
+                },
+                {
+                    "brand": "Enkei",
+                    "partNumber": "RPF1-1895",
+                    "qualityRating": 4.5,
+                    "priceRange": "$280-350"
+                }
+            ],
+            "failureFrequency": {
+                "rating": "medium",
+                "commonIssues": [
+                    "Curb rash damage",
+                    "Bend from pothole impact",
+                    "Corrosion from road salt",
+                    "Spoke cracking"
+                ],
+                "avgLifespanYears": 7,
+                "replacementFrequency": "common"
+            },
+            "supplierCatalogs": {
+                "bmw": "https://www.bmw.com/parts",
+                "audi": "https://parts.audi.com",
+                "mercedes": "https://parts.mercedes-benz.com",
+                "vw": "https://parts.vw.com",
+                "porsche": "https://parts.porsche.com"
+            }
         },
         {
             "id": "door-front-right",
@@ -68,7 +305,46 @@
                 "x": 500,
                 "y": 300
             },
-            "radius": 60
+            "radius": 60,
+            "oemPartNumbers": {
+                "bmw": "41517421452",
+                "audi": "8V0831052D",
+                "mercedes": "A2227200105",
+                "vw": "5G4831055A",
+                "porsche": "99753102100"
+            },
+            "aftermarketAlternatives": [
+                {
+                    "brand": "Genuine Parts",
+                    "partNumber": "GPD-8001R",
+                    "qualityRating": 4.3,
+                    "priceRange": "$1200-1500"
+                },
+                {
+                    "brand": "OE Supplier",
+                    "partNumber": "OES-DR-001",
+                    "qualityRating": 4.1,
+                    "priceRange": "$1000-1300"
+                }
+            ],
+            "failureFrequency": {
+                "rating": "low",
+                "commonIssues": [
+                    "Door handle mechanism wear",
+                    "Window regulator failure",
+                    "Accident damage",
+                    "Rust around window seal"
+                ],
+                "avgLifespanYears": 12,
+                "replacementFrequency": "rare"
+            },
+            "supplierCatalogs": {
+                "bmw": "https://www.bmw.com/parts",
+                "audi": "https://parts.audi.com",
+                "mercedes": "https://parts.mercedes-benz.com",
+                "vw": "https://parts.vw.com",
+                "porsche": "https://parts.porsche.com"
+            }
         },
         {
             "id": "mirror-right",
@@ -78,7 +354,47 @@
                 "x": 550,
                 "y": 220
             },
-            "radius": 35
+            "radius": 35,
+            "oemPartNumbers": {
+                "bmw": "51167379100",
+                "audi": "8V1857410EAB9",
+                "mercedes": "A2228100376",
+                "vw": "5G1857522AM9B9",
+                "porsche": "99773192100"
+            },
+            "aftermarketAlternatives": [
+                {
+                    "brand": "TYC",
+                    "partNumber": "325-0142-1",
+                    "qualityRating": 4.0,
+                    "priceRange": "$120-180"
+                },
+                {
+                    "brand": "K Source",
+                    "partNumber": "62137G",
+                    "qualityRating": 3.8,
+                    "priceRange": "$90-140"
+                }
+            ],
+            "failureFrequency": {
+                "rating": "high",
+                "commonIssues": [
+                    "Glass cracking from vibration",
+                    "Adjustment motor failure",
+                    "Heating element malfunction",
+                    "Impact damage from parking",
+                    "Folding mechanism wear"
+                ],
+                "avgLifespanYears": 4,
+                "replacementFrequency": "frequent"
+            },
+            "supplierCatalogs": {
+                "bmw": "https://www.bmw.com/parts",
+                "audi": "https://parts.audi.com",
+                "mercedes": "https://parts.mercedes-benz.com",
+                "vw": "https://parts.vw.com",
+                "porsche": "https://parts.porsche.com"
+            }
         },
         {
             "id": "fender-right",
@@ -88,7 +404,46 @@
                 "x": 250,
                 "y": 280
             },
-            "radius": 55
+            "radius": 55,
+            "oemPartNumbers": {
+                "bmw": "41357379262",
+                "audi": "8V0821106B",
+                "mercedes": "A2228800108",
+                "vw": "5G0821106A",
+                "porsche": "99750423200"
+            },
+            "aftermarketAlternatives": [
+                {
+                    "brand": "Van Wezel",
+                    "partNumber": "0657660",
+                    "qualityRating": 4.2,
+                    "priceRange": "$150-220"
+                },
+                {
+                    "brand": "Alkar",
+                    "partNumber": "6471001",
+                    "qualityRating": 4.0,
+                    "priceRange": "$130-190"
+                }
+            ],
+            "failureFrequency": {
+                "rating": "medium",
+                "commonIssues": [
+                    "Stone chip damage",
+                    "Rust formation",
+                    "Impact from minor accidents",
+                    "Mounting point corrosion"
+                ],
+                "avgLifespanYears": 9,
+                "replacementFrequency": "occasional"
+            },
+            "supplierCatalogs": {
+                "bmw": "https://www.bmw.com/parts",
+                "audi": "https://parts.audi.com",
+                "mercedes": "https://parts.mercedes-benz.com",
+                "vw": "https://parts.vw.com",
+                "porsche": "https://parts.porsche.com"
+            }
         },
         {
             "id": "door-rear-right",
