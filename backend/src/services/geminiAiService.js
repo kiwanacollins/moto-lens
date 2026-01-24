@@ -266,22 +266,22 @@ async function callGeminiAPI(userPrompt) {
  */
 function parseBulletPoints(text) {
     console.log('Raw Gemini response:', text.substring(0, 500)); // Debug log
-    
+
     const lines = text.split('\n').filter(line => line.trim());
-    
+
     // Try multiple bullet formats: •, -, *, or numbered (1., 2., etc.)
     const bulletPatterns = /^[•\-\*]\s*|^\d+[\.\)]\s*/;
-    
+
     const bullets = lines
         .filter(line => bulletPatterns.test(line.trim()) || line.trim().length > 20) // Also accept long lines
         .map(line => line.replace(/^[•\-\*\d+.\)]\s*/, '').trim())
         .filter(line => line.length > 10); // Filter out very short lines
-    
+
     // If no bullets found, try to split by double newlines or return as single points
     if (bullets.length === 0 && text.trim().length > 0) {
         return text.split(/\n\n+/).map(p => p.trim()).filter(p => p.length > 10).slice(0, 5);
     }
-    
+
     return bullets;
 }
 
