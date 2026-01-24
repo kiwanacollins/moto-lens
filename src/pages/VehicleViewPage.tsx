@@ -10,35 +10,60 @@ import {
   Button,
   Loader,
   Alert,
-  Divider,
-  List,
   Box,
   Transition,
-  ScrollArea
+  ScrollArea,
+  SimpleGrid
 } from '@mantine/core';
-import { MdArrowBack, MdLogout, MdDirectionsCar } from 'react-icons/md';
+import { MdArrowBack, MdLogout } from 'react-icons/md';
 import { FiInfo } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { decodeVIN, getVehicleSummary } from '../services/vehicleService';
 import type { VehicleData, VehicleSummary } from '../types/vehicle';
 
-// Helper component for field display
-const DataField = ({
+// Premium spec field component with refined typography
+// Spec card component - individual contained box for each specification
+const SpecCard = ({
   label,
-  value
+  value,
+  mono = false
 }: {
   label: string;
   value: string;
+  mono?: boolean;
 }) => (
-  <div>
-    <Text size="sm" c="dark.6" ff="Inter" fw={500} tt="uppercase" mb="xs">
+  <Box
+    p="md"
+    style={{
+      backgroundColor: '#fafafa',
+      borderRadius: '8px',
+      border: '1px solid #f4f4f5',
+    }}
+  >
+    <Text
+      size="xs"
+      c="dimmed"
+      ff="Inter"
+      fw={600}
+      tt="uppercase"
+      lts={0.5}
+      mb={6}
+    >
       {label}
     </Text>
-    <Text size="lg" c="dark.9" ff="Inter" fw={600}>
+    <Text
+      size="sm"
+      c="dark.9"
+      ff={mono ? "JetBrains Mono" : "Inter"}
+      fw={500}
+      lh={1.4}
+    >
       {value}
     </Text>
-  </div>
-); export default function VehicleViewPage() {
+  </Box>
+);
+
+export default function VehicleViewPage() {
   const { vin } = useParams<{ vin: string }>();
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -142,10 +167,10 @@ const DataField = ({
               {/* Header with navigation */}
               <Group justify="space-between" mb="xl">
                 <Button
-                  leftSection={<MdArrowBack size={20} />}
-                  variant="subtle"
+                  leftSection={<MdArrowBack size={18} />}
+                  variant="filled"
                   color="blue.4"
-                  size="md"
+                  size="sm"
                   onClick={handleBackClick}
                   ff="Inter"
                   fw={500}
@@ -154,10 +179,10 @@ const DataField = ({
                 </Button>
 
                 <Button
-                  leftSection={<MdLogout size={20} />}
-                  variant="subtle"
-                  color="dark.6"
-                  size="md"
+                  leftSection={<MdLogout size={18} />}
+                  variant="filled"
+                  color="dark.5"
+                  size="sm"
                   onClick={handleLogout}
                   ff="Inter"
                   fw={500}
@@ -166,182 +191,172 @@ const DataField = ({
                 </Button>
               </Group>
 
-              <Stack gap="lg">
+              <Stack gap="xl">
                 {vehicleData && (
                   <>
-                    {/* Vehicle Metadata Card */}
-                    <Paper shadow="md" p="xl" radius="md" withBorder bg="white">
-                      {/* Vehicle Icon and Title */}
-                      <Group mb="lg" align="center">
-                        <Box
-                          p="md"
-                          style={{
-                            backgroundColor: '#0ea5e9',
-                            borderRadius: '8px',
-                          }}
-                        >
-                          <MdDirectionsCar size={24} color="white" />
-                        </Box>
-                        <div>
-                          <Title
-                            order={2}
+                    {/* Vehicle Header Card */}
+                    <Paper
+                      shadow="sm"
+                      p={{ base: 'lg', sm: 'xl' }}
+                      radius="lg"
+                      withBorder
+                      bg="white"
+                      style={{ borderColor: '#e4e4e7' }}
+                    >
+                      {/* Vehicle Title Section */}
+                      <Group gap="md" align="center" mb="lg">
+                        <div style={{ flex: 1 }}>
+                          <Text
                             ff="Inter"
                             fw={600}
                             c="dark.9"
-                            size="xl"
+                            size="lg"
+                            lh={1.3}
                           >
                             {vehicleData.year} {vehicleData.make} {vehicleData.model}
-                          </Title>
+                          </Text>
                           {vehicleData.trim && (
-                            <Text size="md" c="dark.6" ff="Inter" fw={500}>
+                            <Text
+                              size="sm"
+                              c="dimmed"
+                              ff="Inter"
+                              fw={500}
+                            >
                               {vehicleData.trim}
                             </Text>
                           )}
                         </div>
                       </Group>
 
-                      <Divider mb="lg" color="zinc.2" />
-
-                      {/* Technical Specifications */}
-                      <Stack gap="md">
-                        {/* Row 1: Engine & Body Type */}
-                        <Group justify="space-between" wrap="wrap">
-                          <DataField
-                            label="Engine"
-                            value={vehicleData.engine || 'Not specified'}
+                      {/* Specifications Grid */}
+                      <SimpleGrid
+                        cols={{ base: 2, sm: 2 }}
+                        spacing="md"
+                        verticalSpacing="md"
+                      >
+                        <SpecCard
+                          label="Engine"
+                          value={vehicleData.engine || '—'}
+                        />
+                        <SpecCard
+                          label="Body Type"
+                          value={vehicleData.bodyType || '—'}
+                        />
+                        <SpecCard
+                          label="Transmission"
+                          value={vehicleData.transmission || '—'}
+                        />
+                        <SpecCard
+                          label="Drivetrain"
+                          value={vehicleData.drivetrain || '—'}
+                        />
+                        {vehicleData.fuelType && (
+                          <SpecCard
+                            label="Fuel Type"
+                            value={vehicleData.fuelType}
                           />
-                          <DataField
-                            label="Body Type"
-                            value={vehicleData.bodyType || 'Not specified'}
-                          />
-                        </Group>
-
-                        {/* Row 2: Transmission & Drivetrain */}
-                        <Group justify="space-between" wrap="wrap">
-                          <DataField
-                            label="Transmission"
-                            value={vehicleData.transmission || 'Not specified'}
-                          />
-                          <DataField
-                            label="Drivetrain"
-                            value={vehicleData.drivetrain || 'Not specified'}
-                          />
-                        </Group>
-
-                        {/* Row 3: Additional Enhanced Data */}
-                        {(vehicleData.fuelType || vehicleData.horsepower) && (
-                          <Group justify="space-between" wrap="wrap">
-                            {vehicleData.fuelType && (
-                              <DataField
-                                label="Fuel Type"
-                                value={vehicleData.fuelType}
-                              />
-                            )}
-                            {vehicleData.horsepower && (
-                              <DataField
-                                label="Power"
-                                value={vehicleData.horsepower}
-                              />
-                            )}
-                          </Group>
                         )}
-
-                        {/* Row 4: Manufacturer (Always from API) */}
-                        <Group justify="space-between" wrap="wrap">
-                          <DataField
-                            label="Manufacturer"
-                            value={vehicleData.manufacturer}
+                        {vehicleData.horsepower && (
+                          <SpecCard
+                            label="Power"
+                            value={vehicleData.horsepower}
                           />
-                          {(vehicleData.doors || vehicleData.seats) && (
-                            <div>
-                              <Text size="sm" c="dark.6" ff="Inter" fw={500} tt="uppercase" mb="xs">
-                                Configuration
-                              </Text>
-                              <Group gap="md">
-                                {vehicleData.doors && (
-                                  <Text size="lg" c="dark.9" ff="Inter" fw={600}>
-                                    {vehicleData.doors} doors
-                                  </Text>
-                                )}
-                                {vehicleData.seats && (
-                                  <Text size="lg" c="dark.9" ff="Inter" fw={600}>
-                                    {vehicleData.seats} seats
-                                  </Text>
-                                )}
-                              </Group>
-                            </div>
-                          )}
-                        </Group>
+                        )}
+                        <SpecCard
+                          label="Manufacturer"
+                          value={vehicleData.manufacturer}
+                        />
+                        {vehicleData.doors && vehicleData.seats && (
+                          <SpecCard
+                            label="Configuration"
+                            value={`${vehicleData.doors} doors · ${vehicleData.seats} seats`}
+                          />
+                        )}
+                      </SimpleGrid>
 
-                        <Divider color="zinc.2" />
-
-                        {/* VIN Display */}
-                        <div>
-                          <Text size="sm" c="dark.6" ff="Inter" fw={500} tt="uppercase" mb="xs">
-                            Vehicle Identification Number
-                          </Text>
-                          <Text
-                            size="lg"
-                            ff="JetBrains Mono"
-                            fw={600}
-                            c="blue.4"
-                            style={{
-                              letterSpacing: '0.5px',
-                              fontSize: '18px',
-                            }}
-                          >
-                            {vehicleData.vin}
-                          </Text>
-                        </div>
-                      </Stack>
+                      {/* VIN Section */}
+                      <Box
+                        mt="xl"
+                        pt="lg"
+                        style={{
+                          borderTop: '1px solid #e4e4e7'
+                        }}
+                      >
+                        <Text
+                          size="xs"
+                          c="dimmed"
+                          ff="Inter"
+                          fw={600}
+                          tt="uppercase"
+                          lts={0.5}
+                          mb={6}
+                        >
+                          Vehicle Identification Number
+                        </Text>
+                        <Text
+                          ff="JetBrains Mono"
+                          fw={500}
+                          c="blue.5"
+                          size="lg"
+                          lts={1}
+                        >
+                          {vehicleData.vin}
+                        </Text>
+                      </Box>
                     </Paper>
 
                     {/* Vehicle Summary Card */}
                     {vehicleSummary && (
-                      <Paper shadow="md" p="xl" radius="md" withBorder bg="white">
-                        <Group mb="lg" align="center">
+                      <Paper
+                        shadow="sm"
+                        p={{ base: 'lg', sm: 'xl' }}
+                        radius="lg"
+                        withBorder
+                        bg="white"
+                        style={{ borderColor: '#e4e4e7' }}
+                      >
+                        <Group mb="lg" align="center" gap="md">
                           <Box
-                            p="md"
+                            p="sm"
                             style={{
-                              backgroundColor: '#52525b',
-                              borderRadius: '8px',
+                              backgroundColor: '#f4f4f5',
+                              borderRadius: '10px',
                             }}
                           >
-                            <FiInfo size={20} color="white" />
+                            <FiInfo size={20} color="#52525b" />
                           </Box>
                           <Title
-                            order={3}
+                            order={2}
                             ff="Inter"
                             fw={600}
                             c="dark.9"
                             size="lg"
                           >
-                            Vehicle Information
+                            Technical Overview
                           </Title>
                         </Group>
 
-                        <List
-                          spacing="sm"
-                          size="md"
-                          withPadding
-                          styles={{
-                            item: {
-                              fontSize: '16px',
-                              lineHeight: '1.6',
-                              color: '#0a0a0a',
-                              fontFamily: 'Inter',
-                            },
-                            itemWrapper: {
-                              alignItems: 'flex-start',
-                            },
-                          }}
-                        >
+                        <Stack gap="sm">
                           {vehicleSummary.bulletPoints.map((point, index) => (
-                            <List.Item key={index}>
-                              {point}
-                            </List.Item>
+                            <Box
+                              key={index}
+                              pl="sm"
+                              style={{
+                                borderLeft: '2px solid #e4e4e7',
+                              }}
+                            >
+                              <Text
+                                size="xs"
+                                c="dark.7"
+                                ff="Inter"
+                                fw={400}
+                                lh={1.6}
+                              >
+                                {point}
+                              </Text>
+                            </Box>
                           ))}
-                        </List>
+                        </Stack>
                       </Paper>
                     )}
                   </>
