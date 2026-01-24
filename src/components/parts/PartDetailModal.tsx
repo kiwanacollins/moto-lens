@@ -14,7 +14,7 @@ export function PartDetailModal({
     opened,
     onClose,
     partInfo,
-    clickedHotspot,
+    clickedHotspot: _clickedHotspot,
     loading = false
 }: PartDetailModalProps) {
     return (
@@ -44,7 +44,7 @@ export function PartDetailModal({
             <div
                 style={{
                     backgroundColor: '#0ea5e9', // Electric Blue
-                    padding: '16px 20px',
+                    padding: '8px 20px',
                     borderTopLeftRadius: '8px',
                     borderTopRightRadius: '8px',
                     position: 'relative',
@@ -91,23 +91,6 @@ export function PartDetailModal({
                         <MdClose size={24} />
                     </Button>
                 </Group>
-
-                {/* Part location reference */}
-                {clickedHotspot && (
-                    <Group gap="xs" mt="xs">
-                        <Text c="rgba(255, 255, 255, 0.9)" ff="Inter" size="sm">
-                            Location: {clickedHotspot.angle}
-                        </Text>
-                        <div
-                            style={{
-                                width: '8px',
-                                height: '8px',
-                                backgroundColor: '#ef4444', // Red dot matching hotspots
-                                borderRadius: '50%',
-                            }}
-                        />
-                    </Group>
-                )}
             </div>
 
             {/* White content area */}
