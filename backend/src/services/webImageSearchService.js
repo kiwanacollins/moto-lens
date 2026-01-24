@@ -1,39 +1,21 @@
 /**
- * Web Image Search Service
+ * Web Image Search Service - FAST SerpApi Only
  * 
- * Searches the entire web for vehicle and spare parts images using
- * SerpApi, Bing Image Search, and Google Custom Search APIs.
- * 
- * Replaces AI image generation with real photos from the web.
+ * Optimized for speed: Single SerpApi request, no delays.
+ * Returns real photos from Google Images in ~2-3 seconds.
  */
 
 import axios from 'axios';
 
 // API configuration
 const SERPAPI_BASE_URL = 'https://serpapi.com/search';
-const BING_IMAGE_URL = 'https://api.bing.microsoft.com/v7.0/images/search';
-const GOOGLE_CUSTOM_SEARCH_URL = 'https://www.googleapis.com/customsearch/v1';
-
-// Helper function to get API keys
-function getApiKeys() {
-    return {
-        serpApi: process.env.SERPAPI_KEY,
-        bingApi: process.env.BING_IMAGE_SEARCH_KEY,
-        googleApi: process.env.GOOGLE_CUSTOM_SEARCH_KEY,
-        googleCx: process.env.GOOGLE_CUSTOM_SEARCH_CX
-    };
-}
-
-// Rate limiting: delay between requests
-const REQUEST_DELAY_MS = 1000; // 1 second between requests
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // In-memory cache for search results (MVP)
 const searchCache = new Map();
-const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours cache
 
 /**
- * Search for vehicle images using web search APIs
+ * Search for vehicle images using SerpApi (FAST - single request)
  * @param {Object} vehicleData - Vehicle data from VIN decode
  * @returns {Promise<Object>} Search results with images
  */
@@ -41,445 +23,218 @@ export async function searchVehicleImages(vehicleData) {
     const { make, model, year, trim } = vehicleData;
 
     // Create cache key
-    const cacheKey = `vehicle_${year}_${make}_${model}_${trim || 'standard'}`.toLowerCase().replace(/\s+/g, '_');
+    const cacheKey = `vehicle_${year}_${make}_${model}`.toLowerCase().replace(/\s+/g, '_');
 
-    // Check cache first
+    // Check cache first (instant response if cached)
     const cached = searchCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        console.log(`Cache hit for vehicle search: ${cacheKey}`);
+        console.log(`⚡ Cache hit: ${cacheKey}`);
         return cached.data;
     }
 
-    try {
-        console.log(`Searching web for: ${year} ${make} ${model} ${trim || ''}`);
+    const serpApiKey = process.env.SERPAPI_KEY;
 
-        // Create multiple search queries for better coverage
-        const searchQueries = [
-            `${year} ${make} ${model} ${trim || ''} car exterior`.trim(),
-            `${year} ${make} ${model} front view`.trim(),
-            `${year} ${make} ${model} side view`.trim(),
-            `${year} ${make} ${model} rear view`.trim(),
-            `${make} ${model} ${year} automotive photography`.trim()
-        ];
-
-        const allImages = [];
-
-        // Search with each query using different APIs
-        for (let i = 0; i < searchQueries.length; i++) {
-            const query = searchQueries[i];
-
-            try {
-                // Add delay between requests
-                if (i > 0) {
-                    await sleep(REQUEST_DELAY_MS);
-                }
-
-                // Try SerpApi first (best results)
-                const serpResults = await searchWithSerpApi(query);
-                allImages.push(...serpResults);
-
-                // Add small delay
-                await sleep(500);
-
-                // Try Bing for additional coverage
-                const bingResults = await searchWithBing(query);
-                allImages.push(...bingResults);
-
-            } catch (error) {
-                console.error(`Search failed for query: ${query}`, error.message);
-                continue;
-            }
-
-            // Limit total images to avoid excessive requests
-            if (allImages.length >= 50) break;
-        }
-
-        // Process and filter results
-        const processedImages = processSearchResults(allImages);
-
-        // If no images found and no API keys configured, provide fallback demo images
-        const finalImages = processedImages.length > 0 ? processedImages : generateFallbackImages({ make, model, year, trim });
-
-        const response = {
-            vehicleInfo: { make, model, year, trim },
-            images: finalImages,
-            searchedAt: new Date().toISOString(),
-            totalResults: allImages.length,
-            queries: searchQueries,
-            source: finalImages.length > 0 && processedImages.length === 0 ? 'fallback-demo' : 'web-search'
-        };
-
-        // Cache successful results
-        if (processedImages.length > 0) {
-            searchCache.set(cacheKey, {
-                data: response,
-                timestamp: Date.now()
-            });
-            console.log(`Cached ${processedImages.length} images for ${cacheKey}`);
-        }
-
-        return response;
-
-    } catch (error) {
-        console.error('Error searching vehicle images:', error);
-        throw new VehicleImageSearchError(
-            error.message || 'Failed to search vehicle images',
-            'IMAGE_SEARCH_FAILED',
-            500
-        );
-    }
-}
-
-/**
- * Search for spare parts images
- * @param {string} partName - Name of the part to search for
- * @param {Object} vehicleData - Vehicle data for context
- * @returns {Promise<Array>} Array of part image results
- */
-export async function searchPartImages(partName, vehicleData) {
-    const { make, model, year } = vehicleData;
-
-    // Create cache key
-    const cacheKey = `part_${make}_${model}_${year}_${partName}`.toLowerCase().replace(/\s+/g, '_');
-
-    // Check cache first
-    const cached = searchCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        console.log(`Cache hit for part search: ${cacheKey}`);
-        return cached.data;
+    // If no API key, return fallback immediately
+    if (!serpApiKey) {
+        console.log('⚠️ SerpApi key not configured, using fallback images');
+        return createFallbackResponse(vehicleData);
     }
 
     try {
-        console.log(`Searching for part: ${partName} for ${year} ${make} ${model}`);
+        const startTime = Date.now();
+        console.log(`🔍 SerpApi search: ${year} ${make} ${model}`);
 
-        // Create part-specific search queries
-        const partQueries = [
-            `${make} ${model} ${year} ${partName} part`,
-            `${make} ${partName} OEM part`,
-            `${partName} for ${year} ${make} ${model}`,
-            `genuine ${make} ${partName}`,
-            `${make} ${model} ${partName} replacement part`
-        ];
+        // Single optimized search query
+        const searchQuery = `${year} ${make} ${model} car photo exterior`;
 
-        const partImages = [];
-
-        for (let i = 0; i < partQueries.length; i++) {
-            const query = partQueries[i];
-
-            try {
-                if (i > 0) {
-                    await sleep(REQUEST_DELAY_MS);
-                }
-
-                // Use Google Lens via SerpApi for visual part search
-                const lensResults = await searchWithGoogleLens(query);
-                partImages.push(...lensResults);
-
-                await sleep(500);
-
-                // Use regular image search as backup
-                const imageResults = await searchWithSerpApi(query);
-                partImages.push(...imageResults);
-
-            } catch (error) {
-                console.error(`Part search failed for query: ${query}`, error.message);
-                continue;
-            }
-
-            if (partImages.length >= 20) break;
-        }
-
-        const processedResults = processSearchResults(partImages);
-
-        const response = {
-            partName,
-            vehicleInfo: { make, model, year },
-            images: processedResults,
-            searchedAt: new Date().toISOString(),
-            queries: partQueries
-        };
-
-        // Cache results
-        if (processedResults.length > 0) {
-            searchCache.set(cacheKey, {
-                data: response,
-                timestamp: Date.now()
-            });
-            console.log(`Cached ${processedResults.length} part images for ${cacheKey}`);
-        }
-
-        return response;
-
-    } catch (error) {
-        console.error('Error searching part images:', error);
-        throw new PartImageSearchError(
-            error.message || 'Failed to search part images',
-            'PART_SEARCH_FAILED',
-            500
-        );
-    }
-}
-
-/**
- * Search with SerpApi (Google Images)
- */
-async function searchWithSerpApi(query) {
-    const { serpApi } = getApiKeys();
-
-    if (!serpApi) {
-        console.log('SerpApi key not configured, skipping');
-        return [];
-    }
-
-    try {
         const response = await axios.get(SERPAPI_BASE_URL, {
             params: {
                 engine: 'google_images',
-                q: query,
-                num: 20,
-                api_key: serpApi,
-                ijn: 0 // First page
+                q: searchQuery,
+                num: 10,
+                api_key: serpApiKey,
+                ijn: 0,
+                safe: 'active',
+                tbm: 'isch',
+                tbs: 'isz:l', // Large images only
+                no_cache: false // Use cache to save API calls
             },
-            timeout: 15000
+            timeout: 8000 // 8 second timeout
+        });
+
+        const results = response.data.images_results || [];
+        const elapsed = Date.now() - startTime;
+        console.log(`✅ SerpApi returned ${results.length} images in ${elapsed}ms`);
+
+        // Log first result to debug watermark issue
+        if (results.length > 0) {
+            console.log('📸 First image URL:', results[0].original || results[0].link);
+            console.log('📸 First thumbnail URL:', results[0].thumbnail);
+        }
+
+        // Process results into MotoLens format
+        const images = results.slice(0, 8).map((result, index) => ({
+            angle: getAngle(index),
+            imageUrl: result.original || result.link,
+            thumbnail: result.thumbnail,
+            title: result.title || `${year} ${make} ${model}`,
+            source: result.source || 'google',
+            searchEngine: 'serpapi',
+            width: result.original_width || 800,
+            height: result.original_height || 600,
+            success: true,
+            model: `${year} ${make} ${model}`,
+            isBase64: false,
+            error: null
+        }));
+
+        // Use fallback if no results
+        const finalImages = images.length > 0 ? images : generateFallbackImages(vehicleData);
+
+        const responseData = {
+            vehicleInfo: { make, model, year, trim },
+            images: finalImages,
+            searchedAt: new Date().toISOString(),
+            totalResults: results.length,
+            source: images.length > 0 ? 'serpapi' : 'fallback',
+            latencyMs: elapsed
+        };
+
+        // Cache the results
+        searchCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
+        console.log(`💾 Cached ${finalImages.length} images for ${cacheKey}`);
+
+        return responseData;
+
+    } catch (error) {
+        console.error('❌ SerpApi error:', error.message);
+        return createFallbackResponse(vehicleData, error.message);
+    }
+}
+
+/**
+ * Search for spare parts images (fast single request)
+ */
+export async function searchPartImages(partName, vehicleData) {
+    const { make, model, year } = vehicleData;
+    const cacheKey = `part_${make}_${model}_${partName}`.toLowerCase().replace(/\s+/g, '_');
+
+    // Check cache
+    const cached = searchCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+        console.log(`⚡ Part cache hit: ${cacheKey}`);
+        return cached.data;
+    }
+
+    const serpApiKey = process.env.SERPAPI_KEY;
+
+    if (!serpApiKey) {
+        return { partName, images: [], source: 'no-api-key' };
+    }
+
+    try {
+        console.log(`🔍 SerpApi part search: ${partName} for ${make} ${model}`);
+
+        const response = await axios.get(SERPAPI_BASE_URL, {
+            params: {
+                engine: 'google_images',
+                q: `${make} ${model} ${partName} auto part`,
+                num: 8,
+                api_key: serpApiKey,
+                safe: 'active'
+            },
+            timeout: 8000
         });
 
         const results = response.data.images_results || [];
 
-        return results.map(result => ({
-            title: result.title || 'Untitled',
-            url: result.original || result.link,
+        const images = results.slice(0, 5).map(result => ({
+            imageUrl: result.original || result.link,
             thumbnail: result.thumbnail,
+            title: result.title || partName,
             source: result.source || 'google',
-            width: result.original_width || 0,
-            height: result.original_height || 0,
-            searchEngine: 'serpapi-google'
+            success: true
         }));
 
-    } catch (error) {
-        console.error('SerpApi search failed:', error.message);
-        return [];
-    }
-}
+        const responseData = {
+            partName,
+            vehicleInfo: { make, model, year },
+            images,
+            searchedAt: new Date().toISOString(),
+            source: 'serpapi'
+        };
 
-/**
- * Search with Google Lens via SerpApi
- */
-async function searchWithGoogleLens(query) {
-    const { serpApi } = getApiKeys();
-
-    if (!serpApi) {
-        return [];
-    }
-
-    try {
-        const response = await axios.get(SERPAPI_BASE_URL, {
-            params: {
-                engine: 'google_lens',
-                q: query,
-                api_key: serpApi
-            },
-            timeout: 15000
-        });
-
-        const visualMatches = response.data.visual_matches || [];
-
-        return visualMatches.map(match => ({
-            title: match.title || 'Visual Match',
-            url: match.link,
-            thumbnail: match.thumbnail,
-            source: match.source || 'google-lens',
-            width: 0,
-            height: 0,
-            searchEngine: 'google-lens'
-        }));
+        searchCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
+        return responseData;
 
     } catch (error) {
-        console.error('Google Lens search failed:', error.message);
-        return [];
+        console.error('❌ Part search error:', error.message);
+        return { partName, images: [], source: 'error', error: error.message };
     }
 }
 
 /**
- * Search with Bing Image Search API
+ * Get angle name from index
  */
-async function searchWithBing(query) {
-    const { bingApi } = getApiKeys();
-
-    if (!bingApi) {
-        console.log('Bing API key not configured, skipping');
-        return [];
-    }
-
-    try {
-        const response = await axios.get(BING_IMAGE_URL, {
-            params: {
-                q: query,
-                count: 20,
-                imageType: 'Photo',
-                size: 'Large',
-                freshness: 'Month' // Prefer recent images
-            },
-            headers: {
-                'Ocp-Apim-Subscription-Key': bingApi
-            },
-            timeout: 15000
-        });
-
-        const results = response.data.value || [];
-
-        return results.map(result => ({
-            title: result.name || 'Untitled',
-            url: result.contentUrl,
-            thumbnail: result.thumbnailUrl,
-            source: result.hostPageDisplayUrl || 'bing',
-            width: result.width || 0,
-            height: result.height || 0,
-            searchEngine: 'bing'
-        }));
-
-    } catch (error) {
-        console.error('Bing search failed:', error.message);
-        return [];
-    }
+function getAngle(index) {
+    const angles = ['front', 'front-right', 'right', 'rear-right', 'rear', 'rear-left', 'left', 'front-left'];
+    return angles[index % angles.length];
 }
 
 /**
- * Process and filter search results
+ * Create fallback response with demo images
  */
-function processSearchResults(results) {
-    // Remove duplicates based on URL
-    const uniqueResults = results.filter((result, index, array) =>
-        array.findIndex(r => r.url === result.url) === index
-    );
-
-    // Filter by quality criteria
-    const qualityFiltered = uniqueResults.filter(result => {
-        // Skip if no URL
-        if (!result.url) return false;
-
-        // Skip very small images (likely thumbnails or icons)
-        if (result.width > 0 && result.height > 0) {
-            if (result.width < 400 || result.height < 300) return false;
-        }
-
-        // Skip if title suggests it's not a car image
-        const title = (result.title || '').toLowerCase();
-        const badKeywords = ['logo', 'icon', 'diagram', 'chart', 'text', 'screenshot'];
-        if (badKeywords.some(keyword => title.includes(keyword))) return false;
-
-        return true;
-    });
-
-    // Sort by quality indicators
-    const sorted = qualityFiltered.sort((a, b) => {
-        // Prefer larger images
-        const aSize = (a.width || 0) * (a.height || 0);
-        const bSize = (b.width || 0) * (b.height || 0);
-
-        if (aSize !== bSize) {
-            return bSize - aSize;
-        }
-
-        // Prefer certain sources
-        const preferredSources = ['google', 'bing'];
-        const aPreferred = preferredSources.includes(a.searchEngine);
-        const bPreferred = preferredSources.includes(b.searchEngine);
-
-        if (aPreferred !== bPreferred) {
-            return bPreferred ? 1 : -1;
-        }
-
-        return 0;
-    });
-
-    // Return top 8 results mapped to MotoLens format
-    const angles = ['front', 'front-left', 'left', 'rear-left', 'rear', 'rear-right', 'right', 'front-right'];
-
-    return sorted.slice(0, 8).map((result, index) => ({
-        angle: angles[index] || 'front',
-        imageUrl: result.url,
-        thumbnail: result.thumbnail,
-        title: result.title,
-        source: result.source,
-        searchEngine: result.searchEngine,
-        imageData: null, // Not base64, using URLs
-        isBase64: false,
-        success: true,
-        error: null,
-        model: 'web-search',
-        width: result.width,
-        height: result.height
-    }));
+function createFallbackResponse(vehicleData, errorMessage = null) {
+    return {
+        vehicleInfo: vehicleData,
+        images: generateFallbackImages(vehicleData),
+        searchedAt: new Date().toISOString(),
+        totalResults: 8,
+        source: 'fallback',
+        error: errorMessage
+    };
 }
 
 /**
- * Custom error classes
- */
-class VehicleImageSearchError extends Error {
-    constructor(message, code, status) {
-        super(message);
-        this.name = 'VehicleImageSearchError';
-        this.code = code;
-        this.status = status;
-    }
-}
-
-class PartImageSearchError extends Error {
-    constructor(message, code, status) {
-        super(message);
-        this.name = 'PartImageSearchError';
-        this.code = code;
-        this.status = status;
-    }
-}
-
-/**
- * Generate fallback demo images when no API keys are configured
- * @param {Object} vehicleData - Vehicle data
- * @returns {Array} Demo images for testing
+ * Generate fallback demo images
  */
 function generateFallbackImages(vehicleData) {
     const { make, model, year } = vehicleData;
-    const angles = ['front', 'front-left', 'left', 'rear-left', 'rear', 'rear-right', 'right', 'front-right'];
+    const angles = ['front', 'front-right', 'right', 'rear-right', 'rear', 'rear-left', 'left', 'front-left'];
 
-    console.log(`Generating fallback demo images for ${year} ${make} ${model}`);
-
-    // Use high-quality placeholder images that look like actual cars
-    const baseUrl = 'https://via.placeholder.com/800x600';
-    const makeColors = {
-        'BMW': '1e3a8a', // Blue
-        'Audi': 'd1d5db', // Silver  
-        'Mercedes-Benz': '111827', // Black
-        'Volkswagen': '0ea5e9', // Electric Blue (MotoLens brand color)
-        'Porsche': 'dc2626', // Red
+    // Brand colors for placeholders
+    const colors = {
+        'BMW': '1e3a8a',
+        'Audi': 'd1d5db',
+        'Mercedes-Benz': '111827',
+        'Volkswagen': '0ea5e9',
+        'Porsche': 'dc2626'
     };
 
-    const color = makeColors[make] || '6b7280'; // Default gray
+    const color = colors[make] || '6b7280';
 
     return angles.map((angle, index) => ({
         angle,
-        imageUrl: `${baseUrl}/${color}/ffffff?text=${encodeURIComponent(`${year} ${make} ${model} - ${angle.replace('-', ' ')}`)}`,
-        thumbnail: `https://via.placeholder.com/200x150/${color}/ffffff?text=${angle}`,
-        title: `${year} ${make} ${model} - ${angle.replace('-', ' ')} view`,
-        source: 'fallback-demo',
-        searchEngine: 'placeholder',
-        imageData: null,
-        isBase64: false,
-        success: true,
-        error: null,
-        model: 'fallback-demo',
+        imageUrl: `https://placehold.co/800x600/${color}/ffffff?text=${encodeURIComponent(`${make} ${model}`)}`,
+        thumbnail: `https://placehold.co/200x150/${color}/ffffff?text=${angle}`,
+        title: `${year} ${make} ${model} - ${angle}`,
+        source: 'placeholder',
+        searchEngine: 'fallback',
         width: 800,
         height: 600,
-        generatedAt: new Date().toISOString()
+        success: true,
+        model: 'fallback',
+        isBase64: false,
+        error: null
     }));
 }
 
 /**
- * Clear cache function for maintenance
+ * Clear the search cache
  */
 export function clearSearchCache() {
     searchCache.clear();
-    console.log('Search cache cleared');
+    console.log('🗑️ Search cache cleared');
 }
 
 /**

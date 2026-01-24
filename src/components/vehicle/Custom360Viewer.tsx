@@ -246,6 +246,7 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
             <Box
                 ref={containerRef}
                 h="100%"
+                w="100%"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleEnd}
@@ -258,6 +259,9 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
                     userSelect: 'none',
                     position: 'relative',
                     background: 'linear-gradient(135deg, #fafafa 0%, #f4f4f5 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                 }}
             >
                 {/* Vehicle Image */}
@@ -265,9 +269,12 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
                     src={currentImage.imageUrl}
                     alt={`${vehicleName} - ${currentImage.angle} view`}
                     style={{
-                        width: '100%',
-                        height: '100%',
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        width: 'auto',
+                        height: 'auto',
                         objectFit: 'contain',
+                        objectPosition: 'center',
                         transition: isDragging ? 'none' : 'opacity 0.2s ease',
                         display: 'block',
                     }}
@@ -317,7 +324,7 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
                                 {vehicleName}
                             </Text>
                             <Text c="gray.3" size="xs" ff="Inter">
-                                {currentImage.angle.replace('-', ' ')} • {currentIndex + 1} of {validImages.length}
+                                {currentIndex + 1} of {validImages.length}
                             </Text>
                         </Box>
 
