@@ -1,0 +1,74 @@
+/* Mobile-optimized 360° viewer styles */
+.react-360-viewer {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    /* Improve touch responsiveness */
+    touch-action: pan-x;
+
+    /* Smooth interactions */
+    transition: cursor 0.2s ease;
+}
+
+.react-360-viewer:active {
+    cursor: grabbing !important;
+}
+
+/* Shimmer loading animation */
+@keyframes loading-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+    .react-360-viewer {
+        /* Enhance touch area */
+        padding: 0;
+
+        /* Prevent scroll conflicts */
+        overscroll-behavior: contain;
+
+        /* Smoother animations on mobile */
+        will-change: transform;
+    }
+}
+
+/* High DPI / Retina displays */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+    .react-360-viewer img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Accessibility improvements */
+.react-360-viewer:focus {
+    outline: 2px solid #0ea5e9;
+    outline-offset: 2px;
+}
+
+/* Loading state improvements */
+.react-360-viewer[data-loading="true"] {
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Error state styles */
+.react-360-viewer[data-error="true"] {
+    background: #fef2f2;
+    border: 1px dashed #fca5a5;
+}

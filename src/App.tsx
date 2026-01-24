@@ -3,6 +3,7 @@ import { useAuth } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage';
 import VinInputPage from './pages/VinInputPage';
 import VehicleViewPage from './pages/VehicleViewPage';
+import Vehicle360Test from './pages/Vehicle360Test';
 
 /**
  * App Component
@@ -15,6 +16,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<ProtectedRoute><VinInputPage /></ProtectedRoute>} />
         <Route path="/vehicle/:vin" element={<ProtectedRoute><VehicleViewPage /></ProtectedRoute>} />
+        <Route path="/test-360" element={<ProtectedRoute><Vehicle360Test /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
