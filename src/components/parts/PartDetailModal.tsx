@@ -21,8 +21,30 @@ function parseAIDescription(description: string): {
     
     let currentSection: { title: string; content: string[] } | null = null;
     
-    for (const line of lines) {
-        // Check if this line is a section header (starts with ** and ends with **)
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        
+        // Check for inline header: **Header:** content (most common pattern)
+        const inlineHeaderMatch = line.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/);
+        if (inlineHeaderMatch) {
+            // Save previous section
+            if (currentSection) {
+                sections.push(currentSection);
+            }
+            
+            const title = inlineHeaderMatch[1].trim();
+            const firstLineContent = inlineHeaderMatch[2].trim();
+            
+            currentSection = { title, content: [] };
+            
+            // Add the content from the same line if any
+            if (firstLineContent) {
+                currentSection.content.push(cleanMarkdown(firstLineContent));
+            }
+            continue;
+        }
+        
+        // Check if this line is a standalone section header (starts with ** and ends with **)
         const headerMatch = line.match(/^\*\*([^*]+)\*\*:?\s*$/);
         if (headerMatch) {
             if (currentSection) {
@@ -32,30 +54,26 @@ function parseAIDescription(description: string): {
             continue;
         }
         
-        // Check for inline header: **Header:** content
-        const inlineHeaderMatch = line.match(/^\*\*([^*]+)\*\*:?\s*(.+)$/);
-        if (inlineHeaderMatch) {
-            if (currentSection) {
-                sections.push(currentSection);
-            }
-            const content = inlineHeaderMatch[2].trim();
-            currentSection = { 
-                title: inlineHeaderMatch[1].trim(), 
-                content: content ? [cleanMarkdown(content)] : [] 
-            };
-            continue;
-        }
-        
-        // Regular content line (bullet point or text)
+        // Regular content line
         if (currentSection) {
             // Clean up bullet markers and markdown
             const cleanedLine = cleanMarkdown(line.replace(/^[\*\-•]\s*/, '').trim());
             if (cleanedLine) {
-                currentSection.content.push(cleanedLine);
+                // Break long content into shorter sentences for better readability
+                const sentences = cleanedLine.split(/\.\s+/).filter(s => s.trim().length > 0);
+                sentences.forEach((sentence, index) => {
+                    const formattedSentence = sentence.trim() + (index < sentences.length - 1 ? '.' : '');
+                    if (formattedSentence.length > 5) {
+                        currentSection!.content.push(formattedSentence);
+                    }
+                });
             }
         } else {
             // No section yet, create a general one
-            currentSection = { title: 'Overview', content: [cleanMarkdown(line)] };
+            const cleanedLine = cleanMarkdown(line);
+            if (cleanedLine) {
+                currentSection = { title: 'Overview', content: [cleanedLine] };
+            }
         }
     }
     
@@ -64,17 +82,23 @@ function parseAIDescription(description: string): {
         sections.push(currentSection);
     }
     
-    // Sort sections to prioritize components first
-    sections.sort((a, b) => {
-        const aIsComponents = a.title.toLowerCase().includes('component') || a.title.toLowerCase().includes('parts');
-        const bIsComponents = b.title.toLowerCase().includes('component') || b.title.toLowerCase().includes('parts');
+    // Filter out empty sections and sort to prioritize components first
+    const filteredSections = sections.filter(section => section.content.length > 0);
+    
+    filteredSections.sort((a, b) => {
+        const aIsComponents = a.title.toLowerCase().includes('component') || 
+                             a.title.toLowerCase().includes('parts') ||
+                             a.title.toLowerCase().includes('main');
+        const bIsComponents = b.title.toLowerCase().includes('component') || 
+                             b.title.toLowerCase().includes('parts') ||
+                             b.title.toLowerCase().includes('main');
         
         if (aIsComponents && !bIsComponents) return -1;
         if (!aIsComponents && bIsComponents) return 1;
         return 0;
     });
     
-    return { sections, rawText: description };
+    return { sections: filteredSections, rawText: description };
 }
 
 /**
