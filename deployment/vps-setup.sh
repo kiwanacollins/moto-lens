@@ -40,8 +40,8 @@ useradd -m -s /bin/bash motolens || echo "User already exists"
 
 # Create app directory
 echo "📁 Creating application directory..."
-mkdir -p /var/www/moto-lens
-chown -R motolens:motolens /var/www/moto-lens
+mkdir -p /home/kiwana/moto-lens
+chown -R kiwana:kiwana /home/kiwana/moto-lens
 
 # Setup firewall
 echo "🔥 Configuring firewall..."
@@ -59,10 +59,10 @@ echo ""
 echo "✅ VPS setup complete!"
 echo ""
 echo "Next steps:"
-echo "1. Clone the repository: cd /var/www/moto-lens && git clone https://github.com/kiwanacollins/moto-lens.git ."
+echo "1. Clone the repository: cd /home/kiwana/moto-lens && git clone https://github.com/kiwanacollins/moto-lens.git ."
 echo "2. Setup backend: cd backend && npm install"
 echo "3. Create .env file: cp .env.production.example .env && nano .env"
 echo "4. Start with PM2: pm2 start ecosystem.config.cjs --env production"
-echo "5. Configure Nginx: cp /path/to/nginx.conf /etc/nginx/sites-available/moto-lens"
+echo "5. Configure Nginx: cp /home/kiwana/moto-lens/deployment/nginx.conf /etc/nginx/sites-available/moto-lens"
 echo "6. Enable site: ln -s /etc/nginx/sites-available/moto-lens /etc/nginx/sites-enabled/"
 echo "7. Test & reload: nginx -t && systemctl reload nginx"

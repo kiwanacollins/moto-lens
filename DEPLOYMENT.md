@@ -62,8 +62,8 @@ ufw --force enable
 
 ```bash
 # Create app directory
-mkdir -p /var/www/moto-lens
-cd /var/www/moto-lens
+mkdir -p /home/kiwana/moto-lens
+cd /home/kiwana/moto-lens
 
 # Clone repository
 git clone https://github.com/kiwanacollins/moto-lens.git .
@@ -78,7 +78,7 @@ npm install --production
 ### Step 3: Configure Environment
 
 ```bash
-# Copy example env file
+# Create .env file from example
 cp .env.production.example .env
 
 # Edit with your actual API keys
@@ -116,7 +116,7 @@ pm2 startup
 
 ```bash
 # Copy nginx config
-cp /var/www/moto-lens/deployment/nginx.conf /etc/nginx/sites-available/moto-lens
+cp /home/kiwana/moto-lens/deployment/nginx.conf /etc/nginx/sites-available/moto-lens
 
 # Enable site
 ln -s /etc/nginx/sites-available/moto-lens /etc/nginx/sites-enabled/
@@ -252,7 +252,7 @@ pm2 monit
 pm2 restart moto-lens-api
 
 # Update application
-cd /var/www/moto-lens
+cd /home/kiwana/moto-lens
 git pull origin main
 cd backend
 npm install --production

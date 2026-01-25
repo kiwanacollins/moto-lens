@@ -6,7 +6,7 @@
 
 set -e
 
-APP_DIR="/var/www/moto-lens"
+APP_DIR="/home/kiwana/moto-lens"
 BACKEND_DIR="$APP_DIR/backend"
 
 echo "🚀 Deploying MotoLens Backend..."
