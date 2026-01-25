@@ -1,0 +1,133 @@
+╔════════════════════════════════════════════════════════════════╗
+║       MotoLens VPS Deployment - Copy/Paste Commands           ║
+╚════════════════════════════════════════════════════════════════╝
+
+STEP 1: SSH into your VPS
+──────────────────────────────────────────────────────────────────
+ssh kiwana@207.180.249.87
+
+
+STEP 2: Clone Repository (if not already done)
+──────────────────────────────────────────────────────────────────
+mkdir -p /home/kiwana/moto-lens
+cd /home/kiwana/moto-lens
+git clone https://github.com/kiwanacollins/moto-lens.git .
+
+
+STEP 3: Install Backend Dependencies
+──────────────────────────────────────────────────────────────────
+cd /home/kiwana/moto-lens/backend
+npm install --production
+
+
+STEP 4: Create Environment File
+──────────────────────────────────────────────────────────────────
+cd /home/kiwana/moto-lens/backend
+cat > .env << 'EOF'
+PORT=3001
+NODE_ENV=production
+FRONTEND_URL=https://moto-lens.vercel.app,https://moto-lens-*.vercel.app,http://localhost:5173
+
+AUTODEV_API_KEY=your_autodev_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+SERPAPI_KEY=your_serpapi_key_here
+EOF
+
+# ⚠️  IMPORTANT: Edit .env and add your actual API keys!
+echo ""
+echo "⚠️  You MUST edit .env file with your actual API keys:"
+nano .env
+
+
+STEP 5: Create Logs Directory
+──────────────────────────────────────────────────────────────────
+mkdir -p /home/kiwana/moto-lens/backend/logs
+
+
+STEP 6: Start Backend with PM2
+──────────────────────────────────────────────────────────────────
+cd /home/kiwana/moto-lens/backend
+pm2 start ecosystem.config.cjs --env production
+pm2 save
+pm2 startup
+
+
+STEP 7: Check Status
+──────────────────────────────────────────────────────────────────
+pm2 status
+pm2 logs moto-lens-api --lines 20
+
+
+STEP 8: Test Backend
+──────────────────────────────────────────────────────────────────
+curl http://localhost:3001/api/health
+
+
+EXPECTED RESPONSE:
+{
+  "status": "ok",
+  "message": "MotoLens API is running",
+  "timestamp": "..."
+}
+
+
+STEP 9: Configure Nginx (if not already done)
+──────────────────────────────────────────────────────────────────
+sudo cp /home/kiwana/moto-lens/deployment/nginx.conf /etc/nginx/sites-available/moto-lens
+sudo ln -s /etc/nginx/sites-available/moto-lens /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t
+sudo systemctl reload nginx
+
+
+STEP 10: Test from Outside
+──────────────────────────────────────────────────────────────────
+# Run this from your Mac (local machine)
+curl http://207.180.249.87/api/health
+
+
+══════════════════════════════════════════════════════════════════
+                       USEFUL COMMANDS
+══════════════════════════════════════════════════════════════════
+
+View Logs:
+  pm2 logs moto-lens-api
+
+Monitor in Real-time:
+  pm2 monit
+
+Restart Backend:
+  pm2 restart moto-lens-api
+
+Stop Backend:
+  pm2 stop moto-lens-api
+
+Update Backend Code:
+  cd /home/kiwana/moto-lens
+  git pull origin main
+  cd backend
+  npm install --production
+  pm2 restart moto-lens-api
+
+Check Nginx Status:
+  sudo systemctl status nginx
+  sudo nginx -t
+
+View Nginx Logs:
+  sudo tail -f /var/log/nginx/error.log
+
+══════════════════════════════════════════════════════════════════
+
+After backend is running, proceed to deploy frontend on Vercel:
+  1. Go to: https://vercel.com/new
+  2. Import: kiwanacollins/moto-lens
+  3. Root Directory: frontend
+  4. Framework: Vite
+  5. Build Command: npm run build
+  6. Output: dist
+  7. Environment Variable:
+     Key: VITE_API_BASE_URL
+     Value: http://207.180.249.87/api
+  8. Deploy
+
+══════════════════════════════════════════════════════════════════
