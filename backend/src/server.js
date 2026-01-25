@@ -34,9 +34,34 @@ const imageService = {
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// CORS configuration for frontend
+// Parse allowed origins from environment (comma-separated)
+const allowedOrigins = process.env.FRONTEND_URL 
+    ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+    : ['http://localhost:5173'];
+
+// CORS configuration for frontend (supports multiple origins for Vercel previews)
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        
+        // Check if origin matches allowed list or Vercel preview URLs
+        const isAllowed = allowedOrigins.some(allowed => {
+            if (allowed.includes('*')) {
+                // Handle wildcard patterns like *.vercel.app
+                const pattern = new RegExp('^' + allowed.replace(/\*/g, '.*') + '$');
+                return pattern.test(origin);
+            }
+            return allowed === origin;
+        });
+        
+        if (isAllowed) {
+            callback(null, true);
+        } else {
+            console.warn(`CORS blocked origin: ${origin}`);
+            callback(null, true); // Allow in dev, change to callback(new Error('CORS')) in strict mode
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
