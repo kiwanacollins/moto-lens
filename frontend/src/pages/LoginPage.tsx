@@ -16,12 +16,12 @@ import {
 import { FiLogIn, FiAlertCircle, FiUser, FiLock } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { BRAND_COLORS } from '../styles/theme';
-import { MotoLensLogo } from '../components/MotoLensLogo';
+import { GermanCarMedicLogo } from '../components/GermanCarMedicLogo';
 
 /**
  * LoginPage Component
  *
- * Professional mobile-first login page for MotoLens
+ * Professional mobile-first login page for German Car Medic
  * Clean, minimal design - Stripe/Linear inspired
  */
 export default function LoginPage() {
@@ -86,7 +86,7 @@ export default function LoginPage() {
         <Stack gap="xl">
           {/* Logo */}
           <Box ta="center">
-            <MotoLensLogo size={80} />
+            <GermanCarMedicLogo size={80} />
             <Title
               order={1}
               c={BRAND_COLORS.carbonBlack}
@@ -96,7 +96,7 @@ export default function LoginPage() {
               mt="md"
               style={{ letterSpacing: '-0.03em' }}
             >
-              MotoLens
+              German Car Medic
             </Title>
             <Text c={BRAND_COLORS.gunmetalGray} size="sm" ff="Inter" mt={4}>
               Vehicle Intelligence Platform
@@ -251,7 +251,7 @@ export default function LoginPage() {
 
           {/* Version/Copyright */}
           <Text size="xs" c="dark.6" ta="center" ff="Inter">
-            MotoLens v1.0 • German Vehicle Specialist
+            German Car Medic v1.0 • German Vehicle Specialist
           </Text>
         </Stack>
       </Container>

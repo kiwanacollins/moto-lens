@@ -470,3 +470,5 @@ Instead:
 curl -X POST http://localhost:3001/api/vin/decode \
   -H "Content-Type: application/json" \
   -d '{"vin":"WVWZZZCDZMY072001"}'
+
+WVWZZZCDZMY072001

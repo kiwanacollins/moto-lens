@@ -24,7 +24,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { validateVin, formatVin } from '../utils/vinValidator';
 import { decodeVIN } from '../services/vehicleService';
 import { BRAND_COLORS, TYPOGRAPHY } from '../styles/theme';
-import { MotoLensLogo } from '../components/MotoLensLogo';
+import { GermanCarMedicLogo } from '../components/GermanCarMedicLogo';
 
 export default function VinInputPage() {
   const [vin, setVin] = useState('');
@@ -127,7 +127,7 @@ export default function VinInputPage() {
                 fontWeight: 700,
               }}
             >
-              MotoLens
+              German Car Medic
             </Title>
           </Group>
 
@@ -230,20 +230,9 @@ export default function VinInputPage() {
           <Stack gap="md">
             {/* Title */}
             <div style={{ textAlign: 'center' }}>
-              <Title
-                order={2}
-                style={{
-                  color: BRAND_COLORS.carbonBlack,
-                  fontFamily: TYPOGRAPHY.fontFamily,
-                  marginBottom: rem(6),
-                }}
-              >
-                VIN Decoder
-              </Title>
-
-              {/* MotoLens Logo - Larger with minimal margin */}
+              {/* German Car Medic Logo - Larger with minimal margin */}
               <div style={{ marginBottom: rem(6) }}>
-                <MotoLensLogo size={96} showCorners={false} />
+                <GermanCarMedicLogo size={150} />
               </div>
 
               <Text size="sm" style={{ color: BRAND_COLORS.gunmetalGray, lineHeight: 1.45 }}>

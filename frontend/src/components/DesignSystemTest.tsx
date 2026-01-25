@@ -18,7 +18,7 @@ import { BRAND_COLORS } from '../styles/theme';
 
 /**
  * Design System Test Component
- * Showcases MotoLens brand colors, typography, and components
+ * Showcases German Car Medic brand colors, typography, and components
  */
 export function DesignSystemTest() {
     return (
@@ -27,7 +27,7 @@ export function DesignSystemTest() {
                 {/* Header */}
                 <div>
                     <Title order={1} c="dark.9" fw={600} ff="Inter">
-                        MotoLens Design System
+                        German Car Medic Design System
                     </Title>
                     <Text c="dark.6" size="lg" ff="Inter" mt="xs">
                         Professional Mobile-First PWA for German Vehicle Parts
