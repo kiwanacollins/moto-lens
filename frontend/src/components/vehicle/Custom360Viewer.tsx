@@ -3,51 +3,33 @@ import { Box, Paper, Text, Center, Group, Alert } from '@mantine/core';
 import { MdRotateLeft, MdRotateRight, MdTouchApp } from 'react-icons/md';
 import { FiRotateCw } from 'react-icons/fi';
 import type { VehicleImage } from '../../types/vehicle';
-import type { Hotspot, PartInfo } from '../../types/parts';
-import { PartsOverlay } from '../parts/PartsOverlay';
-import { PartDetailModal } from '../parts/PartDetailModal';
-import { identifyPart } from '../../services/partsService';
-import hotspotsData from '../../data/hotspots.json';
 
 interface Custom360ViewerProps {
     images: VehicleImage[];
     loading?: boolean;
     vehicleName?: string;
-    vehicleInfo?: object; // Vehicle data for API calls
     className?: string;
     height?: number;
     dragSensitivity?: 'low' | 'medium' | 'high';
     enableAutoplay?: boolean;
     autoplaySpeed?: number;
-    enableHotspots?: boolean;
-    onPartClick?: (partName: string) => void;
 }
 
 const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
     images = [],
     loading = false,
     vehicleName = '',
-    vehicleInfo = {},
     className = '',
     height = 400,
     dragSensitivity = 'medium',
     enableAutoplay = false,
     autoplaySpeed = 2000,
-    enableHotspots = true,
-    onPartClick,
 }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [imagesLoaded, setImagesLoaded] = useState(false);
     const [showHint, setShowHint] = useState(true);
-    const [showLabels, setShowLabels] = useState(true); // Persist labels visibility across angle changes
-
-    // Modal state for part details
-    const [modalOpened, setModalOpened] = useState(false);
-    const [selectedPartInfo, setSelectedPartInfo] = useState<PartInfo | null>(null);
-    const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
-    const [loadingPartInfo, setLoadingPartInfo] = useState(false);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -65,38 +47,6 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
     };
 
     const sensitivity = getSensitivity();
-
-    // Hotspot data from JSON
-    const hotspots = (hotspotsData.common as Hotspot[]) || [];
-
-    // Handle hotspot click
-    const handleHotspotClick = useCallback(async (hotspot: Hotspot) => {
-        console.log('Part clicked:', hotspot.partName);
-
-        // Store selected hotspot for visual connection
-        setSelectedHotspot(hotspot);
-
-        // Open modal immediately with loading state
-        setModalOpened(true);
-        setLoadingPartInfo(true);
-
-        try {
-            // Fetch part information from API
-            const partInfo = await identifyPart(hotspot.partName, vehicleInfo);
-            setSelectedPartInfo(partInfo);
-        } catch (error) {
-            console.error('Failed to fetch part info:', error);
-            // Show error state in modal
-            setSelectedPartInfo(null);
-        } finally {
-            setLoadingPartInfo(false);
-        }
-
-        // Call legacy prop if provided
-        if (onPartClick) {
-            onPartClick(hotspot.partName);
-        }
-    }, [onPartClick, vehicleInfo]);
 
     // Hide hint after 3 seconds
     useEffect(() => {
@@ -368,19 +318,6 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
                     draggable={false}
                 />
 
-                {/* SVG Hotspot Overlay */}
-                {enableHotspots && imagesLoaded && !isDragging && (
-                    <PartsOverlay
-                        currentAngle={currentImage.angle}
-                        hotspots={hotspots}
-                        imageWidth={800}
-                        imageHeight={600}
-                        onHotspotClick={handleHotspotClick}
-                        showLabels={showLabels}
-                        onToggleLabels={() => setShowLabels(!showLabels)}
-                    />
-                )}
-
                 {/* Drag hint overlay */}
                 {showHint && validImages.length > 1 && (
                     <Box
@@ -523,15 +460,6 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
           100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
       `}</style>
-
-            {/* Part Detail Modal */}
-            <PartDetailModal
-                opened={modalOpened}
-                onClose={() => setModalOpened(false)}
-                partInfo={selectedPartInfo}
-                clickedHotspot={selectedHotspot}
-                loading={loadingPartInfo}
-            />
         </Paper>
     );
 };
