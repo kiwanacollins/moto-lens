@@ -2,30 +2,37 @@ import React from 'react';
 
 interface GermanCarMedicLogoProps {
   size?: number;
+  width?: number | string;
+  height?: number | string;
+  style?: React.CSSProperties;
 }
 
 /**
  * German Car Medic Logo Component
- * Uses the car.svg from public folder
+ * Uses the file.svg from public folder
  */
-export const GermanCarMedicLogo: React.FC<GermanCarMedicLogoProps> = ({ 
-  size = 120
+export const GermanCarMedicLogo: React.FC<GermanCarMedicLogoProps> = ({
+  size = 120,
+  width,
+  height,
+  style,
 }) => {
-  // Calculate dimensions based on original aspect ratio (600x338)
-  const aspectRatio = 600 / 338;
-  const width = size * aspectRatio;
-  const height = size;
+  const resolvedWidth = width ?? size;
+  const resolvedHeight = height;
 
   return (
-    <img 
-      src="/car.svg" 
+    <img
+      src="/file.svg"
       alt="German Car Medic"
-      width={width}
-      height={height}
+      width={resolvedWidth}
+      height={resolvedHeight}
       style={{
         objectFit: 'contain',
         display: 'block',
         margin: '0 auto',
+        width: resolvedWidth,
+        height: resolvedHeight ?? 'auto',
+        ...style,
       }}
     />
   );

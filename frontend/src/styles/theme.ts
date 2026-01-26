@@ -309,6 +309,9 @@ export const theme = createTheme({
 
   // Custom theme properties
   other: {
+    // Brand font for handwritten headings
+    fontFamilyBrand: 'Caveat, cursive',
+
     // Direct color access for convenience
     brandColors: {
       electricBlue: '#0ea5e9',    // Primary - Actions, CTAs, highlights
@@ -402,6 +405,7 @@ export const NEUTRALS = {
 export const TYPOGRAPHY = {
   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
   fontMono: 'JetBrains Mono, Fira Code, Consolas, Monaco, monospace',
+  fontBrand: 'Caveat, cursive',
 
   fontWeights: {
     regular: 400,

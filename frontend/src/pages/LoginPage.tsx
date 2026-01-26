@@ -86,20 +86,34 @@ export default function LoginPage() {
         <Stack gap="xl">
           {/* Logo */}
           <Box ta="center">
-            <GermanCarMedicLogo size={80} />
+            <Box style={{ width: 280, margin: '0 auto' }}>
+              <GermanCarMedicLogo width={280} />
+            </Box>
             <Title
               order={1}
               c={BRAND_COLORS.carbonBlack}
-              fw={700}
+              fw={600}
               ff="Inter"
-              size="1.75rem"
-              mt="md"
-              style={{ letterSpacing: '-0.03em' }}
+              size="1.6rem"
+              style={{
+                letterSpacing: '-0.01em',
+                whiteSpace: 'nowrap',
+                marginTop: '0.15rem',
+              }}
             >
               German Car Medic
             </Title>
-            <Text c={BRAND_COLORS.gunmetalGray} size="sm" ff="Inter" mt={4}>
-              Vehicle Intelligence Platform
+            <Text
+              c={BRAND_COLORS.electricBlue}
+              size="md"
+              ff="Caveat, cursive"
+              fw={500}
+              style={{
+                fontStyle: 'italic',
+                margin: '0 auto',
+              }}
+            >
+              Reliability meets Expertise
             </Text>
           </Box>
 

@@ -122,9 +122,9 @@ export default function VinInputPage() {
               order={3}
               style={{
                 color: BRAND_COLORS.carbonBlack,
-                fontFamily: TYPOGRAPHY.fontFamily,
-                fontSize: rem(20),
-                fontWeight: 700,
+                fontFamily: 'Inter',
+                fontSize: rem(24),
+                fontWeight: 600,
               }}
             >
               German Car Medic
@@ -231,9 +231,38 @@ export default function VinInputPage() {
             {/* Title */}
             <div style={{ textAlign: 'center' }}>
               {/* German Car Medic Logo - Larger with minimal margin */}
-              <div style={{ marginBottom: rem(6) }}>
-                <GermanCarMedicLogo size={150} />
+              <div style={{ marginBottom: rem(4) }}>
+                <GermanCarMedicLogo size={220} />
               </div>
+
+              <Title
+                order={2}
+                c={BRAND_COLORS.carbonBlack}
+                fw={600}
+                ff="Inter"
+                size="1.3rem"
+                mb="xs"
+                style={{
+                  margin: '0 auto 0.25rem auto',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                German Car Medic
+              </Title>
+
+              {/* <Text
+                size="sm"
+                c={BRAND_COLORS.electricBlue}
+                fw={500}
+                ff="Caveat, cursive"
+                mb="xs"
+                style={{
+                  fontStyle: 'italic',
+                  margin: '0 auto 0.75rem auto',
+                }}
+              >
+                Reliability meets Expertise
+              </Text> */}
 
               <Text size="sm" style={{ color: BRAND_COLORS.gunmetalGray, lineHeight: 1.45 }}>
                 Enter a 17-character VIN to decode vehicle information
