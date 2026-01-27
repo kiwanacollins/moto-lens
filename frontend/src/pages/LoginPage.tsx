@@ -106,7 +106,7 @@ export default function LoginPage() {
             <Text
               c={BRAND_COLORS.electricBlue}
               size="md"
-              ff="Caveat, cursive"
+              ff="Inter"
               fw={500}
               style={{
                 fontStyle: 'italic',

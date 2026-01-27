@@ -254,7 +254,7 @@ export default function VinInputPage() {
                 size="sm"
                 c={BRAND_COLORS.electricBlue}
                 fw={500}
-                ff="Caveat, cursive"
+                ff="Inter"
                 mb="xs"
                 style={{
                   fontStyle: 'italic',
