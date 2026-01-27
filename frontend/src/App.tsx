@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import VinInputPage from './pages/VinInputPage';
 import VehicleViewPage from './pages/VehicleViewPage';
 import Vehicle360Test from './pages/Vehicle360Test';
+import PartScannerPage from './pages/PartScannerPage';
 
 /**
  * App Component
@@ -16,6 +17,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<ProtectedRoute><VinInputPage /></ProtectedRoute>} />
         <Route path="/vehicle/:vin" element={<ProtectedRoute><VehicleViewPage /></ProtectedRoute>} />
+        <Route path="/scan" element={<ProtectedRoute><PartScannerPage /></ProtectedRoute>} />
         <Route path="/test-360" element={<ProtectedRoute><Vehicle360Test /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

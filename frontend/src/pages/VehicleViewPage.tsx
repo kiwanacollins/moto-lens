@@ -16,7 +16,7 @@ import {
   SimpleGrid
 } from '@mantine/core';
 import { MdArrowBack, MdLogout } from 'react-icons/md';
-import { FiInfo } from 'react-icons/fi';
+import { FiInfo, FiCamera } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import { decodeVIN, getVehicleSummary } from '../services/vehicleService';
 import type { VehicleData, VehicleSummary } from '../types/vehicle';
@@ -167,15 +167,19 @@ export default function VehicleViewPage() {
           {(styles) => (
             <div style={styles}>
               {/* Header with navigation */}
-              <Group justify="space-between" mb="xl">
+              <Group justify="space-between" mb="xl" wrap="wrap" gap="sm">
                 <Button
                   leftSection={<MdArrowBack size={18} />}
                   variant="filled"
                   color="blue.4"
-                  size="sm"
+                  size="md"
                   onClick={handleBackClick}
                   ff="Inter"
                   fw={500}
+                  style={{
+                    minWidth: "120px",
+                    minHeight: "44px", // Minimum touch target
+                  }}
                 >
                   New VIN
                 </Button>
@@ -184,10 +188,14 @@ export default function VehicleViewPage() {
                   leftSection={<MdLogout size={18} />}
                   variant="filled"
                   color="dark.5"
-                  size="sm"
+                  size="md"
                   onClick={handleLogout}
                   ff="Inter"
                   fw={500}
+                  style={{
+                    minWidth: "100px",
+                    minHeight: "44px", // Minimum touch target
+                  }}
                 >
                   Logout
                 </Button>
@@ -199,7 +207,7 @@ export default function VehicleViewPage() {
                     {/* Vehicle Header Card */}
                     <Paper
                       shadow="sm"
-                      p={{ base: 'lg', sm: 'xl' }}
+                      p="xl"
                       radius="lg"
                       withBorder
                       bg="white"
@@ -315,11 +323,45 @@ export default function VehicleViewPage() {
                       dragSensitivity="medium"
                     />
 
+                    {/* Scan Parts CTA */}
+                    <Paper
+                      shadow="sm"
+                      p="lg"
+                      radius="lg"
+                      withBorder
+                      bg="white"
+                      style={{ borderColor: '#e4e4e7' }}
+                    >
+                      <Group justify="center">
+                        <Button
+                          leftSection={<FiCamera size={20} />}
+                          variant="filled"
+                          color="blue.4"
+                          size="lg"
+                          onClick={() => {
+                            // Save current vehicle data for context in part scanner
+                            if (vehicleData) {
+                              localStorage.setItem('currentVehicle', JSON.stringify(vehicleData));
+                            }
+                            navigate('/scan');
+                          }}
+                          ff="Inter"
+                          fw={600}
+                          style={{
+                            minWidth: "200px",
+                            minHeight: "48px", // Larger touch target
+                          }}
+                        >
+                          Scan Parts with AI
+                        </Button>
+                      </Group>
+                    </Paper>
+
                     {/* Vehicle Summary Card */}
                     {vehicleSummary && (
                       <Paper
                         shadow="sm"
-                        p={{ base: 'lg', sm: 'xl' }}
+                        p="xl"
                         radius="lg"
                         withBorder
                         bg="white"

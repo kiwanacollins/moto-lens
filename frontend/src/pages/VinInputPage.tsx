@@ -17,7 +17,7 @@ import {
   rem,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { FiLogOut, FiInfo, FiArrowRight, FiMenu } from 'react-icons/fi';
+import { FiLogOut, FiInfo, FiArrowRight, FiMenu, FiCamera } from 'react-icons/fi';
 import { MdDirectionsCar } from 'react-icons/md';
 
 import { useAuth } from '../contexts/AuthContext';
@@ -114,33 +114,60 @@ export default function VinInputPage() {
           borderBottom: '1px solid #e4e4e7',
         }}
       >
-        <Group justify="space-between" h={48}>
+        <Group justify="space-between" align="center" wrap="nowrap" h={48}>
           {/* Logo Section */}
-          <Group gap="xs">
-            <MdDirectionsCar size={28} style={{ color: BRAND_COLORS.electricBlue }} />
-            <Title
-              order={3}
+          <Group gap="xs" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+            <MdDirectionsCar
+              size={26}
+              style={{ color: BRAND_COLORS.electricBlue, flex: '0 0 auto' }}
+            />
+            <Text
+              fw={600}
+              ff="Inter"
+              c={BRAND_COLORS.carbonBlack}
               style={{
-                color: BRAND_COLORS.carbonBlack,
-                fontFamily: 'Inter',
-                fontSize: rem(24),
-                fontWeight: 600,
+                fontSize: rem(20),
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
               German Car Medic
-            </Title>
+            </Text>
           </Group>
 
-          {/* Mobile Menu Button */}
-          <ActionIcon
-            variant="subtle"
-            color="blue"
-            size="lg"
-            onClick={() => setMenuOpened(true)}
-            title="Menu"
-          >
-            <FiMenu size={24} />
-          </ActionIcon>
+          {/* Right side with Part Scanner and Menu */}
+          <Group gap="xs" wrap="nowrap">
+            {/* Part Scanner Button */}
+            <ActionIcon
+              variant="subtle"
+              color="blue"
+              size="xl"
+              onClick={() => navigate('/scan')}
+              title="Part Scanner"
+              style={{
+                minWidth: '44px',
+                minHeight: '44px', // Minimum touch target for mobile
+              }}
+            >
+              <FiCamera size={20} />
+            </ActionIcon>
+
+            {/* Mobile Menu Button */}
+            <ActionIcon
+              variant="subtle"
+              color="blue"
+              size="xl"
+              onClick={() => setMenuOpened(true)}
+              title="Menu"
+              style={{
+                minWidth: '44px',
+                minHeight: '44px', // Minimum touch target for mobile
+              }}
+            >
+              <FiMenu size={24} />
+            </ActionIcon>
+          </Group>
         </Group>
       </Paper>
 
@@ -181,6 +208,26 @@ export default function VinInputPage() {
               {username}
             </Text>
           </Paper>
+
+          <Divider />
+
+          {/* Part Scanner Button */}
+          <Button
+            fullWidth
+            color="blue.4"
+            variant="light"
+            leftSection={<FiCamera size={18} />}
+            onClick={() => {
+              navigate('/scan');
+              setMenuOpened(false);
+            }}
+            style={{
+              fontFamily: TYPOGRAPHY.fontFamily,
+              fontWeight: 500,
+            }}
+          >
+            Part Scanner
+          </Button>
 
           <Divider />
 

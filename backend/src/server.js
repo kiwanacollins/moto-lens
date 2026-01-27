@@ -15,6 +15,7 @@ dotenv.config({ path: join(__dirname, '..', '.env') });
 import autodevService from './services/autodevService.js';
 import vinUtils from './utils/vinValidator.js';
 import geminiAiService from './services/geminiAiService.js';
+import geminiVisionService from './services/geminiVisionService.js';
 import vehicleEnrichmentService from './services/vehicleEnrichmentService.js';
 import {
     searchVehicleImages,
@@ -69,7 +70,8 @@ const corsOptions = {
 
 // Middleware
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); // Increase limit for image uploads
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -641,6 +643,282 @@ app.post('/api/parts/details', async (req, res) => {
         });
     }
 });
+
+// ==================== PART SCANNING ENDPOINTS ====================
+
+// Scan and analyze a spare part from image
+app.post('/api/parts/scan', async (req, res) => {
+    try {
+        const { imageBase64, mimeType, vehicleContext } = req.body || {};
+
+        // Validate required fields
+        if (!imageBase64 || !mimeType) {
+            return res.status(400).json({
+                error: 'MISSING_DATA',
+                message: 'imageBase64 and mimeType are required'
+            });
+        }
+
+        // Validate image
+        const validation = geminiVisionService.validateImage(imageBase64, mimeType);
+        if (!validation.valid) {
+            return res.status(400).json({
+                error: 'INVALID_IMAGE',
+                message: validation.error
+            });
+        }
+
+        // Analyze the part image
+        const analysis = await geminiVisionService.analyzePartImage(
+            imageBase64, 
+            mimeType, 
+            vehicleContext
+        );
+
+        return res.json({
+            success: true,
+            ...analysis
+        });
+
+    } catch (err) {
+        if (err && err.name === 'GeminiVisionError') {
+            return res.status(err.statusCode || 500).json({
+                error: err.code || 'VISION_ERROR',
+                message: err.message
+            });
+        }
+
+        console.error('Error scanning part:', err);
+        return res.status(500).json({
+            error: 'INTERNAL_ERROR',
+            message: 'Failed to analyze part image'
+        });
+    }
+});
+
+// Ask a specific question about a part image
+app.post('/api/parts/scan/question', async (req, res) => {
+    try {
+        const { imageBase64, mimeType, question, vehicleContext } = req.body || {};
+
+        // Validate required fields
+        if (!imageBase64 || !mimeType || !question) {
+            return res.status(400).json({
+                error: 'MISSING_DATA',
+                message: 'imageBase64, mimeType, and question are required'
+            });
+        }
+
+        // Validate image
+        const validation = geminiVisionService.validateImage(imageBase64, mimeType);
+        if (!validation.valid) {
+            return res.status(400).json({
+                error: 'INVALID_IMAGE',
+                message: validation.error
+            });
+        }
+
+        // Validate question
+        if (typeof question !== 'string' || question.trim().length < 3) {
+            return res.status(400).json({
+                error: 'INVALID_QUESTION',
+                message: 'Question must be at least 3 characters long'
+            });
+        }
+
+        // Ask the question about the part
+        const response = await geminiVisionService.askPartQuestion(
+            imageBase64,
+            mimeType,
+            question.trim(),
+            vehicleContext
+        );
+
+        return res.json({
+            success: true,
+            ...response
+        });
+
+    } catch (err) {
+        if (err && err.name === 'GeminiVisionError') {
+            return res.status(err.statusCode || 500).json({
+                error: err.code || 'VISION_ERROR',
+                message: err.message
+            });
+        }
+
+        console.error('Error answering part question:', err);
+        return res.status(500).json({
+            error: 'INTERNAL_ERROR',
+            message: 'Failed to answer question about part'
+        });
+    }
+});
+
+// Compare multiple part images
+app.post('/api/parts/scan/compare', async (req, res) => {
+    try {
+        const { images, comparisonType, vehicleContext } = req.body || {};
+
+        // Validate required fields
+        if (!images || !Array.isArray(images)) {
+            return res.status(400).json({
+                error: 'MISSING_DATA',
+                message: 'images array is required'
+            });
+        }
+
+        if (images.length < 2 || images.length > 4) {
+            return res.status(400).json({
+                error: 'INVALID_INPUT',
+                message: 'Must provide 2-4 images for comparison'
+            });
+        }
+
+        // Validate each image
+        for (let i = 0; i < images.length; i++) {
+            const img = images[i];
+            if (!img.imageBase64 || !img.mimeType) {
+                return res.status(400).json({
+                    error: 'INVALID_IMAGE_DATA',
+                    message: `Image ${i + 1} is missing imageBase64 or mimeType`
+                });
+            }
+
+            const validation = geminiVisionService.validateImage(img.imageBase64, img.mimeType);
+            if (!validation.valid) {
+                return res.status(400).json({
+                    error: 'INVALID_IMAGE',
+                    message: `Image ${i + 1}: ${validation.error}`
+                });
+            }
+        }
+
+        // Compare the parts
+        const comparison = await geminiVisionService.comparePartImages(
+            images,
+            comparisonType || 'general',
+            vehicleContext
+        );
+
+        return res.json({
+            success: true,
+            ...comparison
+        });
+
+    } catch (err) {
+        if (err && err.name === 'GeminiVisionError') {
+            return res.status(err.statusCode || 500).json({
+                error: err.code || 'VISION_ERROR',
+                message: err.message
+            });
+        }
+
+        console.error('Error comparing parts:', err);
+        return res.status(500).json({
+            error: 'INTERNAL_ERROR',
+            message: 'Failed to compare part images'
+        });
+    }
+});
+
+// Detect part numbers and markings in an image
+app.post('/api/parts/scan/markings', async (req, res) => {
+    try {
+        const { imageBase64, mimeType } = req.body || {};
+
+        // Validate required fields
+        if (!imageBase64 || !mimeType) {
+            return res.status(400).json({
+                error: 'MISSING_DATA',
+                message: 'imageBase64 and mimeType are required'
+            });
+        }
+
+        // Validate image
+        const validation = geminiVisionService.validateImage(imageBase64, mimeType);
+        if (!validation.valid) {
+            return res.status(400).json({
+                error: 'INVALID_IMAGE',
+                message: validation.error
+            });
+        }
+
+        // Detect markings
+        const markings = await geminiVisionService.detectPartMarkings(imageBase64, mimeType);
+
+        return res.json({
+            success: true,
+            ...markings
+        });
+
+    } catch (err) {
+        if (err && err.name === 'GeminiVisionError') {
+            return res.status(err.statusCode || 500).json({
+                error: err.code || 'VISION_ERROR',
+                message: err.message
+            });
+        }
+
+        console.error('Error detecting markings:', err);
+        return res.status(500).json({
+            error: 'INTERNAL_ERROR',
+            message: 'Failed to detect part markings'
+        });
+    }
+});
+
+// Assess part condition and provide replacement recommendations
+app.post('/api/parts/scan/condition', async (req, res) => {
+    try {
+        const { imageBase64, mimeType, vehicleContext } = req.body || {};
+
+        // Validate required fields
+        if (!imageBase64 || !mimeType) {
+            return res.status(400).json({
+                error: 'MISSING_DATA',
+                message: 'imageBase64 and mimeType are required'
+            });
+        }
+
+        // Validate image
+        const validation = geminiVisionService.validateImage(imageBase64, mimeType);
+        if (!validation.valid) {
+            return res.status(400).json({
+                error: 'INVALID_IMAGE',
+                message: validation.error
+            });
+        }
+
+        // Assess condition
+        const assessment = await geminiVisionService.assessPartCondition(
+            imageBase64,
+            mimeType,
+            vehicleContext
+        );
+
+        return res.json({
+            success: true,
+            ...assessment
+        });
+
+    } catch (err) {
+        if (err && err.name === 'GeminiVisionError') {
+            return res.status(err.statusCode || 500).json({
+                error: err.code || 'VISION_ERROR',
+                message: err.message
+            });
+        }
+
+        console.error('Error assessing condition:', err);
+        return res.status(500).json({
+            error: 'INTERNAL_ERROR',
+            message: 'Failed to assess part condition'
+        });
+    }
+});
+
+// ==================== END PART SCANNING ENDPOINTS ====================
 
 // 404 handler
 app.use((req, res) => {
