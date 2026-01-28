@@ -119,98 +119,98 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
-            
-            // Wait for video to be ready and playing
-            await new Promise<void>((resolve, reject) => {
-                const video = videoRef.current;
-                if (!video) {
-                    reject(new Error('Video element not available'));
-                    return;
-                }
 
-                const onLoadedMetadata = () => {
-                    video.removeEventListener('loadedmetadata', onLoadedMetadata);
-                    video.removeEventListener('error', onError);
-                    
-                    // Force play to ensure video starts
-                    video.play().then(() => {
-                        resolve();
-                    }).catch((playError) => {
-                        console.warn('Video play failed:', playError);
-                        // Still resolve as stream might be working
-                        resolve();
-                    });
-                };
-
-                const onError = (error: Event) => {
-                    video.removeEventListener('loadedmetadata', onLoadedMetadata);
-                    video.removeEventListener('error', onError);
-                    console.error('Video element error:', error);
-                    reject(new Error('Video stream failed to load'));
-                };
-
-                video.addEventListener('loadedmetadata', onLoadedMetadata);
-                video.addEventListener('error', onError);
-                
-                // Timeout after 10 seconds
-                setTimeout(() => {
-                    video.removeEventListener('loadedmetadata', onLoadedMetadata);
-                    video.removeEventListener('error', onError);
-                    resolve(); // Continue even if metadata doesn't load
-                }, 10000);
-
-            setCameraState(prev => ({
-                ...prev,
-                stream,
-                isInitializing: false,
-                error: null,
-            }));
-
-            // Check for multiple cameras after successful initialization
-            await checkMultipleCameras();
-        } catch (error) {
-            console.error('Camera initialization error:', error);
-            let errorMessage = 'Camera access denied. Please allow camera permissions and try again.';
-
-            if (error instanceof Error) {
-                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                    errorMessage =
-                        'Camera permission denied. Please enable camera access in your browser settings.';
-                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                    errorMessage = 'No camera found. Please use the "Take Photo" or "Upload" buttons below.';
-                } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-                    errorMessage =
-                        'Camera is in use by another app. Please close other camera apps and try again.';
-                } else if (error.name === 'OverconstrainedError') {
-                    errorMessage = 'Camera constraints not supported. Trying with basic settings...';
-                    // Retry with basic constraints
-                    try {
-                        const basicStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                        if (videoRef.current) {
-                            videoRef.current.srcObject = basicStream;
-                            // Force play to ensure video displays
-                            await videoRef.current.play();
-                        }
-                        setCameraState(prev => ({
-                            ...prev,
-                            stream: basicStream,
-                            isInitializing: false,
-                            error: null,
-                        }));
+                // Wait for video to be ready and playing
+                await new Promise<void>((resolve, reject) => {
+                    const video = videoRef.current;
+                    if (!video) {
+                        reject(new Error('Video element not available'));
                         return;
-                    } catch {
-                        errorMessage = 'Camera initialization failed. Please use the upload option.';
                     }
-                }
-            }
 
-            setCameraState(prev => ({
-                ...prev,
-                isInitializing: false,
-                error: errorMessage,
-            }));
-        }
-    }, [cameraState.facingMode, checkMultipleCameras]);
+                    const onLoadedMetadata = () => {
+                        video.removeEventListener('loadedmetadata', onLoadedMetadata);
+                        video.removeEventListener('error', onError);
+
+                        // Force play to ensure video starts
+                        video.play().then(() => {
+                            resolve();
+                        }).catch((playError) => {
+                            console.warn('Video play failed:', playError);
+                            // Still resolve as stream might be working
+                            resolve();
+                        });
+                    };
+
+                    const onError = (error: Event) => {
+                        video.removeEventListener('loadedmetadata', onLoadedMetadata);
+                        video.removeEventListener('error', onError);
+                        console.error('Video element error:', error);
+                        reject(new Error('Video stream failed to load'));
+                    };
+
+                    video.addEventListener('loadedmetadata', onLoadedMetadata);
+                    video.addEventListener('error', onError);
+
+                    // Timeout after 10 seconds
+                    setTimeout(() => {
+                        video.removeEventListener('loadedmetadata', onLoadedMetadata);
+                        video.removeEventListener('error', onError);
+                        resolve(); // Continue even if metadata doesn't load
+                    }, 10000);
+
+                    setCameraState(prev => ({
+                        ...prev,
+                        stream,
+                        isInitializing: false,
+                        error: null,
+                    }));
+
+                    // Check for multiple cameras after successful initialization
+                    await checkMultipleCameras();
+                } catch (error) {
+                    console.error('Camera initialization error:', error);
+                    let errorMessage = 'Camera access denied. Please allow camera permissions and try again.';
+
+                    if (error instanceof Error) {
+                        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                            errorMessage =
+                                'Camera permission denied. Please enable camera access in your browser settings.';
+                        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                            errorMessage = 'No camera found. Please use the "Take Photo" or "Upload" buttons below.';
+                        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                            errorMessage =
+                                'Camera is in use by another app. Please close other camera apps and try again.';
+                        } else if (error.name === 'OverconstrainedError') {
+                            errorMessage = 'Camera constraints not supported. Trying with basic settings...';
+                            // Retry with basic constraints
+                            try {
+                                const basicStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                                if (videoRef.current) {
+                                    videoRef.current.srcObject = basicStream;
+                                    // Force play to ensure video displays
+                                    await videoRef.current.play();
+                                }
+                                setCameraState(prev => ({
+                                    ...prev,
+                                    stream: basicStream,
+                                    isInitializing: false,
+                                    error: null,
+                                }));
+                                return;
+                            } catch {
+                                errorMessage = 'Camera initialization failed. Please use the upload option.';
+                            }
+                        }
+                    }
+
+                    setCameraState(prev => ({
+                        ...prev,
+                        isInitializing: false,
+                        error: errorMessage,
+                    }));
+                }
+            }, [cameraState.facingMode, checkMultipleCameras]);
 
     // Cleanup camera stream
     const cleanup = useCallback(() => {
