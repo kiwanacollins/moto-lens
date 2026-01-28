@@ -3,6 +3,8 @@
  *
  * Provides camera capture functionality for analyzing spare parts
  * with professional MotoLens design
+ *
+ * Mobile-optimized for direct camera access on phones
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
@@ -18,10 +20,18 @@ import {
     ActionIcon,
     Progress,
     ThemeIcon,
+    Divider,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { MdCameraAlt, MdFlip, MdClose, MdPhotoCamera, MdUpload } from 'react-icons/md';
+import {
+    MdCameraAlt,
+    MdFlip,
+    MdClose,
+    MdPhotoCamera,
+    MdUpload,
+    MdPhotoLibrary,
+} from 'react-icons/md';
 import { FiCamera, FiRotateCcw } from 'react-icons/fi';
 
 interface PartCameraProps {
@@ -36,7 +46,18 @@ interface CameraState {
     flashEnabled: boolean;
     isInitializing: boolean;
     error: string | null;
+    hasMultipleCameras: boolean;
 }
+
+// Check if device is mobile
+const isMobileDevice = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
+// Check if mediaDevices API is available
+const hasMediaDevices = () => {
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+};
 
 export const PartCamera: React.FC<PartCameraProps> = ({
     onImageCapture,
@@ -50,29 +71,60 @@ export const PartCamera: React.FC<PartCameraProps> = ({
         flashEnabled: false,
         isInitializing: false,
         error: null,
+        hasMultipleCameras: false,
     });
+    const [isMobile] = useState(isMobileDevice());
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+
+    // Check for multiple cameras
+    const checkMultipleCameras = useCallback(async () => {
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(device => device.kind === 'videoinput');
+            setCameraState(prev => ({ ...prev, hasMultipleCameras: videoDevices.length > 1 }));
+        } catch {
+            // Silently fail - we'll assume single camera
+        }
+    }, []);
 
     // Camera permissions and initialization
     const initializeCamera = useCallback(async () => {
+        if (!hasMediaDevices()) {
+            setCameraState(prev => ({
+                ...prev,
+                isInitializing: false,
+                error:
+                    'Camera not supported. Please use the "Take Photo" button below to capture directly.',
+            }));
+            return;
+        }
+
         setCameraState(prev => ({ ...prev, isInitializing: true, error: null }));
 
         try {
             const constraints: MediaStreamConstraints = {
                 video: {
                     facingMode: cameraState.facingMode,
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 },
+                    width: { ideal: 1920, min: 640 },
+                    height: { ideal: 1080, min: 480 },
                 },
+                audio: false,
             };
 
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
+                // Wait for video to be ready
+                await new Promise<void>(resolve => {
+                    if (videoRef.current) {
+                        videoRef.current.onloadedmetadata = () => resolve();
+                    }
+                });
             }
 
             setCameraState(prev => ({
@@ -81,15 +133,50 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                 isInitializing: false,
                 error: null,
             }));
+
+            // Check for multiple cameras after successful initialization
+            await checkMultipleCameras();
         } catch (error) {
             console.error('Camera initialization error:', error);
+            let errorMessage = 'Camera access denied. Please allow camera permissions and try again.';
+
+            if (error instanceof Error) {
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    errorMessage =
+                        'Camera permission denied. Please enable camera access in your browser settings.';
+                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                    errorMessage = 'No camera found. Please use the "Take Photo" or "Upload" buttons below.';
+                } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                    errorMessage =
+                        'Camera is in use by another app. Please close other camera apps and try again.';
+                } else if (error.name === 'OverconstrainedError') {
+                    errorMessage = 'Camera constraints not supported. Trying with basic settings...';
+                    // Retry with basic constraints
+                    try {
+                        const basicStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                        if (videoRef.current) {
+                            videoRef.current.srcObject = basicStream;
+                        }
+                        setCameraState(prev => ({
+                            ...prev,
+                            stream: basicStream,
+                            isInitializing: false,
+                            error: null,
+                        }));
+                        return;
+                    } catch {
+                        errorMessage = 'Camera initialization failed. Please use the upload option.';
+                    }
+                }
+            }
+
             setCameraState(prev => ({
                 ...prev,
                 isInitializing: false,
-                error: 'Camera access denied. Please allow camera permissions and try again.',
+                error: errorMessage,
             }));
         }
-    }, [cameraState.facingMode]);
+    }, [cameraState.facingMode, checkMultipleCameras]);
 
     // Cleanup camera stream
     const cleanup = useCallback(() => {
@@ -174,15 +261,74 @@ export const PartCamera: React.FC<PartCameraProps> = ({
     }, [onImageCapture, close, cleanup]);
 
     // Switch camera (front/rear)
-    const switchCamera = useCallback(() => {
-        cleanup();
+    const switchCamera = useCallback(async () => {
+        // Stop current stream
+        if (cameraState.stream) {
+            cameraState.stream.getTracks().forEach(track => track.stop());
+        }
+
+        const newFacingMode = cameraState.facingMode === 'user' ? 'environment' : 'user';
+
         setCameraState(prev => ({
             ...prev,
-            facingMode: prev.facingMode === 'user' ? 'environment' : 'user',
+            stream: null,
+            facingMode: newFacingMode,
         }));
-    }, [cleanup]);
 
-    // Handle file upload
+        // Re-initialize with new facing mode
+        try {
+            const constraints: MediaStreamConstraints = {
+                video: {
+                    facingMode: newFacingMode,
+                    width: { ideal: 1920, min: 640 },
+                    height: { ideal: 1080, min: 480 },
+                },
+                audio: false,
+            };
+
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+            }
+
+            setCameraState(prev => ({
+                ...prev,
+                stream,
+                error: null,
+            }));
+        } catch (error) {
+            console.error('Camera switch error:', error);
+            setCameraState(prev => ({
+                ...prev,
+                error: 'Failed to switch camera. Please try again.',
+            }));
+        }
+    }, [cameraState.stream, cameraState.facingMode]);
+
+    // Handle direct camera capture (mobile-friendly)
+    const handleDirectCapture = useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            const file = event.target.files?.[0];
+            if (file) {
+                onImageCapture(file);
+                close();
+                cleanup();
+
+                notifications.show({
+                    title: 'Photo captured',
+                    message: 'Analyzing part...',
+                    color: 'blue',
+                    icon: <MdPhotoCamera />,
+                });
+            }
+            // Reset input value to allow capturing the same image again
+            event.target.value = '';
+        },
+        [onImageCapture, close, cleanup]
+    );
+
+    // Handle file upload from gallery
     const handleFileUpload = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
             const file = event.target.files?.[0];
@@ -198,9 +344,21 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                     icon: <MdUpload />,
                 });
             }
+            // Reset input value to allow uploading the same image again
+            event.target.value = '';
         },
         [onImageCapture, close, cleanup]
     );
+
+    // Trigger native camera on mobile
+    const openNativeCamera = useCallback(() => {
+        cameraInputRef.current?.click();
+    }, []);
+
+    // Trigger file picker
+    const openFilePicker = useCallback(() => {
+        fileInputRef.current?.click();
+    }, []);
 
     return (
         <>
@@ -258,6 +416,53 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                         </Text>
                     </Paper>
 
+                    {/* Mobile Direct Capture Options */}
+                    {isMobile && (
+                        <Paper p="md" withBorder radius="md" bg="gray.0">
+                            <Stack gap="sm">
+                                <Text size="sm" fw={600} c="dark.7" ff="Inter" ta="center">
+                                    📷 Quick Capture Options
+                                </Text>
+                                <Group grow>
+                                    <Button
+                                        size="lg"
+                                        variant="filled"
+                                        color="blue.5"
+                                        onClick={openNativeCamera}
+                                        leftSection={<MdCameraAlt size={22} />}
+                                        ff="Inter"
+                                        fw={600}
+                                        style={{
+                                            minHeight: '56px',
+                                        }}
+                                    >
+                                        Take Photo
+                                    </Button>
+                                    <Button
+                                        size="lg"
+                                        variant="outline"
+                                        color="dark.6"
+                                        onClick={openFilePicker}
+                                        leftSection={<MdPhotoLibrary size={22} />}
+                                        ff="Inter"
+                                        fw={600}
+                                        style={{
+                                            minHeight: '56px',
+                                        }}
+                                    >
+                                        Gallery
+                                    </Button>
+                                </Group>
+                                <Text size="xs" c="dimmed" ta="center" ff="Inter">
+                                    Use these buttons to directly access your phone's camera or photo gallery
+                                </Text>
+                            </Stack>
+                        </Paper>
+                    )}
+
+                    {/* Divider for mobile */}
+                    {isMobile && <Divider label="Or use live camera preview" labelPosition="center" />}
+
                     {/* Camera View */}
                     <Paper withBorder radius="md" style={{ overflow: 'hidden', aspectRatio: '4/3' }}>
                         {cameraState.error ? (
@@ -304,19 +509,23 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
                                 {/* Camera Controls Overlay */}
                                 <Group justify="space-between" pos="absolute" top="sm" left="sm" right="sm">
-                                    <ActionIcon
-                                        variant="filled"
-                                        color="dark.9"
-                                        size="xl"
-                                        radius="xl"
-                                        onClick={switchCamera}
-                                        style={{
-                                            minWidth: '48px',
-                                            minHeight: '48px', // Larger touch target for mobile
-                                        }}
-                                    >
-                                        <MdFlip color="white" size={20} />
-                                    </ActionIcon>
+                                    {cameraState.hasMultipleCameras ? (
+                                        <ActionIcon
+                                            variant="filled"
+                                            color="dark.9"
+                                            size="xl"
+                                            radius="xl"
+                                            onClick={switchCamera}
+                                            style={{
+                                                minWidth: '48px',
+                                                minHeight: '48px', // Larger touch target for mobile
+                                            }}
+                                        >
+                                            <MdFlip color="white" size={20} />
+                                        </ActionIcon>
+                                    ) : (
+                                        <Box w={48} /> // Spacer for alignment
+                                    )}
 
                                     <Text
                                         size="xs"
@@ -380,7 +589,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                             size="lg"
                             variant="outline"
                             color="dark.9"
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={openFilePicker}
                             leftSection={<MdUpload size={20} />}
                             ff="Inter"
                             fw={600}
@@ -396,18 +605,30 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
                     {/* Alternative Text */}
                     <Text size="xs" c="dark.5" ta="center" ff="Inter">
-                        You can also upload an existing photo from your device
+                        {isMobile
+                            ? 'Use the buttons above for quick camera access, or the live preview for more control'
+                            : 'You can also upload an existing photo from your device'}
                     </Text>
                 </Stack>
             </Modal>
 
-            {/* Hidden file input */}
+            {/* Hidden file input for gallery */}
             <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                accept="image/jpeg,image/png,image/webp,image/heic"
                 style={{ display: 'none' }}
                 onChange={handleFileUpload}
+            />
+
+            {/* Hidden file input for direct camera capture (mobile) */}
+            <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/heic"
+                capture="environment"
+                style={{ display: 'none' }}
+                onChange={handleDirectCapture}
             />
 
             {/* Hidden canvas for image capture */}

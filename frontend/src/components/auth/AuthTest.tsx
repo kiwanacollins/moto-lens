@@ -40,7 +40,7 @@ export function AuthTest() {
       } else {
         setError('Invalid credentials. Use admin/admin');
       }
-    } catch (err) {
+    } catch (_err) {
       setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
