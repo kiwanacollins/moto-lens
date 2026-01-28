@@ -91,12 +91,25 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
       setQuestionResult(response);
       setQuestion('');
 
+      // Close modal after successful response
+      closeQuestionModal();
+
       notifications.show({
         title: 'Question answered',
         message: 'AI analysis complete',
         color: 'green',
         icon: <MdCheckCircle />,
       });
+
+      // Scroll to show the answer after a brief delay
+      setTimeout(() => {
+        if (questionScrollRef.current) {
+          questionScrollRef.current.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 100);
     } catch (err) {
       console.error('Error asking question:', err);
       notifications.show({
@@ -144,7 +157,14 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
         if (trimmed.includes('**')) {
           const parts = trimmed.split(/(\*\*[^*]+\*\*)/);
           return (
-            <Text key={index} size="sm" c="dark.7" ff="Inter" style={{ lineHeight: 1.6 }} ml={trimmed.startsWith('*') ? 'md' : 0}>
+            <Text
+              key={index}
+              size="sm"
+              c="dark.7"
+              ff="Inter"
+              style={{ lineHeight: 1.6 }}
+              ml={trimmed.startsWith('*') ? 'md' : 0}
+            >
               {parts.map((part, i) => {
                 if (part.match(/^\*\*.*\*\*$/)) {
                   return (
