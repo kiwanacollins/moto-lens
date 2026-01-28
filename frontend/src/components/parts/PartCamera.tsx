@@ -1,6 +1,6 @@
 /**
  * Camera Component for Part Scanning
- * 
+ *
  * Provides camera capture functionality for analyzing spare parts
  * with professional MotoLens design
  */
@@ -17,17 +17,11 @@ import {
   Box,
   ActionIcon,
   Progress,
-  ThemeIcon
+  ThemeIcon,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-  MdCameraAlt,
-  MdFlip,
-  MdClose,
-  MdPhotoCamera,
-  MdUpload
-} from 'react-icons/md';
+import { MdCameraAlt, MdFlip, MdClose, MdPhotoCamera, MdUpload } from 'react-icons/md';
 import { FiCamera, FiRotateCcw } from 'react-icons/fi';
 
 interface PartCameraProps {
@@ -47,7 +41,7 @@ interface CameraState {
 export const PartCamera: React.FC<PartCameraProps> = ({
   onImageCapture,
   isProcessing = false,
-  children
+  children,
 }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [cameraState, setCameraState] = useState<CameraState>({
@@ -55,7 +49,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
     facingMode: 'environment', // Default to rear camera for part scanning
     flashEnabled: false,
     isInitializing: false,
-    error: null
+    error: null,
   });
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -71,12 +65,12 @@ export const PartCamera: React.FC<PartCameraProps> = ({
         video: {
           facingMode: cameraState.facingMode,
           width: { ideal: 1920 },
-          height: { ideal: 1080 }
-        }
+          height: { ideal: 1080 },
+        },
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
@@ -85,44 +79,57 @@ export const PartCamera: React.FC<PartCameraProps> = ({
         ...prev,
         stream,
         isInitializing: false,
-        error: null
+        error: null,
       }));
     } catch (error) {
       console.error('Camera initialization error:', error);
       setCameraState(prev => ({
         ...prev,
         isInitializing: false,
-        error: 'Camera access denied. Please allow camera permissions and try again.'
+        error: 'Camera access denied. Please allow camera permissions and try again.',
       }));
     }
   }, [cameraState.facingMode]);
 
   // Cleanup camera stream
   const cleanup = useCallback(() => {
-    if (cameraState.stream) {
-      cameraState.stream.getTracks().forEach(track => track.stop());
-      setCameraState(prev => ({ ...prev, stream: null }));
-    }
-  }, [cameraState.stream]);
+    setCameraState(prev => {
+      if (prev.stream) {
+        prev.stream.getTracks().forEach(track => track.stop());
+      }
+      return { ...prev, stream: null };
+    });
+  }, []);
 
-  // Initialize camera when modal opens
+  // Handle modal state changes
   useEffect(() => {
+    let mounted = true;
+
     if (opened && !cameraState.stream && !cameraState.error) {
-      initializeCamera();
+      // Initialize camera asynchronously to avoid setState in effect
+      const initAsync = async () => {
+        if (mounted) {
+          await initializeCamera();
+        }
+      };
+      void initAsync();
     }
-  }, [opened, initializeCamera, cameraState.stream, cameraState.error]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [opened, cameraState.stream, cameraState.error, initializeCamera]);
 
   // Cleanup when modal closes
   useEffect(() => {
-    if (!opened) {
-      cleanup();
+    if (!opened && cameraState.stream) {
+      // Use setTimeout to avoid direct setState in effect
+      const timeoutId = setTimeout(() => {
+        cleanup();
+      }, 0);
+      return () => clearTimeout(timeoutId);
     }
-  }, [opened, cleanup]);
-
-  // Cleanup on component unmount
-  useEffect(() => {
-    return cleanup;
-  }, [cleanup]);
+  }, [opened, cameraState.stream, cleanup]);
 
   // Capture photo
   const capturePhoto = useCallback(() => {
@@ -134,7 +141,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
     if (!context) return;
 
-    // Set canvas dimensions to match video
+    // Set canvas dimensions to video dimensions
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
@@ -142,24 +149,28 @@ export const PartCamera: React.FC<PartCameraProps> = ({
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     // Convert to blob and file
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const file = new File([blob], `part-scan-${Date.now()}.jpg`, {
-          type: 'image/jpeg'
-        });
-        
-        onImageCapture(file);
-        close();
-        cleanup();
+    canvas.toBlob(
+      blob => {
+        if (blob) {
+          const file = new File([blob], `part-scan-${Date.now()}.jpg`, {
+            type: 'image/jpeg',
+          });
 
-        notifications.show({
-          title: 'Photo captured',
-          message: 'Analyzing part...',
-          color: 'blue',
-          icon: <MdPhotoCamera />
-        });
-      }
-    }, 'image/jpeg', 0.9);
+          onImageCapture(file);
+          close();
+          cleanup();
+
+          notifications.show({
+            title: 'Photo captured',
+            message: 'Analyzing part...',
+            color: 'blue',
+            icon: <MdPhotoCamera />,
+          });
+        }
+      },
+      'image/jpeg',
+      0.9
+    );
   }, [onImageCapture, close, cleanup]);
 
   // Switch camera (front/rear)
@@ -167,26 +178,29 @@ export const PartCamera: React.FC<PartCameraProps> = ({
     cleanup();
     setCameraState(prev => ({
       ...prev,
-      facingMode: prev.facingMode === 'user' ? 'environment' : 'user'
+      facingMode: prev.facingMode === 'user' ? 'environment' : 'user',
     }));
   }, [cleanup]);
 
   // Handle file upload
-  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      onImageCapture(file);
-      close();
-      cleanup();
+  const handleFileUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        onImageCapture(file);
+        close();
+        cleanup();
 
-      notifications.show({
-        title: 'Image uploaded',
-        message: 'Analyzing part...',
-        color: 'blue',
-        icon: <MdUpload />
-      });
-    }
-  }, [onImageCapture, close, cleanup]);
+        notifications.show({
+          title: 'Image uploaded',
+          message: 'Analyzing part...',
+          color: 'blue',
+          icon: <MdUpload />,
+        });
+      }
+    },
+    [onImageCapture, close, cleanup]
+  );
 
   return (
     <>
@@ -207,8 +221,8 @@ export const PartCamera: React.FC<PartCameraProps> = ({
           ff="Inter"
           fw={600}
           style={{
-            minWidth: "140px",
-            minHeight: "48px", // Larger touch target for mobile
+            minWidth: '140px',
+            minHeight: '48px', // Larger touch target for mobile
           }}
         >
           Scan Part
@@ -228,16 +242,18 @@ export const PartCamera: React.FC<PartCameraProps> = ({
             fontSize: '1.25rem',
             fontWeight: 600,
             color: '#0a0a0a',
-            fontFamily: 'Inter'
-          }
+            fontFamily: 'Inter',
+          },
         }}
       >
         <Stack gap="md">
           {/* Instructions */}
           <Paper p="md" withBorder bg="blue.0">
             <Text size="sm" c="dark.7" ff="Inter">
-              📱 <strong>Position the part clearly in frame</strong><br />
-              💡 Ensure good lighting and focus<br />
+              📱 <strong>Position the part clearly in frame</strong>
+              <br />
+              💡 Ensure good lighting and focus
+              <br />
               🔍 Include any visible markings or damage
             </Text>
           </Paper>
@@ -266,13 +282,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
             ) : cameraState.isInitializing ? (
               <Center p="xl" style={{ aspectRatio: '4/3' }}>
                 <Stack align="center" gap="md">
-                  <Progress
-                    value={100}
-                    animated
-                    size="sm"
-                    color="blue.4"
-                    w="80%"
-                  />
+                  <Progress value={100} animated size="sm" color="blue.4" w="80%" />
                   <Text c="dark.6" ff="Inter">
                     Initializing camera...
                   </Text>
@@ -288,18 +298,12 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                   style={{
                     width: '100%',
                     height: '100%',
-                    objectFit: 'cover'
+                    objectFit: 'cover',
                   }}
                 />
-                
+
                 {/* Camera Controls Overlay */}
-                <Group
-                  justify="space-between"
-                  pos="absolute"
-                  top="sm"
-                  left="sm"
-                  right="sm"
-                >
+                <Group justify="space-between" pos="absolute" top="sm" left="sm" right="sm">
                   <ActionIcon
                     variant="filled"
                     color="dark.9"
@@ -307,13 +311,13 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                     radius="xl"
                     onClick={switchCamera}
                     style={{
-                      minWidth: "48px",
-                      minHeight: "48px", // Larger touch target for mobile
+                      minWidth: '48px',
+                      minHeight: '48px', // Larger touch target for mobile
                     }}
                   >
                     <MdFlip color="white" size={20} />
                   </ActionIcon>
-                  
+
                   <Text
                     size="xs"
                     c="white"
@@ -342,7 +346,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                     style={{
                       border: '2px solid #0ea5e9',
                       borderRadius: '8px',
-                      backgroundColor: 'rgba(14, 165, 233, 0.1)'
+                      backgroundColor: 'rgba(14, 165, 233, 0.1)',
                     }}
                   />
                 </Center>
@@ -362,10 +366,10 @@ export const PartCamera: React.FC<PartCameraProps> = ({
               leftSection={<MdCameraAlt size={20} />}
               ff="Inter"
               fw={600}
-              style={{ 
+              style={{
                 minWidth: '140px',
                 minHeight: '48px', // Larger touch target
-                flex: '1'
+                flex: '1',
               }}
             >
               Capture
@@ -380,10 +384,10 @@ export const PartCamera: React.FC<PartCameraProps> = ({
               leftSection={<MdUpload size={20} />}
               ff="Inter"
               fw={600}
-              style={{ 
+              style={{
                 minWidth: '140px',
                 minHeight: '48px', // Larger touch target
-                flex: '1'
+                flex: '1',
               }}
             >
               Upload
@@ -407,10 +411,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
       />
 
       {/* Hidden canvas for image capture */}
-      <canvas
-        ref={canvasRef}
-        style={{ display: 'none' }}
-      />
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
     </>
   );
 };

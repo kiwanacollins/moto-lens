@@ -15,10 +15,38 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<ProtectedRoute><VinInputPage /></ProtectedRoute>} />
-        <Route path="/vehicle/:vin" element={<ProtectedRoute><VehicleViewPage /></ProtectedRoute>} />
-        <Route path="/scan" element={<ProtectedRoute><PartScannerPage /></ProtectedRoute>} />
-        <Route path="/test-360" element={<ProtectedRoute><Vehicle360Test /></ProtectedRoute>} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <VinInputPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vehicle/:vin"
+          element={
+            <ProtectedRoute>
+              <VehicleViewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/scan"
+          element={
+            <ProtectedRoute>
+              <PartScannerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/test-360"
+          element={
+            <ProtectedRoute>
+              <Vehicle360Test />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

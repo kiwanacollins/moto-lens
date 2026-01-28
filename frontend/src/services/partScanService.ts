@@ -1,6 +1,6 @@
 /**
  * Part Scanning Service
- * 
+ *
  * Handles communication with the part scanning API endpoints
  * for computer vision analysis of spare parts using Gemini
  */
@@ -8,58 +8,63 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
 export interface VehicleContext {
-    make?: string;
-    model?: string;
-    year?: number;
-    engine?: string;
-    mileage?: number;
+  make?: string;
+  model?: string;
+  year?: number;
+  engine?: string;
+  mileage?: number;
 }
 
 export interface PartScanResult {
-    success: boolean;
-    analysis?: string;
-    vehicleContext?: VehicleContext | null;
-    analysisType: 'part_identification' | 'question_answer' | 'part_comparison' | 'marking_detection' | 'condition_assessment';
-    timestamp: string;
-    model: string;
+  success: boolean;
+  analysis?: string;
+  vehicleContext?: VehicleContext | null;
+  analysisType:
+    | 'part_identification'
+    | 'question_answer'
+    | 'part_comparison'
+    | 'marking_detection'
+    | 'condition_assessment';
+  timestamp: string;
+  model: string;
 }
 
 export interface PartQuestionResult {
-    success: boolean;
-    question: string;
-    answer?: string;
-    vehicleContext?: VehicleContext | null;
-    analysisType: 'question_answer';
-    timestamp: string;
-    model: string;
+  success: boolean;
+  question: string;
+  answer?: string;
+  vehicleContext?: VehicleContext | null;
+  analysisType: 'question_answer';
+  timestamp: string;
+  model: string;
 }
 
 export interface PartComparisonResult {
-    success: boolean;
-    comparisonType: string;
-    imageCount: number;
-    comparison?: string;
-    vehicleContext?: VehicleContext | null;
-    analysisType: 'part_comparison';
-    timestamp: string;
-    model: string;
+  success: boolean;
+  comparisonType: string;
+  imageCount: number;
+  comparison?: string;
+  vehicleContext?: VehicleContext | null;
+  analysisType: 'part_comparison';
+  timestamp: string;
+  model: string;
 }
 
 export interface PartMarkingResult {
-    success: boolean;
-    markings?: string;
-    analysisType: 'marking_detection';
-    timestamp: string;
-    model: string;
+  success: boolean;
+  markings?: string;
+  analysisType: 'marking_detection';
+  timestamp: string;
+  model: string;
 }
 
 export interface PartConditionResult {
-    success: boolean;
-    assessment?: string;
-    vehicleContext?: VehicleContext | null;
-    analysisType: 'condition_assessment';
-    timestamp: string;
-    model: string;
+  success: boolean;
+  assessment?: string;
+  vehicleContext?: VehicleContext | null;
+  analysisType: 'condition_assessment';
+  timestamp: string;
+  model: string;
 }
 
 export interface ImageData {
@@ -95,14 +100,14 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
   if (!supportedTypes.includes(file.type)) {
     return {
       valid: false,
-      error: `Unsupported file type: ${file.type}. Please use JPEG, PNG, or WebP.`
+      error: `Unsupported file type: ${file.type}. Please use JPEG, PNG, or WebP.`,
     };
   }
 
   if (file.size > maxSizeBytes) {
     return {
       valid: false,
-      error: `File too large: ${Math.round(file.size / (1024 * 1024))}MB. Maximum size: 20MB.`
+      error: `File too large: ${Math.round(file.size / (1024 * 1024))}MB. Maximum size: 20MB.`,
     };
   }
 
@@ -133,7 +138,7 @@ export const scanPartImage = async (
     body: JSON.stringify({
       imageBase64,
       mimeType: imageFile.type,
-      vehicleContext
+      vehicleContext,
     }),
   });
 
@@ -175,7 +180,7 @@ export const askPartQuestion = async (
       imageBase64,
       mimeType: imageFile.type,
       question: question.trim(),
-      vehicleContext
+      vehicleContext,
     }),
   });
 
@@ -212,7 +217,7 @@ export const comparePartImages = async (
     imageFiles.map(async (file, index) => ({
       imageBase64: await fileToBase64(file),
       mimeType: file.type,
-      label: `Image ${index + 1}`
+      label: `Image ${index + 1}`,
     }))
   );
 
@@ -224,7 +229,7 @@ export const comparePartImages = async (
     body: JSON.stringify({
       images,
       comparisonType,
-      vehicleContext
+      vehicleContext,
     }),
   });
 
@@ -256,7 +261,7 @@ export const detectPartMarkings = async (imageFile: File): Promise<PartMarkingRe
     },
     body: JSON.stringify({
       imageBase64,
-      mimeType: imageFile.type
+      mimeType: imageFile.type,
     }),
   });
 
@@ -292,7 +297,7 @@ export const assessPartCondition = async (
     body: JSON.stringify({
       imageBase64,
       mimeType: imageFile.type,
-      vehicleContext
+      vehicleContext,
     }),
   });
 
@@ -311,5 +316,5 @@ export default {
   detectPartMarkings,
   assessPartCondition,
   validateImageFile,
-  fileToBase64
+  fileToBase64,
 };

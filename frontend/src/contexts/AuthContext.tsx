@@ -3,10 +3,10 @@ import type { ReactNode } from 'react';
 
 /**
  * MotoLens Authentication Context
- * 
+ *
  * Dummy authentication system for MVP
  * Hardcoded credentials: admin/admin
- * 
+ *
  * WARNING: This is NOT production-ready. Replace with proper JWT/OAuth before production.
  */
 
@@ -57,13 +57,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    */
   const login = async (username: string, password: string): Promise<boolean> => {
     // Simulate API delay (realistic UX)
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // Validate credentials
-    if (
-      username === VALID_CREDENTIALS.username &&
-      password === VALID_CREDENTIALS.password
-    ) {
+    if (username === VALID_CREDENTIALS.username && password === VALID_CREDENTIALS.password) {
       // Set authenticated state
       setIsAuthenticated(true);
       setUsername(username);
@@ -102,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 /**
  * Custom hook to use auth context
  * Must be used within AuthProvider
- * 
+ *
  * @example
  * const { isAuthenticated, login, logout } = useAuth();
  */

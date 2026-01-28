@@ -32,7 +32,7 @@ export async function getVehicleImages(vin: string): Promise<VehicleImage[]> {
   const response = await fetch(`${API_BASE_URL}/vehicle/images/${encodeURIComponent(vin)}`, {
     method: 'GET',
     headers: {
-      'Accept': 'application/json',
+      Accept: 'application/json',
     },
   });
 
@@ -98,12 +98,15 @@ export async function getVehicleSummary(vehicleData: VehicleData): Promise<Vehic
  * Search for spare parts images using web search
  */
 export async function getPartImages(partName: string, vin: string): Promise<VehicleImage[]> {
-  const response = await fetch(`${API_BASE_URL}/parts/images?partName=${encodeURIComponent(partName)}&vin=${encodeURIComponent(vin)}`, {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-    },
-  });
+  const response = await fetch(
+    `${API_BASE_URL}/parts/images?partName=${encodeURIComponent(partName)}&vin=${encodeURIComponent(vin)}`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    }
+  );
 
   if (!response.ok) {
     throw new Error('Failed to get part images');

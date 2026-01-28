@@ -13,7 +13,7 @@ import {
   Box,
   Transition,
   ScrollArea,
-  SimpleGrid
+  SimpleGrid,
 } from '@mantine/core';
 import { MdArrowBack, MdLogout } from 'react-icons/md';
 import { FiInfo, FiCamera } from 'react-icons/fi';
@@ -28,7 +28,7 @@ import PartsGrid from '../components/parts/PartsGrid';
 const SpecCard = ({
   label,
   value,
-  mono = false
+  mono = false,
 }: {
   label: string;
   value: string;
@@ -42,24 +42,10 @@ const SpecCard = ({
       border: '1px solid #f4f4f5',
     }}
   >
-    <Text
-      size="xs"
-      c="dimmed"
-      ff="Inter"
-      fw={600}
-      tt="uppercase"
-      lts={0.5}
-      mb={6}
-    >
+    <Text size="xs" c="dimmed" ff="Inter" fw={600} tt="uppercase" lts={0.5} mb={6}>
       {label}
     </Text>
-    <Text
-      size="sm"
-      c="dark.9"
-      ff={mono ? "JetBrains Mono" : "Inter"}
-      fw={500}
-      lh={1.4}
-    >
+    <Text size="sm" c="dark.9" ff={mono ? 'JetBrains Mono' : 'Inter'} fw={500} lh={1.4}>
       {value}
     </Text>
   </Box>
@@ -96,7 +82,6 @@ export default function VehicleViewPage() {
       // Get AI summary
       const summary = await getVehicleSummary(vehicleInfo);
       setVehicleSummary(summary);
-
     } catch (err) {
       console.error('Error loading vehicle data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load vehicle information');
@@ -136,12 +121,7 @@ export default function VehicleViewPage() {
     return (
       <Container size="lg" py="xl">
         <Paper shadow="md" p="xl" radius="md" withBorder bg="white">
-          <Alert
-            icon={<FiInfo size={16} />}
-            color="red"
-            title="Error Loading Vehicle"
-            mb="lg"
-          >
+          <Alert icon={<FiInfo size={16} />} color="red" title="Error Loading Vehicle" mb="lg">
             {error}
           </Alert>
           <Group justify="center">
@@ -164,7 +144,7 @@ export default function VehicleViewPage() {
     <ScrollArea h="100vh" type="auto" scrollbarSize={8}>
       <Container size="lg" py="xl">
         <Transition mounted={!loading} transition="fade" duration={300}>
-          {(styles) => (
+          {styles => (
             <div style={styles}>
               {/* Header with navigation */}
               <Group justify="space-between" mb="xl" wrap="wrap" gap="sm">
@@ -177,8 +157,8 @@ export default function VehicleViewPage() {
                   ff="Inter"
                   fw={500}
                   style={{
-                    minWidth: "120px",
-                    minHeight: "44px", // Minimum touch target
+                    minWidth: '120px',
+                    minHeight: '44px', // Minimum touch target
                   }}
                 >
                   New VIN
@@ -193,8 +173,8 @@ export default function VehicleViewPage() {
                   ff="Inter"
                   fw={500}
                   style={{
-                    minWidth: "100px",
-                    minHeight: "44px", // Minimum touch target
+                    minWidth: '100px',
+                    minHeight: '44px', // Minimum touch target
                   }}
                 >
                   Logout
@@ -216,22 +196,11 @@ export default function VehicleViewPage() {
                       {/* Vehicle Title Section */}
                       <Group gap="md" align="center" mb="lg">
                         <div style={{ flex: 1 }}>
-                          <Text
-                            ff="Inter"
-                            fw={600}
-                            c="dark.9"
-                            size="lg"
-                            lh={1.3}
-                          >
+                          <Text ff="Inter" fw={600} c="dark.9" size="lg" lh={1.3}>
                             {vehicleData.year} {vehicleData.make} {vehicleData.model}
                           </Text>
                           {vehicleData.trim && (
-                            <Text
-                              size="sm"
-                              c="dimmed"
-                              ff="Inter"
-                              fw={500}
-                            >
+                            <Text size="sm" c="dimmed" ff="Inter" fw={500}>
                               {vehicleData.trim}
                             </Text>
                           )}
@@ -239,43 +208,18 @@ export default function VehicleViewPage() {
                       </Group>
 
                       {/* Specifications Grid */}
-                      <SimpleGrid
-                        cols={{ base: 2, sm: 2 }}
-                        spacing="md"
-                        verticalSpacing="md"
-                      >
-                        <SpecCard
-                          label="Engine"
-                          value={vehicleData.engine || '—'}
-                        />
-                        <SpecCard
-                          label="Body Type"
-                          value={vehicleData.bodyType || '—'}
-                        />
-                        <SpecCard
-                          label="Transmission"
-                          value={vehicleData.transmission || '—'}
-                        />
-                        <SpecCard
-                          label="Drivetrain"
-                          value={vehicleData.drivetrain || '—'}
-                        />
+                      <SimpleGrid cols={{ base: 2, sm: 2 }} spacing="md" verticalSpacing="md">
+                        <SpecCard label="Engine" value={vehicleData.engine || '—'} />
+                        <SpecCard label="Body Type" value={vehicleData.bodyType || '—'} />
+                        <SpecCard label="Transmission" value={vehicleData.transmission || '—'} />
+                        <SpecCard label="Drivetrain" value={vehicleData.drivetrain || '—'} />
                         {vehicleData.fuelType && (
-                          <SpecCard
-                            label="Fuel Type"
-                            value={vehicleData.fuelType}
-                          />
+                          <SpecCard label="Fuel Type" value={vehicleData.fuelType} />
                         )}
                         {vehicleData.horsepower && (
-                          <SpecCard
-                            label="Power"
-                            value={vehicleData.horsepower}
-                          />
+                          <SpecCard label="Power" value={vehicleData.horsepower} />
                         )}
-                        <SpecCard
-                          label="Manufacturer"
-                          value={vehicleData.manufacturer}
-                        />
+                        <SpecCard label="Manufacturer" value={vehicleData.manufacturer} />
                         {vehicleData.doors && vehicleData.seats && (
                           <SpecCard
                             label="Configuration"
@@ -289,7 +233,7 @@ export default function VehicleViewPage() {
                         mt="xl"
                         pt="lg"
                         style={{
-                          borderTop: '1px solid #e4e4e7'
+                          borderTop: '1px solid #e4e4e7',
                         }}
                       >
                         <Text
@@ -303,13 +247,7 @@ export default function VehicleViewPage() {
                         >
                           Vehicle Identification Number
                         </Text>
-                        <Text
-                          ff="JetBrains Mono"
-                          fw={500}
-                          c="blue.5"
-                          size="lg"
-                          lts={1}
-                        >
+                        <Text ff="JetBrains Mono" fw={500} c="blue.5" size="lg" lts={1}>
                           {vehicleData.vin}
                         </Text>
                       </Box>
@@ -348,8 +286,8 @@ export default function VehicleViewPage() {
                           ff="Inter"
                           fw={600}
                           style={{
-                            minWidth: "200px",
-                            minHeight: "48px", // Larger touch target
+                            minWidth: '200px',
+                            minHeight: '48px', // Larger touch target
                           }}
                         >
                           Scan Parts with AI
@@ -377,13 +315,7 @@ export default function VehicleViewPage() {
                           >
                             <FiInfo size={20} color="#52525b" />
                           </Box>
-                          <Title
-                            order={2}
-                            ff="Inter"
-                            fw={600}
-                            c="dark.9"
-                            size="lg"
-                          >
+                          <Title order={2} ff="Inter" fw={600} c="dark.9" size="lg">
                             Technical Overview
                           </Title>
                         </Group>
@@ -397,13 +329,7 @@ export default function VehicleViewPage() {
                                 borderLeft: '2px solid #e4e4e7',
                               }}
                             >
-                              <Text
-                                size="xs"
-                                c="dark.7"
-                                ff="Inter"
-                                fw={400}
-                                lh={1.6}
-                              >
+                              <Text size="xs" c="dark.7" ff="Inter" fw={400} lh={1.6}>
                                 {point}
                               </Text>
                             </Box>

@@ -36,7 +36,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Parse allowed origins from environment (comma-separated)
-const allowedOrigins = process.env.FRONTEND_URL 
+const allowedOrigins = process.env.FRONTEND_URL
     ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
     : ['http://localhost:5173'];
 
@@ -45,7 +45,7 @@ const corsOptions = {
     origin: (origin, callback) => {
         // Allow requests with no origin (mobile apps, curl, etc.)
         if (!origin) return callback(null, true);
-        
+
         // Check if origin matches allowed list or Vercel preview URLs
         const isAllowed = allowedOrigins.some(allowed => {
             if (allowed.includes('*')) {
@@ -55,7 +55,7 @@ const corsOptions = {
             }
             return allowed === origin;
         });
-        
+
         if (isAllowed) {
             callback(null, true);
         } else {
@@ -554,7 +554,7 @@ app.post('/api/parts/details', async (req, res) => {
             // Parse AI response to extract structured data
             if (partInfo && partInfo.information) {
                 aiDescription = partInfo.information;
-                
+
                 // Try to extract symptoms from the AI response
                 const symptomsMatch = aiDescription.match(/symptoms?.*?:(.*?)(?=\n\n|installation|compatible|$)/is);
                 if (symptomsMatch) {
@@ -582,7 +582,7 @@ app.post('/api/parts/details', async (req, res) => {
 
         try {
             imageResults = await imageService.searchPartImages(partName, vehicle);
-            
+
             if (imageResults && imageResults.images && imageResults.images.length > 0) {
                 // Get the first valid image
                 bestImage = {
@@ -670,8 +670,8 @@ app.post('/api/parts/scan', async (req, res) => {
 
         // Analyze the part image
         const analysis = await geminiVisionService.analyzePartImage(
-            imageBase64, 
-            mimeType, 
+            imageBase64,
+            mimeType,
             vehicleContext
         );
 

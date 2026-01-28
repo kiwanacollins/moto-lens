@@ -1,49 +1,43 @@
 /**
  * Part Analysis Display Component
- * 
+ *
  * Shows the results of Gemini vision analysis for spare parts
  * with professional MotoLens styling
  */
 
 import { useState } from 'react';
 import {
-    Paper,
-    Stack,
-    Text,
-    Group,
-    Button,
-    Badge,
-    Textarea,
-    Alert,
-    Loader,
-    ThemeIcon,
-    Modal,
-    Divider
+  Paper,
+  Stack,
+  Text,
+  Group,
+  Button,
+  Badge,
+  Textarea,
+  Alert,
+  Loader,
+  ThemeIcon,
+  Modal,
+  Divider,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import {
-    MdCheckCircle,
-    MdError,
-    MdQuestionAnswer,
-    MdInfo,
-    MdSend
-} from 'react-icons/md';
+import { MdCheckCircle, MdError, MdQuestionAnswer, MdInfo, MdSend } from 'react-icons/md';
 import { FiTool, FiSearch, FiMessageCircle } from 'react-icons/fi';
 import type {
-    PartScanResult,
-    PartQuestionResult,
-    VehicleContext
+  PartScanResult,
+  PartQuestionResult,
+  VehicleContext,
 } from '../../services/partScanService';
 import { askPartQuestion } from '../../services/partScanService';
 
 interface PartAnalysisProps {
-    result: PartScanResult | null;
-    imageFile: File | null;
-    vehicleContext?: VehicleContext;
-    isLoading?: boolean;
-    error?: string | null;
-    onRetry?: () => void;
+  result: PartScanResult | null;
+  imageFile: File | null;
+  vehicleContext?: VehicleContext;
+  isLoading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 export const PartAnalysis: React.FC<PartAnalysisProps> = ({
@@ -52,9 +46,10 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
   vehicleContext,
   isLoading = false,
   error = null,
-  onRetry
+  onRetry,
 }) => {
-  const [questionModalOpened, { open: openQuestionModal, close: closeQuestionModal }] = useDisclosure(false);
+  const [questionModalOpened, { open: openQuestionModal, close: closeQuestionModal }] =
+    useDisclosure(false);
   const [question, setQuestion] = useState('');
   const [questionResult, setQuestionResult] = useState<PartQuestionResult | null>(null);
   const [isAskingQuestion, setIsAskingQuestion] = useState(false);
@@ -69,12 +64,12 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
       const response = await askPartQuestion(imageFile, question.trim(), vehicleContext);
       setQuestionResult(response);
       setQuestion('');
-      
+
       notifications.show({
         title: 'Question answered',
         message: 'AI analysis complete',
         color: 'green',
-        icon: <MdCheckCircle />
+        icon: <MdCheckCircle />,
       });
     } catch (err) {
       console.error('Error asking question:', err);
@@ -82,7 +77,7 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
         title: 'Error',
         message: err instanceof Error ? err.message : 'Failed to ask question',
         color: 'red',
-        icon: <MdError />
+        icon: <MdError />,
       });
     } finally {
       setIsAskingQuestion(false);
@@ -132,8 +127,12 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
         <Group justify="center" gap="md">
           <Loader size="md" color="blue.4" />
           <Stack gap={4}>
-            <Text fw={600} c="dark.9" ff="Inter">Analyzing part...</Text>
-            <Text size="sm" c="dark.6" ff="Inter">This may take a few seconds</Text>
+            <Text fw={600} c="dark.9" ff="Inter">
+              Analyzing part...
+            </Text>
+            <Text size="sm" c="dark.6" ff="Inter">
+              This may take a few seconds
+            </Text>
           </Stack>
         </Group>
       </Paper>
@@ -143,14 +142,11 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
   // Error state
   if (error && !result) {
     return (
-      <Alert
-        icon={<MdError />}
-        title="Analysis Failed"
-        color="red"
-        variant="light"
-      >
+      <Alert icon={<MdError />} title="Analysis Failed" color="red" variant="light">
         <Stack gap="xs">
-          <Text size="sm" ff="Inter">{error}</Text>
+          <Text size="sm" ff="Inter">
+            {error}
+          </Text>
           {onRetry && (
             <Button
               variant="light"
@@ -176,8 +172,12 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
             <FiSearch size={20} />
           </ThemeIcon>
           <Stack gap={4}>
-            <Text fw={600} c="dark.7" ff="Inter">Ready to scan</Text>
-            <Text size="sm" c="dark.5" ff="Inter">Capture a photo of a spare part to get started</Text>
+            <Text fw={600} c="dark.7" ff="Inter">
+              Ready to scan
+            </Text>
+            <Text size="sm" c="dark.5" ff="Inter">
+              Capture a photo of a spare part to get started
+            </Text>
           </Stack>
         </Group>
       </Paper>
@@ -215,11 +215,7 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
           )}
 
           {/* Analysis Text */}
-          {result.analysis && (
-            <Stack gap="xs">
-              {formatAnalysis(result.analysis)}
-            </Stack>
-          )}
+          {result.analysis && <Stack gap="xs">{formatAnalysis(result.analysis)}</Stack>}
 
           {/* Action Buttons */}
           <Group gap="sm" mt="md">
@@ -251,12 +247,14 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
                 Q: {questionResult.question}
               </Text>
             </Group>
-            
+
             <Divider />
-            
+
             {questionResult.answer && (
               <Stack gap="xs">
-                <Text fw={500} c="dark.8" ff="Inter">Answer:</Text>
+                <Text fw={500} c="dark.8" ff="Inter">
+                  Answer:
+                </Text>
                 {formatAnalysis(questionResult.answer)}
               </Stack>
             )}
@@ -276,33 +274,29 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
             fontSize: '1.1rem',
             fontWeight: 600,
             color: '#0a0a0a',
-            fontFamily: 'Inter'
-          }
+            fontFamily: 'Inter',
+          },
         }}
       >
         <Stack gap="md">
-          <Alert
-            icon={<MdInfo />}
-            color="blue"
-            variant="light"
-          >
+          <Alert icon={<MdInfo />} color="blue" variant="light">
             <Text size="sm" ff="Inter">
-              Ask any specific question about the part in this image. 
-              Our AI will analyze the image and provide a detailed answer.
+              Ask any specific question about the part in this image. Our AI will analyze the image
+              and provide a detailed answer.
             </Text>
           </Alert>
 
           <Textarea
             placeholder="e.g., What condition is this part in? What part number do I need? Is this part worn out?"
             value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+            onChange={e => setQuestion(e.target.value)}
             rows={3}
             maxLength={500}
             styles={{
               input: {
                 fontFamily: 'Inter',
-                fontSize: '0.875rem'
-              }
+                fontSize: '0.875rem',
+              },
             }}
           />
 
@@ -311,12 +305,7 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
           </Text>
 
           <Group justify="end" gap="sm">
-            <Button
-              variant="subtle"
-              color="dark.6"
-              onClick={closeQuestionModal}
-              ff="Inter"
-            >
+            <Button variant="subtle" color="dark.6" onClick={closeQuestionModal} ff="Inter">
               Cancel
             </Button>
             <Button

@@ -3,12 +3,12 @@ import type { MantineColorsTuple } from '@mantine/core';
 
 /**
  * MotoLens Design System - Professional Mobile-First PWA Theme
- * 
+ *
  * Core Brand Colors:
  * - Electric Blue (#0ea5e9) - Primary actions, CTAs, interactive elements
  * - Carbon Black (#0a0a0a) - Main text, headings, high-contrast elements
  * - Gunmetal Gray (#52525b) - Secondary text, icons, subtle elements
- * 
+ *
  * Design Philosophy: Clean, functional, professional
  * Think: Stripe Dashboard meets Linear
  */
@@ -110,12 +110,10 @@ export const theme = createTheme({
   // Typography
   fontFamily:
     'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, sans-serif',
-  fontFamilyMonospace:
-    'JetBrains Mono, Fira Code, Consolas, Monaco, Courier New, monospace',
+  fontFamilyMonospace: 'JetBrains Mono, Fira Code, Consolas, Monaco, Courier New, monospace',
 
   headings: {
-    fontFamily:
-      'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
     fontWeight: '600',
     sizes: {
       h1: { fontSize: '2.5rem', lineHeight: '1.2' },
@@ -138,30 +136,30 @@ export const theme = createTheme({
 
   // Spacing (intentionally varied for hierarchy)
   spacing: {
-    xs: '0.5rem',   // 8px
-    sm: '0.75rem',  // 12px
-    md: '1rem',     // 16px
-    lg: '1.5rem',   // 24px
-    xl: '2rem',     // 32px
+    xs: '0.5rem', // 8px
+    sm: '0.75rem', // 12px
+    md: '1rem', // 16px
+    lg: '1.5rem', // 24px
+    xl: '2rem', // 32px
   },
 
   // Border Radius
   defaultRadius: 'md',
   radius: {
-    xs: '0.25rem',  // 4px
+    xs: '0.25rem', // 4px
     sm: '0.375rem', // 6px
-    md: '0.5rem',   // 8px
-    lg: '0.75rem',  // 12px
-    xl: '1rem',     // 16px
+    md: '0.5rem', // 8px
+    lg: '0.75rem', // 12px
+    xl: '1rem', // 16px
   },
 
   // Mobile-first responsive breakpoints
   breakpoints: {
-    xs: '30em',  // 480px
-    sm: '48em',  // 768px
-    md: '64em',  // 1024px
-    lg: '74em',  // 1184px
-    xl: '90em',  // 1440px
+    xs: '30em', // 480px
+    sm: '48em', // 768px
+    md: '64em', // 1024px
+    lg: '74em', // 1184px
+    xl: '90em', // 1440px
   },
 
   // Shadows (subtle, professional)
@@ -314,18 +312,18 @@ export const theme = createTheme({
 
     // Direct color access for convenience
     brandColors: {
-      electricBlue: '#0ea5e9',    // Primary - Actions, CTAs, highlights
-      carbonBlack: '#0a0a0a',     // Main text, headings
-      gunmetalGray: '#52525b',    // Secondary text, icons
-      white: '#ffffff',           // Light backgrounds, text on dark
+      electricBlue: '#0ea5e9', // Primary - Actions, CTAs, highlights
+      carbonBlack: '#0a0a0a', // Main text, headings
+      gunmetalGray: '#52525b', // Secondary text, icons
+      white: '#ffffff', // Light backgrounds, text on dark
     },
 
     // Semantic colors
     semanticColors: {
-      success: '#10b981',         // emerald-500
-      warning: '#f59e0b',         // amber-500
-      error: '#ef4444',           // red-500
-      info: '#0ea5e9',            // Electric Blue (reuse primary)
+      success: '#10b981', // emerald-500
+      warning: '#f59e0b', // amber-500
+      error: '#ef4444', // red-500
+      info: '#0ea5e9', // Electric Blue (reuse primary)
     },
 
     // Zinc neutrals for easy reference
@@ -393,10 +391,10 @@ export const NEUTRALS = {
   zinc300: '#d4d4d8',
   zinc400: '#a1a1aa',
   zinc500: '#71717a',
-  zinc600: '#52525b',  // Gunmetal Gray
+  zinc600: '#52525b', // Gunmetal Gray
   zinc700: '#3f3f46',
   zinc800: '#27272a',
-  zinc900: '#0a0a0a',  // Carbon Black
+  zinc900: '#0a0a0a', // Carbon Black
 } as const;
 
 /**
@@ -426,13 +424,13 @@ export const TYPOGRAPHY = {
  * Spacing Scale
  */
 export const SPACING = {
-  xs: '0.5rem',   // 8px
-  sm: '0.75rem',  // 12px
-  md: '1rem',     // 16px
-  lg: '1.5rem',   // 24px
-  xl: '2rem',     // 32px
+  xs: '0.5rem', // 8px
+  sm: '0.75rem', // 12px
+  md: '1rem', // 16px
+  lg: '1.5rem', // 24px
+  xl: '2rem', // 32px
   '2xl': '2.5rem', // 40px
-  '3xl': '3rem',   // 48px
+  '3xl': '3rem', // 48px
 } as const;
 
 /**
@@ -448,9 +446,9 @@ export const TRANSITIONS = {
  * Touch Target Sizes (Mobile-First)
  */
 export const TOUCH_TARGETS = {
-  minimum: 44,      // 44px - iOS minimum
-  comfortable: 48,  // 48px - Recommended
-  large: 56,        // 56px - Extra comfortable
+  minimum: 44, // 44px - iOS minimum
+  comfortable: 48, // 48px - Recommended
+  large: 56, // 56px - Extra comfortable
 } as const;
 
 /**

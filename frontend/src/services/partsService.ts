@@ -42,7 +42,7 @@ export async function getPartDetails(
     body: JSON.stringify({
       partName,
       partId,
-      vehicleData
+      vehicleData,
     }),
   });
 
