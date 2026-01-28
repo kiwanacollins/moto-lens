@@ -20,11 +20,11 @@ export interface PartScanResult {
   analysis?: string;
   vehicleContext?: VehicleContext | null;
   analysisType:
-    | 'part_identification'
-    | 'question_answer'
-    | 'part_comparison'
-    | 'marking_detection'
-    | 'condition_assessment';
+  | 'part_identification'
+  | 'question_answer'
+  | 'part_comparison'
+  | 'marking_detection'
+  | 'condition_assessment';
   timestamp: string;
   model: string;
 }
@@ -145,7 +145,7 @@ export const scanPartImage = async (
 
   if (!response.ok) {
     let errorMessage = 'Failed to scan part';
-    
+
     try {
       // Check if response is JSON
       const contentType = response.headers.get('content-type');
@@ -169,7 +169,7 @@ export const scanPartImage = async (
       // Fallback error message if parsing fails
       errorMessage = 'Network error. Please check your connection and try again.';
     }
-    
+
     throw new Error(errorMessage);
   }
 
@@ -213,7 +213,7 @@ export const askPartQuestion = async (
 
   if (!response.ok) {
     let errorMessage = 'Failed to answer question';
-    
+
     try {
       // Check if response is JSON
       const contentType = response.headers.get('content-type');
@@ -237,7 +237,7 @@ export const askPartQuestion = async (
       // Fallback error message if parsing fails
       errorMessage = 'Network error. Please check your connection and try again.';
     }
-    
+
     throw new Error(errorMessage);
   }
 
@@ -288,7 +288,7 @@ export const comparePartImages = async (
 
   if (!response.ok) {
     let errorMessage = 'Failed to compare images';
-    
+
     try {
       // Check if response is JSON
       const contentType = response.headers.get('content-type');
@@ -312,7 +312,7 @@ export const comparePartImages = async (
       // Fallback error message if parsing fails
       errorMessage = 'Network error. Please check your connection and try again.';
     }
-    
+
     throw new Error(errorMessage);
   }
 
@@ -345,7 +345,7 @@ export const detectPartMarkings = async (imageFile: File): Promise<PartMarkingRe
 
   if (!response.ok) {
     let errorMessage = 'Failed to detect markings';
-    
+
     try {
       // Check if response is JSON
       const contentType = response.headers.get('content-type');
@@ -369,7 +369,7 @@ export const detectPartMarkings = async (imageFile: File): Promise<PartMarkingRe
       // Fallback error message if parsing fails
       errorMessage = 'Network error. Please check your connection and try again.';
     }
-    
+
     throw new Error(errorMessage);
   }
 
@@ -407,7 +407,7 @@ export const assessPartCondition = async (
 
   if (!response.ok) {
     let errorMessage = 'Failed to assess condition';
-    
+
     try {
       // Check if response is JSON
       const contentType = response.headers.get('content-type');
@@ -431,7 +431,7 @@ export const assessPartCondition = async (
       // Fallback error message if parsing fails
       errorMessage = 'Network error. Please check your connection and try again.';
     }
-    
+
     throw new Error(errorMessage);
   }
 

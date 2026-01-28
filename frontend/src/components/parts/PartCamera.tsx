@@ -119,13 +119,45 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
-                // Wait for video to be ready
-                await new Promise<void>(resolve => {
-                    if (videoRef.current) {
-                        videoRef.current.onloadedmetadata = () => resolve();
-                    }
-                });
-            }
+            
+            // Wait for video to be ready and playing
+            await new Promise<void>((resolve, reject) => {
+                const video = videoRef.current;
+                if (!video) {
+                    reject(new Error('Video element not available'));
+                    return;
+                }
+
+                const onLoadedMetadata = () => {
+                    video.removeEventListener('loadedmetadata', onLoadedMetadata);
+                    video.removeEventListener('error', onError);
+                    
+                    // Force play to ensure video starts
+                    video.play().then(() => {
+                        resolve();
+                    }).catch((playError) => {
+                        console.warn('Video play failed:', playError);
+                        // Still resolve as stream might be working
+                        resolve();
+                    });
+                };
+
+                const onError = (error: Event) => {
+                    video.removeEventListener('loadedmetadata', onLoadedMetadata);
+                    video.removeEventListener('error', onError);
+                    console.error('Video element error:', error);
+                    reject(new Error('Video stream failed to load'));
+                };
+
+                video.addEventListener('loadedmetadata', onLoadedMetadata);
+                video.addEventListener('error', onError);
+                
+                // Timeout after 10 seconds
+                setTimeout(() => {
+                    video.removeEventListener('loadedmetadata', onLoadedMetadata);
+                    video.removeEventListener('error', onError);
+                    resolve(); // Continue even if metadata doesn't load
+                }, 10000);
 
             setCameraState(prev => ({
                 ...prev,
@@ -156,6 +188,8 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                         const basicStream = await navigator.mediaDevices.getUserMedia({ video: true });
                         if (videoRef.current) {
                             videoRef.current.srcObject = basicStream;
+                            // Force play to ensure video displays
+                            await videoRef.current.play();
                         }
                         setCameraState(prev => ({
                             ...prev,
@@ -497,7 +531,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                                     </Text>
                                 </Stack>
                             </Center>
-                        ) : (
+                        ) : cameraState.stream ? (
                             <Box pos="relative" w="100%" style={{ aspectRatio: '4/3' }}>
                                 <video
                                     ref={videoRef}
@@ -508,7 +542,11 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                                         width: '100%',
                                         height: '100%',
                                         objectFit: 'cover',
+                                        backgroundColor: '#000', // Black background while loading
                                     }}
+                                    onLoadStart={() => console.log('Video load started')}
+                                    onCanPlay={() => console.log('Video can play')}
+                                    onError={(e) => console.error('Video error:', e)}
                                 />
 
                                 {/* Camera Controls Overlay */}
@@ -564,6 +602,25 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                                     />
                                 </Center>
                             </Box>
+                        ) : (
+                            <Center p="xl" style={{ aspectRatio: '4/3' }}>
+                                <Stack align="center" gap="md">
+                                    <ThemeIcon size="xl" color="gray" variant="light">
+                                        <FiCamera size={24} />
+                                    </ThemeIcon>
+                                    <Text c="dark.6" ta="center" ff="Inter">
+                                        Camera preview not available
+                                    </Text>
+                                    <Button
+                                        variant="light"
+                                        color="blue"
+                                        onClick={initializeCamera}
+                                        leftSection={<FiRotateCcw size={16} />}
+                                    >
+                                        Start Camera
+                                    </Button>
+                                </Stack>
+                            </Center>
                         )}
                     </Paper>
 
