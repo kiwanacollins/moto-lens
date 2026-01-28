@@ -175,7 +175,8 @@ export const PartScannerPage = () => {
                 {vehicleContext.engine && ` • ${vehicleContext.engine}`}
               </Text>
               <Text size="xs" c="dark.6" ff="Inter" style={{ fontStyle: 'italic' }}>
-                AI analysis is based purely on the image to ensure accurate part identification regardless of vehicle context
+                AI analysis is based purely on the image to ensure accurate part identification
+                regardless of vehicle context
               </Text>
             </Stack>
           </Alert>
