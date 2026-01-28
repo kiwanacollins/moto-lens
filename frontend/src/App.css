@@ -11,9 +11,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -22,6 +24,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -39,4 +42,75 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Custom scrollable styles for AI content areas */
+.scrollable-ai-content {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+.scrollable-ai-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollable-ai-content::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 4px;
+}
+
+.scrollable-ai-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+  border: 1px solid #f8fafc;
+}
+
+.scrollable-ai-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Smooth scrolling for touch devices */
+.scrollable-ai-content {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Fade effect at the bottom of scrollable areas */
+.scrollable-container {
+  position: relative;
+}
+
+.scrollable-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(to bottom, transparent, rgba(248, 250, 252, 0.8));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.scrollable-container.has-scroll::after {
+  opacity: 1;
+}
+
+/* Mobile-specific scrolling improvements */
+@media (max-width: 768px) {
+  .scrollable-ai-content {
+    scrollbar-width: none;
+    /* Hide scrollbar on mobile */
+  }
+
+  .scrollable-ai-content::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar on mobile webkit */
+  }
+
+  .scrollable-container::after {
+    height: 30px;
+    /* Larger fade effect on mobile */
+  }
 }
