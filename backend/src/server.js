@@ -668,16 +668,17 @@ app.post('/api/parts/scan', async (req, res) => {
             });
         }
 
-        // Analyze the part image
+        // Analyze the part image without vehicle context bias
         const analysis = await geminiVisionService.analyzePartImage(
             imageBase64,
-            mimeType,
-            vehicleContext
+            mimeType
         );
 
+        // Return analysis with separate vehicle context for display only
         return res.json({
             success: true,
-            ...analysis
+            ...analysis,
+            vehicleContext: vehicleContext || null // For display only, not used in analysis
         });
 
     } catch (err) {
@@ -726,17 +727,18 @@ app.post('/api/parts/scan/question', async (req, res) => {
             });
         }
 
-        // Ask the question about the part
+        // Ask the question about the part without vehicle context bias
         const response = await geminiVisionService.askPartQuestion(
             imageBase64,
             mimeType,
-            question.trim(),
-            vehicleContext
+            question.trim()
         );
 
+        // Return response with separate vehicle context for display only
         return res.json({
             success: true,
-            ...response
+            ...response,
+            vehicleContext: vehicleContext || null // For display only, not used in analysis
         });
 
     } catch (err) {
@@ -794,16 +796,17 @@ app.post('/api/parts/scan/compare', async (req, res) => {
             }
         }
 
-        // Compare the parts
+        // Compare the parts without vehicle context bias
         const comparison = await geminiVisionService.comparePartImages(
             images,
-            comparisonType || 'general',
-            vehicleContext
+            comparisonType || 'general'
         );
 
+        // Return comparison with separate vehicle context for display only
         return res.json({
             success: true,
-            ...comparison
+            ...comparison,
+            vehicleContext: vehicleContext || null // For display only, not used in analysis
         });
 
     } catch (err) {
@@ -890,16 +893,17 @@ app.post('/api/parts/scan/condition', async (req, res) => {
             });
         }
 
-        // Assess condition
+        // Assess part condition without vehicle context bias
         const assessment = await geminiVisionService.assessPartCondition(
             imageBase64,
-            mimeType,
-            vehicleContext
+            mimeType
         );
 
+        // Return assessment with separate vehicle context for display only
         return res.json({
             success: true,
-            ...assessment
+            ...assessment,
+            vehicleContext: vehicleContext || null // For display only, not used in analysis
         });
 
     } catch (err) {

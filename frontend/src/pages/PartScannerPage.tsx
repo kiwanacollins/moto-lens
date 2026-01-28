@@ -168,11 +168,16 @@ export const PartScannerPage = () => {
         {/* Vehicle Context */}
         {vehicleContext && (
           <Alert icon={<MdInfo />} color="blue" variant="light">
-            <Text size="sm" ff="Inter">
-              <strong>Vehicle Context:</strong> {vehicleContext.year} {vehicleContext.make}{' '}
-              {vehicleContext.model}
-              {vehicleContext.engine && ` • ${vehicleContext.engine}`}
-            </Text>
+            <Stack gap="xs">
+              <Text size="sm" ff="Inter">
+                <strong>Vehicle Context:</strong> {vehicleContext.year} {vehicleContext.make}{' '}
+                {vehicleContext.model}
+                {vehicleContext.engine && ` • ${vehicleContext.engine}`}
+              </Text>
+              <Text size="xs" c="dark.6" ff="Inter" style={{ fontStyle: 'italic' }}>
+                AI analysis is based purely on the image to ensure accurate part identification regardless of vehicle context
+              </Text>
+            </Stack>
           </Alert>
         )}
 

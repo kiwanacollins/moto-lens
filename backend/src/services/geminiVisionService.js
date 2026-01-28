@@ -47,18 +47,11 @@ Format responses with clear sections using bullet points for readability.`;
  * Analyze a spare part image and provide detailed information
  * @param {string} imageBase64 - Base64 encoded image
  * @param {string} mimeType - Image MIME type (image/jpeg, image/png, etc.)
- * @param {Object} vehicleContext - Optional vehicle context for better analysis
  * @returns {Promise<Object>} Part analysis results
  */
-export async function analyzePartImage(imageBase64, mimeType, vehicleContext = null) {
+export async function analyzePartImage(imageBase64, mimeType) {
     try {
-        // Create context-aware prompt
-        let contextInfo = '';
-        if (vehicleContext) {
-            const { make, model, year, engine } = vehicleContext;
-            contextInfo = `\n\nVehicle context: ${year} ${make} ${model}${engine ? ` with ${engine}` : ''}`;
-        }
-
+        // Create unbiased prompt - let AI identify the part purely from image
         const userPrompt = `Analyze this automotive part image and provide a comprehensive technical assessment.
 
 Please identify:
@@ -66,12 +59,14 @@ Please identify:
 2. **Visual Condition**: Current state, wear patterns, damage, or issues visible
 3. **OEM Information**: Part numbers, manufacturer markings if visible
 4. **Function & Purpose**: What this part does and where it's located
-5. **Vehicle Compatibility**: Which vehicles/models typically use this part
+5. **Vehicle Compatibility**: Which vehicles/models typically use this part (based on what you see)
 6. **Replacement Recommendations**: When to replace and what to look for
 7. **Related Parts**: Other components commonly replaced together
 8. **Installation Notes**: Any special considerations for replacement
 
-Be specific about technical details you can observe. If markings are visible on the part, include them exactly.${contextInfo}
+Be specific about technical details you can observe. If markings are visible on the part, include them exactly.
+
+IMPORTANT: Base your analysis ONLY on what you can see in the image. Do not assume any specific vehicle context unless clearly visible in the image.
 
 Format your response with clear section headers and bullet points for easy reading.`;
 
@@ -80,7 +75,6 @@ Format your response with clear section headers and bullet points for easy readi
         return {
             success: true,
             analysis: response,
-            vehicleContext: vehicleContext || null,
             analysisType: 'part_identification',
             timestamp: new Date().toISOString(),
             model: VISION_MODEL
@@ -101,20 +95,11 @@ Format your response with clear section headers and bullet points for easy readi
  * @param {string} imageBase64 - Base64 encoded image
  * @param {string} mimeType - Image MIME type
  * @param {string} question - Specific question about the part
- * @param {Object} vehicleContext - Optional vehicle context
  * @returns {Promise<Object>} Question response
  */
-export async function askPartQuestion(imageBase64, mimeType, question, vehicleContext = null) {
+export async function askPartQuestion(imageBase64, mimeType, question) {
     try {
-        let contextInfo = '';
-        if (vehicleContext) {
-            const { make, model, year } = vehicleContext;
-            contextInfo = ` The part is from a ${year} ${make} ${model}.`;
-        }
-
         const userPrompt = `Looking at this automotive part image, please answer this specific question: "${question}"
-
-${contextInfo}
 
 Provide a detailed, technical answer based on what you can see in the image. Include:
 - Direct answer to the question
@@ -122,6 +107,8 @@ Provide a detailed, technical answer based on what you can see in the image. Inc
 - Technical specifications if relevant
 - Practical advice for the mechanic
 - Any safety considerations
+
+IMPORTANT: Base your answer ONLY on what you can observe in the image. Do not make assumptions about vehicle context unless clearly visible.
 
 Be specific and professional in your response.`;
 
@@ -131,7 +118,6 @@ Be specific and professional in your response.`;
             success: true,
             question: question,
             answer: response,
-            vehicleContext: vehicleContext || null,
             analysisType: 'question_answer',
             timestamp: new Date().toISOString(),
             model: VISION_MODEL
@@ -151,10 +137,9 @@ Be specific and professional in your response.`;
  * Compare multiple part images (up to 4)
  * @param {Array<Object>} images - Array of {imageBase64, mimeType, label} objects
  * @param {string} comparisonType - Type of comparison (condition, compatibility, etc.)
- * @param {Object} vehicleContext - Optional vehicle context
  * @returns {Promise<Object>} Comparison results
  */
-export async function comparePartImages(images, comparisonType = 'general', vehicleContext = null) {
+export async function comparePartImages(images, comparisonType = 'general') {
     if (!images || images.length < 2 || images.length > 4) {
         throw new GeminiVisionError(
             'Must provide 2-4 images for comparison',
@@ -164,12 +149,6 @@ export async function comparePartImages(images, comparisonType = 'general', vehi
     }
 
     try {
-        let contextInfo = '';
-        if (vehicleContext) {
-            const { make, model, year } = vehicleContext;
-            contextInfo = ` The parts are for a ${year} ${make} ${model}.`;
-        }
-
         const comparisonPrompts = {
             'condition': 'Compare the condition and wear patterns of these automotive parts. Which parts need replacement and why?',
             'compatibility': 'Analyze if these parts are compatible with each other or serve similar functions.',
@@ -179,13 +158,15 @@ export async function comparePartImages(images, comparisonType = 'general', vehi
 
         const prompt = comparisonPrompts[comparisonType] || comparisonPrompts['general'];
 
-        const userPrompt = `${prompt}${contextInfo}
+        const userPrompt = `${prompt}
 
 For each part, provide:
 1. Part identification and condition assessment
 2. Key differences or similarities between parts
 3. Recommendations based on the comparison
 4. Which part(s) would be best for replacement (if applicable)
+
+IMPORTANT: Base your analysis ONLY on what you can observe in the images. Do not make assumptions about vehicle context.
 
 Label your analysis clearly for each part and provide a summary comparison.`;
 
@@ -204,7 +185,6 @@ Label your analysis clearly for each part and provide a summary comparison.`;
             comparisonType,
             imageCount: images.length,
             comparison: response,
-            vehicleContext: vehicleContext || null,
             analysisType: 'part_comparison',
             timestamp: new Date().toISOString(),
             model: VISION_MODEL
@@ -270,17 +250,10 @@ If no clear markings are visible, indicate that and explain what might be preven
  * Assess part condition and provide replacement recommendations
  * @param {string} imageBase64 - Base64 encoded image
  * @param {string} mimeType - Image MIME type
- * @param {Object} vehicleContext - Optional vehicle context
  * @returns {Promise<Object>} Condition assessment and recommendations
  */
-export async function assessPartCondition(imageBase64, mimeType, vehicleContext = null) {
+export async function assessPartCondition(imageBase64, mimeType) {
     try {
-        let contextInfo = '';
-        if (vehicleContext) {
-            const { make, model, year, mileage } = vehicleContext;
-            contextInfo = ` Vehicle: ${year} ${make} ${model}${mileage ? `, ${mileage} miles` : ''}`;
-        }
-
         const userPrompt = `Assess the condition of this automotive part and provide professional replacement recommendations.
 
 Analyze:
@@ -292,7 +265,9 @@ Analyze:
 6. **Replacement Priority**: Immediate, soon (1-6 months), routine maintenance, or preventive
 7. **Related Inspections**: Other parts to check when replacing this one
 
-Provide a clear recommendation with reasoning based on visual evidence.${contextInfo}
+Provide a clear recommendation with reasoning based on visual evidence.
+
+IMPORTANT: Base your assessment ONLY on what you can observe in the image. Do not make assumptions about vehicle context.
 
 Use a professional tone as if advising a customer about their vehicle.`;
 
@@ -301,7 +276,6 @@ Use a professional tone as if advising a customer about their vehicle.`;
         return {
             success: true,
             assessment: response,
-            vehicleContext: vehicleContext || null,
             analysisType: 'condition_assessment',
             timestamp: new Date().toISOString(),
             model: VISION_MODEL

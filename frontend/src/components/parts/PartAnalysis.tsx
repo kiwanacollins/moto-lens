@@ -230,17 +230,22 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
                         </Badge>
                     </Group>
 
-                    {/* Vehicle Context */}
-                    {vehicleContext && (
-                        <Paper p="sm" radius="sm" bg="blue.0">
-                            <Text size="sm" c="dark.7" ff="JetBrains Mono" fw={500}>
-                                Vehicle: {vehicleContext.year} {vehicleContext.make} {vehicleContext.model}
-                                {vehicleContext.engine && ` • ${vehicleContext.engine}`}
-                            </Text>
-                        </Paper>
-                    )}
+          {/* Vehicle Context */}
+          {vehicleContext && (
+            <Alert icon={<MdInfo />} color="blue" variant="light">
+              <Stack gap="xs">
+                <Text size="sm" c="dark.7" ff="JetBrains Mono" fw={500}>
+                  Vehicle Context: {vehicleContext.year} {vehicleContext.make} {vehicleContext.model}
+                  {vehicleContext.engine && ` • ${vehicleContext.engine}`}
+                </Text>
+                <Text size="xs" c="dark.6" ff="Inter" style={{ fontStyle: 'italic' }}>
+                  Note: Analysis is based purely on the image, not influenced by vehicle context
+                </Text>
+              </Stack>
+            </Alert>
+          )}
 
-                    {/* Analysis Text */}
+          {/* Analysis Text */}
                     {result.analysis && (
                         <div className={`scrollable-container ${hasAnalysisScroll ? 'has-scroll' : ''}`}>
                             <Paper
