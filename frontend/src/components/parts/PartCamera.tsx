@@ -125,11 +125,11 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                 console.log('Setting video stream:', {
                     streamActive: stream.active,
                     tracks: stream.getTracks().length,
-                    videoTracks: stream.getVideoTracks().length
+                    videoTracks: stream.getVideoTracks().length,
                 });
 
                 // Wait for video to be ready and playing
-                await new Promise<void>((resolve) => {
+                await new Promise<void>(resolve => {
                     if (!video) {
                         console.error('Video element not available');
                         resolve(); // Don't reject, continue
@@ -140,9 +140,9 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                         console.log('Video metadata loaded:', {
                             videoWidth: video.videoWidth,
                             videoHeight: video.videoHeight,
-                            readyState: video.readyState
+                            readyState: video.readyState,
                         });
-                        
+
                         cleanup();
 
                         // Force play to ensure video starts
@@ -187,7 +187,8 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                     video.addEventListener('error', onError);
 
                     // Also try to play immediately if ready
-                    if (video.readyState >= 2) { // HAVE_CURRENT_DATA
+                    if (video.readyState >= 2) {
+                        // HAVE_CURRENT_DATA
                         console.log('Video already ready, triggering metadata event');
                         onLoadedMetadata();
                     }
@@ -220,7 +221,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                         ended: video.ended,
                         videoWidth: video.videoWidth,
                         videoHeight: video.videoHeight,
-                        currentTime: video.currentTime
+                        currentTime: video.currentTime,
                     });
 
                     // Force play if video is paused
@@ -787,7 +788,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                                         height: '100%',
                                         objectFit: 'cover',
                                         backgroundColor: '#000', // Black background while loading
-                                        transform: cameraState.facingMode === 'user' ? 'scaleX(-1)' : 'none' // Mirror front camera
+                                        transform: cameraState.facingMode === 'user' ? 'scaleX(-1)' : 'none', // Mirror front camera
                                     }}
                                     onLoadStart={() => console.log('Video load started')}
                                     onLoadedData={() => console.log('Video data loaded')}
@@ -801,11 +802,11 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
                                 {/* Debug overlay for video issues */}
                                 {videoRef.current && videoRef.current.readyState < 2 && (
-                                    <Center 
-                                        pos="absolute" 
-                                        top={0} 
-                                        left={0} 
-                                        right={0} 
+                                    <Center
+                                        pos="absolute"
+                                        top={0}
+                                        left={0}
+                                        right={0}
                                         bottom={0}
                                         style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
                                     >
