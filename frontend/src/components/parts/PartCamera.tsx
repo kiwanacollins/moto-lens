@@ -133,13 +133,16 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                         video.removeEventListener('error', onError);
 
                         // Force play to ensure video starts
-                        video.play().then(() => {
-                            resolve();
-                        }).catch((playError) => {
-                            console.warn('Video play failed:', playError);
-                            // Still resolve as stream might be working
-                            resolve();
-                        });
+                        video
+                            .play()
+                            .then(() => {
+                                resolve();
+                            })
+                            .catch(playError => {
+                                console.warn('Video play failed:', playError);
+                                // Still resolve as stream might be working
+                                resolve();
+                            });
                     };
 
                     const onError = (error: Event) => {
@@ -170,49 +173,49 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
             // Check for multiple cameras after successful initialization
             await checkMultipleCameras();
-                } catch (error) {
-                    console.error('Camera initialization error:', error);
-                    let errorMessage = 'Camera access denied. Please allow camera permissions and try again.';
+        } catch (error) {
+            console.error('Camera initialization error:', error);
+            let errorMessage = 'Camera access denied. Please allow camera permissions and try again.';
 
-                    if (error instanceof Error) {
-                        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                            errorMessage =
-                                'Camera permission denied. Please enable camera access in your browser settings.';
-                        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-                            errorMessage = 'No camera found. Please use the "Take Photo" or "Upload" buttons below.';
-                        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-                            errorMessage =
-                                'Camera is in use by another app. Please close other camera apps and try again.';
-                        } else if (error.name === 'OverconstrainedError') {
-                            errorMessage = 'Camera constraints not supported. Trying with basic settings...';
-                            // Retry with basic constraints
-                            try {
-                                const basicStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                                if (videoRef.current) {
-                                    videoRef.current.srcObject = basicStream;
-                                    // Force play to ensure video displays
-                                    await videoRef.current.play();
-                                }
-                                setCameraState(prev => ({
-                                    ...prev,
-                                    stream: basicStream,
-                                    isInitializing: false,
-                                    error: null,
-                                }));
-                                return;
-                            } catch {
-                                errorMessage = 'Camera initialization failed. Please use the upload option.';
-                            }
+            if (error instanceof Error) {
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    errorMessage =
+                        'Camera permission denied. Please enable camera access in your browser settings.';
+                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                    errorMessage = 'No camera found. Please use the "Take Photo" or "Upload" buttons below.';
+                } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+                    errorMessage =
+                        'Camera is in use by another app. Please close other camera apps and try again.';
+                } else if (error.name === 'OverconstrainedError') {
+                    errorMessage = 'Camera constraints not supported. Trying with basic settings...';
+                    // Retry with basic constraints
+                    try {
+                        const basicStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                        if (videoRef.current) {
+                            videoRef.current.srcObject = basicStream;
+                            // Force play to ensure video displays
+                            await videoRef.current.play();
                         }
+                        setCameraState(prev => ({
+                            ...prev,
+                            stream: basicStream,
+                            isInitializing: false,
+                            error: null,
+                        }));
+                        return;
+                    } catch {
+                        errorMessage = 'Camera initialization failed. Please use the upload option.';
                     }
-
-                    setCameraState(prev => ({
-                        ...prev,
-                        isInitializing: false,
-                        error: errorMessage,
-                    }));
                 }
-            }, [cameraState.facingMode, checkMultipleCameras]);
+            }
+
+            setCameraState(prev => ({
+                ...prev,
+                isInitializing: false,
+                error: errorMessage,
+            }));
+        }
+    }, [cameraState.facingMode, checkMultipleCameras]);
 
     // Cleanup camera stream
     const cleanup = useCallback(() => {
@@ -264,7 +267,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                         // Create canvas for compression
                         const canvas = document.createElement('canvas');
                         const context = canvas.getContext('2d');
-                        
+
                         if (!context) {
                             reject(new Error('Canvas context not available'));
                             return;
@@ -312,7 +315,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                         reject(error);
                     }
                 };
-                
+
                 img.onerror = () => reject(new Error('Failed to load image'));
                 img.src = URL.createObjectURL(file);
             });
@@ -322,7 +325,12 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
     // Compress and resize image for optimal analysis
     const compressImage = useCallback(
-        (canvas: HTMLCanvasElement, maxWidth = 1920, maxHeight = 1080, quality = 0.85): Promise<File> => {
+        (
+            canvas: HTMLCanvasElement,
+            maxWidth = 1920,
+            maxHeight = 1080,
+            quality = 0.85
+        ): Promise<File> => {
             return new Promise(resolve => {
                 const context = canvas.getContext('2d');
                 if (!context) {
@@ -345,7 +353,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                 // Create a new canvas for the compressed image
                 const compressedCanvas = document.createElement('canvas');
                 const compressedContext = compressedCanvas.getContext('2d');
-                
+
                 if (!compressedContext) {
                     throw new Error('Compressed canvas context not available');
                 }
@@ -398,11 +406,13 @@ export const PartCamera: React.FC<PartCameraProps> = ({
         try {
             // Compress the image for optimal analysis
             const file = await compressImage(canvas);
-            
+
             // Log compression results for debugging
             const originalSize = (canvas.width * canvas.height * 4) / (1024 * 1024); // Rough estimate
             const compressedSize = file.size / (1024 * 1024);
-            console.log(`Image compressed: ~${originalSize.toFixed(1)}MB → ${compressedSize.toFixed(1)}MB`);
+            console.log(
+                `Image compressed: ~${originalSize.toFixed(1)}MB → ${compressedSize.toFixed(1)}MB`
+            );
 
             onImageCapture(file);
             close();
@@ -478,16 +488,18 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                 try {
                     // Check if image needs compression
                     const needsCompression = file.size > 5 * 1024 * 1024; // 5MB threshold
-                    
+
                     if (needsCompression && file.type.startsWith('image/')) {
                         console.log(`Compressing image: ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
                         const compressedFile = await compressImageFile(file);
-                        console.log(`Image compressed to: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`);
+                        console.log(
+                            `Image compressed to: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`
+                        );
                         onImageCapture(compressedFile);
                     } else {
                         onImageCapture(file);
                     }
-                    
+
                     close();
                     cleanup();
 
@@ -520,11 +532,13 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                 try {
                     // Check if image needs compression
                     const needsCompression = file.size > 5 * 1024 * 1024; // 5MB threshold
-                    
+
                     if (needsCompression && file.type.startsWith('image/')) {
                         console.log(`Compressing uploaded image: ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
                         const compressedFile = await compressImageFile(file);
-                        console.log(`Image compressed to: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`);
+                        console.log(
+                            `Image compressed to: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`
+                        );
                         onImageCapture(compressedFile);
                     } else {
                         onImageCapture(file);
@@ -716,7 +730,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                                     }}
                                     onLoadStart={() => console.log('Video load started')}
                                     onCanPlay={() => console.log('Video can play')}
-                                    onError={(e) => console.error('Video error:', e)}
+                                    onError={e => console.error('Video error:', e)}
                                 />
 
                                 {/* Camera Controls Overlay */}
