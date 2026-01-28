@@ -23,7 +23,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { MdCheckCircle, MdError, MdQuestionAnswer, MdInfo, MdSend } from 'react-icons/md';
-import { FiTool, FiSearch, FiMessageCircle } from 'react-icons/fi';
+import { FiTool, FiMessageCircle } from 'react-icons/fi';
 import type {
   PartScanResult,
   PartQuestionResult,
@@ -191,23 +191,7 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
 
   // No result state
   if (!result) {
-    return (
-      <Paper shadow="sm" p="lg" radius="md" withBorder bg="gray.0">
-        <Group justify="center" gap="md">
-          <ThemeIcon size="lg" color="blue.4" variant="light">
-            <FiSearch size={20} />
-          </ThemeIcon>
-          <Stack gap={4}>
-            <Text fw={600} c="dark.7" ff="Inter">
-              Ready to scan
-            </Text>
-            <Text size="sm" c="dark.5" ff="Inter">
-              Capture a photo of a spare part to get started
-            </Text>
-          </Stack>
-        </Group>
-      </Paper>
-    );
+    return null;
   }
 
   return (
