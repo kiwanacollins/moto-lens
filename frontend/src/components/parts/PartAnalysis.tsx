@@ -104,9 +104,9 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
       // Scroll to show the answer after a brief delay
       setTimeout(() => {
         if (questionScrollRef.current) {
-          questionScrollRef.current.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
+          questionScrollRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
           });
         }
       }, 100);

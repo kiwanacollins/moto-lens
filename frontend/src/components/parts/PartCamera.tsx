@@ -429,25 +429,29 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                     variant="filled"
                     color="blue.5"
                     onClick={openNativeCamera}
-                    leftSection={<MdCameraAlt size={22} />}
+                    leftSection={<MdCameraAlt size={18} />}
                     ff="Inter"
                     fw={600}
                     style={{
                       minHeight: '56px',
+                      fontSize: '14px',
+                      padding: '0 12px',
                     }}
                   >
-                    Take Photo
+                    Take
                   </Button>
                   <Button
                     size="lg"
                     variant="outline"
                     color="dark.6"
                     onClick={openFilePicker}
-                    leftSection={<MdPhotoLibrary size={22} />}
+                    leftSection={<MdPhotoLibrary size={18} />}
                     ff="Inter"
                     fw={600}
                     style={{
                       minHeight: '56px',
+                      fontSize: '14px',
+                      padding: '0 12px',
                     }}
                   >
                     Gallery
