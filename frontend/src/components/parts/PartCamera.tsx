@@ -254,8 +254,132 @@ export const PartCamera: React.FC<PartCameraProps> = ({
         }
     }, [opened, cameraState.stream, cleanup]);
 
+    // Compress uploaded image file
+    const compressImageFile = useCallback(
+        (file: File, maxWidth = 1920, maxHeight = 1080, quality = 0.85): Promise<File> => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        // Create canvas for compression
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        
+                        if (!context) {
+                            reject(new Error('Canvas context not available'));
+                            return;
+                        }
+
+                        // Calculate new dimensions while maintaining aspect ratio
+                        let { width, height } = img;
+                        const aspectRatio = width / height;
+
+                        if (width > maxWidth) {
+                            width = maxWidth;
+                            height = width / aspectRatio;
+                        }
+                        if (height > maxHeight) {
+                            height = maxHeight;
+                            width = height * aspectRatio;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        // Use better image scaling
+                        context.imageSmoothingEnabled = true;
+                        context.imageSmoothingQuality = 'high';
+
+                        // Draw the resized image
+                        context.drawImage(img, 0, 0, width, height);
+
+                        // Convert to blob with compression
+                        canvas.toBlob(
+                            blob => {
+                                if (blob) {
+                                    const compressedFile = new File([blob], file.name, {
+                                        type: 'image/jpeg',
+                                    });
+                                    resolve(compressedFile);
+                                } else {
+                                    reject(new Error('Failed to compress image'));
+                                }
+                            },
+                            'image/jpeg',
+                            quality
+                        );
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                img.onerror = () => reject(new Error('Failed to load image'));
+                img.src = URL.createObjectURL(file);
+            });
+        },
+        []
+    );
+
+    // Compress and resize image for optimal analysis
+    const compressImage = useCallback(
+        (canvas: HTMLCanvasElement, maxWidth = 1920, maxHeight = 1080, quality = 0.85): Promise<File> => {
+            return new Promise(resolve => {
+                const context = canvas.getContext('2d');
+                if (!context) {
+                    throw new Error('Canvas context not available');
+                }
+
+                // Calculate new dimensions while maintaining aspect ratio
+                let { width, height } = canvas;
+                const aspectRatio = width / height;
+
+                if (width > maxWidth) {
+                    width = maxWidth;
+                    height = width / aspectRatio;
+                }
+                if (height > maxHeight) {
+                    height = maxHeight;
+                    width = height * aspectRatio;
+                }
+
+                // Create a new canvas for the compressed image
+                const compressedCanvas = document.createElement('canvas');
+                const compressedContext = compressedCanvas.getContext('2d');
+                
+                if (!compressedContext) {
+                    throw new Error('Compressed canvas context not available');
+                }
+
+                compressedCanvas.width = width;
+                compressedCanvas.height = height;
+
+                // Use better image scaling
+                compressedContext.imageSmoothingEnabled = true;
+                compressedContext.imageSmoothingQuality = 'high';
+
+                // Draw the resized image
+                compressedContext.drawImage(canvas, 0, 0, width, height);
+
+                // Convert to blob with compression
+                compressedCanvas.toBlob(
+                    blob => {
+                        if (blob) {
+                            const file = new File([blob], `part-scan-${Date.now()}.jpg`, {
+                                type: 'image/jpeg',
+                            });
+                            resolve(file);
+                        }
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            });
+        },
+        []
+    );
+
     // Capture photo
-    const capturePhoto = useCallback(() => {
+    const capturePhoto = useCallback(async () => {
         if (!videoRef.current || !canvasRef.current) return;
 
         const video = videoRef.current;
@@ -271,29 +395,33 @@ export const PartCamera: React.FC<PartCameraProps> = ({
         // Draw current frame to canvas
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Convert to blob and file
-        canvas.toBlob(
-            blob => {
-                if (blob) {
-                    const file = new File([blob], `part-scan-${Date.now()}.jpg`, {
-                        type: 'image/jpeg',
-                    });
+        try {
+            // Compress the image for optimal analysis
+            const file = await compressImage(canvas);
+            
+            // Log compression results for debugging
+            const originalSize = (canvas.width * canvas.height * 4) / (1024 * 1024); // Rough estimate
+            const compressedSize = file.size / (1024 * 1024);
+            console.log(`Image compressed: ~${originalSize.toFixed(1)}MB → ${compressedSize.toFixed(1)}MB`);
 
-                    onImageCapture(file);
-                    close();
-                    cleanup();
+            onImageCapture(file);
+            close();
+            cleanup();
 
-                    notifications.show({
-                        title: 'Photo captured',
-                        message: 'Analyzing part...',
-                        color: 'blue',
-                        icon: <MdPhotoCamera />,
-                    });
-                }
-            },
-            'image/jpeg',
-            0.9
-        );
+            notifications.show({
+                title: 'Photo captured',
+                message: 'Analyzing part...',
+                color: 'blue',
+                icon: <MdPhotoCamera />,
+            });
+        } catch (error) {
+            console.error('Image compression failed:', error);
+            notifications.show({
+                title: 'Capture failed',
+                message: 'Failed to process image. Please try again.',
+                color: 'red',
+            });
+        }
     }, [onImageCapture, close, cleanup]);
 
     // Switch camera (front/rear)
@@ -344,46 +472,86 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
     // Handle direct camera capture (mobile-friendly)
     const handleDirectCapture = useCallback(
-        (event: React.ChangeEvent<HTMLInputElement>) => {
+        async (event: React.ChangeEvent<HTMLInputElement>) => {
             const file = event.target.files?.[0];
             if (file) {
-                onImageCapture(file);
-                close();
-                cleanup();
+                try {
+                    // Check if image needs compression
+                    const needsCompression = file.size > 5 * 1024 * 1024; // 5MB threshold
+                    
+                    if (needsCompression && file.type.startsWith('image/')) {
+                        console.log(`Compressing image: ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
+                        const compressedFile = await compressImageFile(file);
+                        console.log(`Image compressed to: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`);
+                        onImageCapture(compressedFile);
+                    } else {
+                        onImageCapture(file);
+                    }
+                    
+                    close();
+                    cleanup();
 
-                notifications.show({
-                    title: 'Photo captured',
-                    message: 'Analyzing part...',
-                    color: 'blue',
-                    icon: <MdPhotoCamera />,
-                });
+                    notifications.show({
+                        title: 'Photo captured',
+                        message: 'Analyzing part...',
+                        color: 'blue',
+                        icon: <MdPhotoCamera />,
+                    });
+                } catch (error) {
+                    console.error('Image compression failed:', error);
+                    notifications.show({
+                        title: 'Capture failed',
+                        message: 'Failed to process image. Please try again.',
+                        color: 'red',
+                    });
+                }
             }
             // Reset input value to allow capturing the same image again
             event.target.value = '';
         },
-        [onImageCapture, close, cleanup]
+        [onImageCapture, close, cleanup, compressImageFile]
     );
 
     // Handle file upload from gallery
     const handleFileUpload = useCallback(
-        (event: React.ChangeEvent<HTMLInputElement>) => {
+        async (event: React.ChangeEvent<HTMLInputElement>) => {
             const file = event.target.files?.[0];
             if (file) {
-                onImageCapture(file);
-                close();
-                cleanup();
+                try {
+                    // Check if image needs compression
+                    const needsCompression = file.size > 5 * 1024 * 1024; // 5MB threshold
+                    
+                    if (needsCompression && file.type.startsWith('image/')) {
+                        console.log(`Compressing uploaded image: ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
+                        const compressedFile = await compressImageFile(file);
+                        console.log(`Image compressed to: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`);
+                        onImageCapture(compressedFile);
+                    } else {
+                        onImageCapture(file);
+                    }
 
-                notifications.show({
-                    title: 'Image uploaded',
-                    message: 'Analyzing part...',
-                    color: 'blue',
-                    icon: <MdUpload />,
-                });
+                    close();
+                    cleanup();
+
+                    notifications.show({
+                        title: 'Image uploaded',
+                        message: 'Analyzing part...',
+                        color: 'blue',
+                        icon: <MdUpload />,
+                    });
+                } catch (error) {
+                    console.error('Image compression failed:', error);
+                    notifications.show({
+                        title: 'Upload failed',
+                        message: 'Failed to process image. Please try again.',
+                        color: 'red',
+                    });
+                }
             }
             // Reset input value to allow uploading the same image again
             event.target.value = '';
         },
-        [onImageCapture, close, cleanup]
+        [onImageCapture, close, cleanup, compressImageFile]
     );
 
     // Trigger native camera on mobile
