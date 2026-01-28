@@ -127,11 +127,43 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
           );
         }
 
-        // Bullet points
-        if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
+        // Subheadings with bold asterisks (e.g., "* **Cracked or Damaged Insulator:**")
+        if (trimmed.match(/^\*\s*\*\*.*\*\*.*$/)) {
+          const match = trimmed.match(/^\*\s*\*\*(.*?)\*\*(.*)$/);
+          if (match) {
+            return (
+              <Text key={index} fw={600} size="md" c="dark.9" ff="Inter" mt="sm">
+                • <span style={{ fontWeight: 600 }}>{match[1]}:</span>
+                <span style={{ fontWeight: 400 }}>{match[2]}</span>
+              </Text>
+            );
+          }
+        }
+
+        // Bold text in middle of line (e.g., "Look at **this part** carefully")
+        if (trimmed.includes('**')) {
+          const parts = trimmed.split(/(\*\*[^*]+\*\*)/);
           return (
-            <Text key={index} size="sm" c="dark.7" ff="Inter" ml="md">
-              {trimmed}
+            <Text key={index} size="sm" c="dark.7" ff="Inter" style={{ lineHeight: 1.6 }} ml={trimmed.startsWith('*') ? 'md' : 0}>
+              {parts.map((part, i) => {
+                if (part.match(/^\*\*.*\*\*$/)) {
+                  return (
+                    <span key={i} style={{ fontWeight: 600 }}>
+                      {part.replace(/\*\*/g, '')}
+                    </span>
+                  );
+                }
+                return part;
+              })}
+            </Text>
+          );
+        }
+
+        // Bullet points
+        if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*')) {
+          return (
+            <Text key={index} size="sm" c="dark.7" ff="Inter" ml="md" style={{ lineHeight: 1.6 }}>
+              {trimmed.replace(/^\*\s*/, '• ')}
             </Text>
           );
         }
