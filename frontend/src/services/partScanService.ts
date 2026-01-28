@@ -144,8 +144,33 @@ export const scanPartImage = async (
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to scan part');
+    let errorMessage = 'Failed to scan part';
+    
+    try {
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const error = await response.json();
+        errorMessage = error.message || errorMessage;
+      } else {
+        // Non-JSON response, likely HTML error page
+        const text = await response.text();
+        if (text.includes('Request Entity Too Large')) {
+          errorMessage = 'Image file is too large. Please use a smaller image (max 20MB).';
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (response.status === 404) {
+          errorMessage = 'API endpoint not found. Please check your connection.';
+        } else {
+          errorMessage = `Request failed (${response.status}). Please try again.`;
+        }
+      }
+    } catch {
+      // Fallback error message if parsing fails
+      errorMessage = 'Network error. Please check your connection and try again.';
+    }
+    
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -187,8 +212,33 @@ export const askPartQuestion = async (
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to answer question');
+    let errorMessage = 'Failed to answer question';
+    
+    try {
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const error = await response.json();
+        errorMessage = error.message || errorMessage;
+      } else {
+        // Non-JSON response, likely HTML error page
+        const text = await response.text();
+        if (text.includes('Request Entity Too Large')) {
+          errorMessage = 'Image file is too large. Please use a smaller image (max 20MB).';
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (response.status === 404) {
+          errorMessage = 'API endpoint not found. Please check your connection.';
+        } else {
+          errorMessage = `Request failed (${response.status}). Please try again.`;
+        }
+      }
+    } catch {
+      // Fallback error message if parsing fails
+      errorMessage = 'Network error. Please check your connection and try again.';
+    }
+    
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -237,8 +287,33 @@ export const comparePartImages = async (
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to compare images');
+    let errorMessage = 'Failed to compare images';
+    
+    try {
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const error = await response.json();
+        errorMessage = error.message || errorMessage;
+      } else {
+        // Non-JSON response, likely HTML error page
+        const text = await response.text();
+        if (text.includes('Request Entity Too Large')) {
+          errorMessage = 'Image files are too large. Please use smaller images (max 20MB each).';
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (response.status === 404) {
+          errorMessage = 'API endpoint not found. Please check your connection.';
+        } else {
+          errorMessage = `Request failed (${response.status}). Please try again.`;
+        }
+      }
+    } catch {
+      // Fallback error message if parsing fails
+      errorMessage = 'Network error. Please check your connection and try again.';
+    }
+    
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -269,8 +344,33 @@ export const detectPartMarkings = async (imageFile: File): Promise<PartMarkingRe
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to detect markings');
+    let errorMessage = 'Failed to detect markings';
+    
+    try {
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const error = await response.json();
+        errorMessage = error.message || errorMessage;
+      } else {
+        // Non-JSON response, likely HTML error page
+        const text = await response.text();
+        if (text.includes('Request Entity Too Large')) {
+          errorMessage = 'Image file is too large. Please use a smaller image (max 20MB).';
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (response.status === 404) {
+          errorMessage = 'API endpoint not found. Please check your connection.';
+        } else {
+          errorMessage = `Request failed (${response.status}). Please try again.`;
+        }
+      }
+    } catch {
+      // Fallback error message if parsing fails
+      errorMessage = 'Network error. Please check your connection and try again.';
+    }
+    
+    throw new Error(errorMessage);
   }
 
   return response.json();
@@ -306,8 +406,33 @@ export const assessPartCondition = async (
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to assess condition');
+    let errorMessage = 'Failed to assess condition';
+    
+    try {
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const error = await response.json();
+        errorMessage = error.message || errorMessage;
+      } else {
+        // Non-JSON response, likely HTML error page
+        const text = await response.text();
+        if (text.includes('Request Entity Too Large')) {
+          errorMessage = 'Image file is too large. Please use a smaller image (max 20MB).';
+        } else if (response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (response.status === 404) {
+          errorMessage = 'API endpoint not found. Please check your connection.';
+        } else {
+          errorMessage = `Request failed (${response.status}). Please try again.`;
+        }
+      }
+    } catch {
+      // Fallback error message if parsing fails
+      errorMessage = 'Network error. Please check your connection and try again.';
+    }
+    
+    throw new Error(errorMessage);
   }
 
   return response.json();
