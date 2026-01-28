@@ -118,49 +118,86 @@ export const PartCamera: React.FC<PartCameraProps> = ({
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
             if (videoRef.current) {
-                videoRef.current.srcObject = stream;
+                const video = videoRef.current;
+                video.srcObject = stream;
+
+                // Add debug logging
+                console.log('Setting video stream:', {
+                    streamActive: stream.active,
+                    tracks: stream.getTracks().length,
+                    videoTracks: stream.getVideoTracks().length
+                });
 
                 // Wait for video to be ready and playing
-                await new Promise<void>((resolve, reject) => {
-                    const video = videoRef.current;
+                await new Promise<void>((resolve) => {
                     if (!video) {
-                        reject(new Error('Video element not available'));
+                        console.error('Video element not available');
+                        resolve(); // Don't reject, continue
                         return;
                     }
 
-                    const onLoadedMetadata = () => {
-                        video.removeEventListener('loadedmetadata', onLoadedMetadata);
-                        video.removeEventListener('error', onError);
+                    const onLoadedMetadata = async () => {
+                        console.log('Video metadata loaded:', {
+                            videoWidth: video.videoWidth,
+                            videoHeight: video.videoHeight,
+                            readyState: video.readyState
+                        });
+                        
+                        cleanup();
 
                         // Force play to ensure video starts
-                        video
-                            .play()
-                            .then(() => {
-                                resolve();
-                            })
-                            .catch(playError => {
-                                console.warn('Video play failed:', playError);
-                                // Still resolve as stream might be working
-                                resolve();
-                            });
+                        try {
+                            await video.play();
+                            console.log('Video playing successfully');
+                        } catch (playError) {
+                            console.warn('Video play failed:', playError);
+                            // Try play with different settings
+                            video.muted = true;
+                            try {
+                                await video.play();
+                                console.log('Video playing after mute');
+                            } catch (retryError) {
+                                console.warn('Video play retry failed:', retryError);
+                            }
+                        }
+                        resolve();
+                    };
+
+                    const onCanPlay = () => {
+                        console.log('Video can play event');
+                        if (video.paused) {
+                            video.play().catch(err => console.warn('CanPlay play failed:', err));
+                        }
                     };
 
                     const onError = (error: Event) => {
-                        video.removeEventListener('loadedmetadata', onLoadedMetadata);
-                        video.removeEventListener('error', onError);
                         console.error('Video element error:', error);
-                        reject(new Error('Video stream failed to load'));
+                        cleanup();
+                        resolve(); // Don't reject, continue anyway
+                    };
+
+                    const cleanup = () => {
+                        video.removeEventListener('loadedmetadata', onLoadedMetadata);
+                        video.removeEventListener('canplay', onCanPlay);
+                        video.removeEventListener('error', onError);
                     };
 
                     video.addEventListener('loadedmetadata', onLoadedMetadata);
+                    video.addEventListener('canplay', onCanPlay);
                     video.addEventListener('error', onError);
 
-                    // Timeout after 10 seconds
+                    // Also try to play immediately if ready
+                    if (video.readyState >= 2) { // HAVE_CURRENT_DATA
+                        console.log('Video already ready, triggering metadata event');
+                        onLoadedMetadata();
+                    }
+
+                    // Timeout after 8 seconds
                     setTimeout(() => {
-                        video.removeEventListener('loadedmetadata', onLoadedMetadata);
-                        video.removeEventListener('error', onError);
+                        console.log('Video initialization timeout');
+                        cleanup();
                         resolve(); // Continue even if metadata doesn't load
-                    }, 10000);
+                    }, 8000);
                 });
             }
 
@@ -170,6 +207,29 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                 isInitializing: false,
                 error: null,
             }));
+
+            // Debug stream assignment
+            setTimeout(() => {
+                const video = videoRef.current;
+                if (video) {
+                    console.log('Video state after assignment:', {
+                        hasStream: !!video.srcObject,
+                        readyState: video.readyState,
+                        networkState: video.networkState,
+                        paused: video.paused,
+                        ended: video.ended,
+                        videoWidth: video.videoWidth,
+                        videoHeight: video.videoHeight,
+                        currentTime: video.currentTime
+                    });
+
+                    // Force play if video is paused
+                    if (video.paused && video.srcObject) {
+                        console.log('Video is paused, trying to play...');
+                        video.play().catch(err => console.warn('Auto-play failed:', err));
+                    }
+                }
+            }, 1000); // Check after 1 second
 
             // Check for multiple cameras after successful initialization
             await checkMultipleCameras();
@@ -727,11 +787,36 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                                         height: '100%',
                                         objectFit: 'cover',
                                         backgroundColor: '#000', // Black background while loading
+                                        transform: cameraState.facingMode === 'user' ? 'scaleX(-1)' : 'none' // Mirror front camera
                                     }}
                                     onLoadStart={() => console.log('Video load started')}
+                                    onLoadedData={() => console.log('Video data loaded')}
+                                    onLoadedMetadata={() => console.log('Video metadata loaded')}
                                     onCanPlay={() => console.log('Video can play')}
+                                    onPlay={() => console.log('Video playing')}
+                                    onPlaying={() => console.log('Video is playing')}
+                                    onPause={() => console.log('Video paused')}
                                     onError={e => console.error('Video error:', e)}
                                 />
+
+                                {/* Debug overlay for video issues */}
+                                {videoRef.current && videoRef.current.readyState < 2 && (
+                                    <Center 
+                                        pos="absolute" 
+                                        top={0} 
+                                        left={0} 
+                                        right={0} 
+                                        bottom={0}
+                                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
+                                    >
+                                        <Stack align="center" gap="sm">
+                                            <Progress value={100} animated size="xs" color="white" w="50%" />
+                                            <Text c="white" size="sm" ff="Inter">
+                                                Loading camera...
+                                            </Text>
+                                        </Stack>
+                                    </Center>
+                                )}
 
                                 {/* Camera Controls Overlay */}
                                 <Group justify="space-between" pos="absolute" top="sm" left="sm" right="sm">
