@@ -158,16 +158,18 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                         video.removeEventListener('error', onError);
                         resolve(); // Continue even if metadata doesn't load
                     }, 10000);
+                });
+            }
 
-                    setCameraState(prev => ({
-                        ...prev,
-                        stream,
-                        isInitializing: false,
-                        error: null,
-                    }));
+            setCameraState(prev => ({
+                ...prev,
+                stream,
+                isInitializing: false,
+                error: null,
+            }));
 
-                    // Check for multiple cameras after successful initialization
-                    await checkMultipleCameras();
+            // Check for multiple cameras after successful initialization
+            await checkMultipleCameras();
                 } catch (error) {
                     console.error('Camera initialization error:', error);
                     let errorMessage = 'Camera access denied. Please allow camera permissions and try again.';
