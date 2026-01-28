@@ -112,6 +112,7 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
   }, []);
 
   const handleMove = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (clientX: number, _clientY: number) => {
       if (!isDragging || validImages.length <= 1) return;
 

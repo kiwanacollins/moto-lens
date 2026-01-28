@@ -73,8 +73,8 @@ function parseAIDescription(description: string): {
     }
 
     // Bullet line?
-    const isBullet = /^([\*\-•]|\d+\.)\s+/.test(line);
-    const cleaned = cleanMarkdown(line.replace(/^([\*\-•]|\d+\.)\s+/, ''));
+    const isBullet = /^([*\-•]|\d+\.)\s+/.test(line);
+    const cleaned = cleanMarkdown(line.replace(/^([*\-•]|\d+\.)\s+/, ''));
 
     if (!currentSection) {
       currentSection = {
@@ -119,7 +119,7 @@ function cleanMarkdown(text: string): string {
     .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold **text**
     .replace(/\*([^*]+)\*/g, '$1') // Remove italic *text*
     .replace(/`([^`]+)`/g, '$1') // Remove inline code
-    .replace(/^\s*[\*\-•]\s*/, '') // Remove leading bullets
+    .replace(/^\s*[*\-•]\s*/, '') // Remove leading bullets
     .trim();
 }
 
@@ -140,6 +140,8 @@ export function PartDetailModal({
   loading = false,
   partDetails,
 }: PartDetailModalProps) {
+  // clickedHotspot is available as _clickedHotspot for future use
+  void _clickedHotspot;
   return (
     <Modal
       opened={opened}

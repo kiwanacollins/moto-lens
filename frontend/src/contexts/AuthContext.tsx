@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
 /**
@@ -28,26 +28,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [username, setUsername] = useState<string | null>(null);
-
-  // Initialize auth state from localStorage on mount
-  useEffect(() => {
+// Helper function to get initial auth state from localStorage
+const getInitialAuthState = (): { isAuthenticated: boolean; username: string | null } => {
+  try {
     const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
     if (storedAuth) {
-      try {
-        const authData = JSON.parse(storedAuth);
-        if (authData.isAuthenticated && authData.username) {
-          setIsAuthenticated(true);
-          setUsername(authData.username);
-        }
-      } catch (error) {
-        console.error('Failed to parse stored auth data:', error);
-        localStorage.removeItem(AUTH_STORAGE_KEY);
+      const authData = JSON.parse(storedAuth);
+      if (authData.isAuthenticated && authData.username) {
+        return { isAuthenticated: true, username: authData.username };
       }
     }
-  }, []);
+  } catch (error) {
+    console.error('Failed to parse stored auth data:', error);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+  }
+  return { isAuthenticated: false, username: null };
+};
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const initialState = getInitialAuthState();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(initialState.isAuthenticated);
+  const [username, setUsername] = useState<string | null>(initialState.username);
 
   /**
    * Login function with dummy authentication

@@ -20,7 +20,7 @@ import {
   FiDisc,
 } from 'react-icons/fi';
 import { PartDetailModal } from '../parts/PartDetailModal';
-import type { PartInfo } from '../../types/parts';
+import type { PartInfo, Hotspot } from '../../types/parts';
 import { getPartDetails, type PartDetailsResponse } from '../../services/partsService';
 
 // Universal automotive parts that apply to all vehicles
@@ -365,7 +365,7 @@ interface PartsGridProps {
 export function PartsGrid({ vehicleMake, vehicleModel, vehicleYear }: PartsGridProps) {
   const [selectedPart, setSelectedPart] = useState<PartInfo | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
-  const [selectedHotspot, setSelectedHotspot] = useState<any>(null);
+  const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
   const [loading, setLoading] = useState(false);
   const [partDetails, setPartDetails] = useState<PartDetailsResponse | null>(null);
 

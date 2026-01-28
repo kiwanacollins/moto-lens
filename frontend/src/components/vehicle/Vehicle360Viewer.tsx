@@ -21,7 +21,12 @@ interface Vehicle360ViewerProps {
   // Vehicle VIN for loading images from web search
   vin?: string;
   // Legacy vehicle data (will be deprecated)
-  vehicleData?: any;
+  vehicleData?: {
+    make?: string;
+    model?: string;
+    year?: number;
+    vin?: string;
+  } | null;
   onImagesLoaded?: (images: VehicleImage[]) => void;
 }
 
@@ -49,13 +54,13 @@ export default function Vehicle360Viewer({
 
     if (!vinToUse || backendImages.length > 0) return;
 
-    async function loadBackendImages() {
+    async function loadBackendImages(vinForImages: string) {
       try {
         setLoadingImages(true);
         setError(null);
 
-        console.log(`Loading vehicle images for VIN: ${vinToUse}`);
-        const vehicleImages = await getVehicleImages(vinToUse);
+        console.log(`Loading vehicle images for VIN: ${vinForImages}`);
+        const vehicleImages = await getVehicleImages(vinForImages);
 
         console.log(`Loaded ${vehicleImages.length} images:`, vehicleImages);
         setBackendImages(vehicleImages);
@@ -69,7 +74,7 @@ export default function Vehicle360Viewer({
       }
     }
 
-    loadBackendImages();
+    loadBackendImages(vinToUse);
   }, [vin, vehicleData?.vin, onImagesLoaded, backendImages.length]);
 
   // Determine which images to use

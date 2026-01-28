@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -61,22 +61,15 @@ export default function VehicleViewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!vin) {
-      navigate('/');
-      return;
-    }
+  const loadVehicleData = useCallback(async () => {
+    if (!vin) return;
 
-    loadVehicleData();
-  }, [vin, navigate]);
-
-  const loadVehicleData = async () => {
     try {
       setLoading(true);
       setError(null);
 
       // Decode VIN first
-      const vehicleInfo = await decodeVIN(vin!);
+      const vehicleInfo = await decodeVIN(vin);
       setVehicleData(vehicleInfo);
 
       // Get AI summary
@@ -88,7 +81,16 @@ export default function VehicleViewPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [vin]);
+
+  useEffect(() => {
+    if (!vin) {
+      navigate('/');
+      return;
+    }
+
+    loadVehicleData();
+  }, [vin, navigate, loadVehicleData]);
 
   const handleBackClick = () => {
     navigate('/');

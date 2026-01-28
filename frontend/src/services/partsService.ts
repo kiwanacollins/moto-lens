@@ -10,7 +10,11 @@ export interface PartDetailsResponse {
   success: boolean;
   partId: string;
   partName: string;
-  vehicle?: any;
+  vehicle?: {
+    make?: string;
+    model?: string;
+    year?: number;
+  };
   image?: {
     url: string;
     title?: string;
@@ -19,7 +23,7 @@ export interface PartDetailsResponse {
   description: string;
   function?: string;
   symptoms: string[];
-  spareParts: any[];
+  spareParts: SparePart[];
   partNumber: string;
   imageSource: string;
   descriptionSource: string;
@@ -32,7 +36,7 @@ export interface PartDetailsResponse {
 export async function getPartDetails(
   partName: string,
   partId?: string,
-  vehicleData?: any
+  vehicleData?: { make?: string; model?: string; year?: number }
 ): Promise<PartDetailsResponse> {
   const response = await fetch(`${API_BASE_URL}/parts/details`, {
     method: 'POST',
