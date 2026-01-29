@@ -180,7 +180,7 @@ export const PartScannerPage = () => {
                     WebkitOverflowScrolling: 'touch', // Smooth scrolling on iOS
                 }}
             >
-                <Container size="lg" px="md" pb="xl">
+                <Container size="lg" px="md" pb={{ base: '2xl', md: 'xl' }}>
                     <Stack gap="xl">
                         {/* Scan Mode Tabs */}
                         <Tabs value={activeTab} onChange={value => setActiveTab(value as ScanMode)}>
@@ -364,7 +364,7 @@ export const PartScannerPage = () => {
 
                         {/* Quick Actions */}
                         {(currentImage || analysisResult) && (
-                            <Group justify="center" gap="sm">
+                            <Group justify="center" gap="sm" mt="xl" mb="xl">
                                 <Button
                                     variant="outline"
                                     color="dark.6"
