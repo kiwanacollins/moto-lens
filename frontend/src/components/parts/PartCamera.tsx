@@ -349,9 +349,9 @@ export const PartCamera: React.FC<PartCameraProps> = ({
         }
     }, [opened, cameraState.stream, cleanup]);
 
-    // Compress uploaded image file
+    // Compress uploaded image file - more aggressive for mobile uploads
     const compressImageFile = useCallback(
-        (file: File, maxWidth = 1920, maxHeight = 1080, quality = 0.85): Promise<File> => {
+        (file: File, maxWidth = 1280, maxHeight = 720, quality = 0.7): Promise<File> => {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => {
@@ -415,13 +415,13 @@ export const PartCamera: React.FC<PartCameraProps> = ({
         []
     );
 
-    // Compress and resize image for optimal analysis
+    // Compress and resize image for optimal analysis - aggressive settings for mobile
     const compressImage = useCallback(
         (
             canvas: HTMLCanvasElement,
-            maxWidth = 1920,
-            maxHeight = 1080,
-            quality = 0.85
+            maxWidth = 1280,
+            maxHeight = 720,
+            quality = 0.7
         ): Promise<File> => {
             return new Promise(resolve => {
                 const context = canvas.getContext('2d');
@@ -578,16 +578,25 @@ export const PartCamera: React.FC<PartCameraProps> = ({
             const file = event.target.files?.[0];
             if (file) {
                 try {
-                    // Check if image needs compression
-                    const needsCompression = file.size > 5 * 1024 * 1024; // 5MB threshold
-
-                    if (needsCompression && file.type.startsWith('image/')) {
-                        console.log(`Compressing image: ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
+                    // ALWAYS compress phone camera photos - they're typically large
+                    if (file.type.startsWith('image/')) {
+                        console.log(`Compressing camera image: ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
                         const compressedFile = await compressImageFile(file);
                         console.log(
                             `Image compressed to: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`
                         );
-                        onImageCapture(compressedFile);
+                        
+                        // If still too large, compress again with lower quality
+                        if (compressedFile.size > 3 * 1024 * 1024) {
+                            console.log('Image still large, re-compressing with lower quality...');
+                            const recompressedFile = await compressImageFile(compressedFile, 1024, 576, 0.5);
+                            console.log(
+                                `Re-compressed to: ${(recompressedFile.size / (1024 * 1024)).toFixed(1)}MB`
+                            );
+                            onImageCapture(recompressedFile);
+                        } else {
+                            onImageCapture(compressedFile);
+                        }
                     } else {
                         onImageCapture(file);
                     }
@@ -622,16 +631,25 @@ export const PartCamera: React.FC<PartCameraProps> = ({
             const file = event.target.files?.[0];
             if (file) {
                 try {
-                    // Check if image needs compression
-                    const needsCompression = file.size > 5 * 1024 * 1024; // 5MB threshold
-
-                    if (needsCompression && file.type.startsWith('image/')) {
+                    // ALWAYS compress uploaded images for better upload speed and compatibility
+                    if (file.type.startsWith('image/')) {
                         console.log(`Compressing uploaded image: ${(file.size / (1024 * 1024)).toFixed(1)}MB`);
                         const compressedFile = await compressImageFile(file);
                         console.log(
                             `Image compressed to: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`
                         );
-                        onImageCapture(compressedFile);
+                        
+                        // If still too large, compress again with lower quality
+                        if (compressedFile.size > 3 * 1024 * 1024) {
+                            console.log('Image still large, re-compressing with lower quality...');
+                            const recompressedFile = await compressImageFile(compressedFile, 1024, 576, 0.5);
+                            console.log(
+                                `Re-compressed to: ${(recompressedFile.size / (1024 * 1024)).toFixed(1)}MB`
+                            );
+                            onImageCapture(recompressedFile);
+                        } else {
+                            onImageCapture(compressedFile);
+                        }
                     } else {
                         onImageCapture(file);
                     }
