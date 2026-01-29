@@ -74,6 +74,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
         hasMultipleCameras: false,
     });
     const [isMobile] = useState(isMobileDevice());
+    const [videoReady, setVideoReady] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -280,6 +281,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
     // Cleanup camera stream
     const cleanup = useCallback(() => {
+        setVideoReady(false); // Reset video ready state
         setCameraState(prev => {
             if (prev.stream) {
                 prev.stream.getTracks().forEach(track => track.stop());
@@ -294,19 +296,22 @@ export const PartCamera: React.FC<PartCameraProps> = ({
     useEffect(() => {
         if (cameraState.stream && videoRef.current) {
             const video = videoRef.current;
-            
+
             // Only assign if not already assigned
             if (video.srcObject !== cameraState.stream) {
                 console.log('useEffect: Assigning stream to video element');
+                setVideoReady(false); // Reset ready state for new stream
                 video.srcObject = cameraState.stream;
-                
+
                 // Force play after assignment
-                video.play()
+                video
+                    .play()
                     .then(() => console.log('useEffect: Video playing'))
                     .catch(err => {
                         console.warn('useEffect: Video play failed, retrying muted:', err);
                         video.muted = true;
-                        video.play()
+                        video
+                            .play()
                             .then(() => console.log('useEffect: Video playing (muted)'))
                             .catch(e => console.error('useEffect: Video play failed completely:', e));
                     });
@@ -819,15 +824,24 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                                     onLoadStart={() => console.log('Video load started')}
                                     onLoadedData={() => console.log('Video data loaded')}
                                     onLoadedMetadata={() => console.log('Video metadata loaded')}
-                                    onCanPlay={() => console.log('Video can play')}
-                                    onPlay={() => console.log('Video playing')}
-                                    onPlaying={() => console.log('Video is playing')}
+                                    onCanPlay={() => {
+                                        console.log('Video can play');
+                                        setVideoReady(true);
+                                    }}
+                                    onPlay={() => {
+                                        console.log('Video playing');
+                                        setVideoReady(true);
+                                    }}
+                                    onPlaying={() => {
+                                        console.log('Video is playing');
+                                        setVideoReady(true);
+                                    }}
                                     onPause={() => console.log('Video paused')}
                                     onError={e => console.error('Video error:', e)}
                                 />
 
-                                {/* Debug overlay for video issues */}
-                                {videoRef.current && videoRef.current.readyState < 2 && (
+                                {/* Loading overlay - shown until video is ready */}
+                                {!videoReady && (
                                     <Center
                                         pos="absolute"
                                         top={0}
