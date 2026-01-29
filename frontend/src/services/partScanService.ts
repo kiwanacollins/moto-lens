@@ -5,7 +5,11 @@
  * for computer vision analysis of spare parts using Gemini
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+// Use proxy for production to avoid mixed content issues
+const isProd = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
+const API_BASE_URL = isProd 
+  ? '/api/proxy'  // Use Vercel serverless proxy in production
+  : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api');
 
 export interface VehicleContext {
   make?: string;
@@ -173,7 +177,23 @@ export const scanPartImage = async (
     throw new Error(errorMessage);
   }
 
-  return response.json();
+  // Parse response with error handling for non-JSON responses
+  try {
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      // Successful status but non-JSON response
+      console.error('Unexpected non-JSON response from API');
+      throw new Error('Server returned an unexpected response. Please try again.');
+    }
+  } catch (parseError) {
+    if (parseError instanceof SyntaxError) {
+      console.error('JSON parse error:', parseError);
+      throw new Error('Server returned invalid data. Please try again.');
+    }
+    throw parseError;
+  }
 };
 
 /**
@@ -241,7 +261,22 @@ export const askPartQuestion = async (
     throw new Error(errorMessage);
   }
 
-  return response.json();
+  // Parse response with error handling for non-JSON responses
+  try {
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      console.error('Unexpected non-JSON response from API');
+      throw new Error('Server returned an unexpected response. Please try again.');
+    }
+  } catch (parseError) {
+    if (parseError instanceof SyntaxError) {
+      console.error('JSON parse error:', parseError);
+      throw new Error('Server returned invalid data. Please try again.');
+    }
+    throw parseError;
+  }
 };
 
 /**
@@ -316,7 +351,22 @@ export const comparePartImages = async (
     throw new Error(errorMessage);
   }
 
-  return response.json();
+  // Parse response with error handling for non-JSON responses
+  try {
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      console.error('Unexpected non-JSON response from API');
+      throw new Error('Server returned an unexpected response. Please try again.');
+    }
+  } catch (parseError) {
+    if (parseError instanceof SyntaxError) {
+      console.error('JSON parse error:', parseError);
+      throw new Error('Server returned invalid data. Please try again.');
+    }
+    throw parseError;
+  }
 };
 
 /**
@@ -373,7 +423,22 @@ export const detectPartMarkings = async (imageFile: File): Promise<PartMarkingRe
     throw new Error(errorMessage);
   }
 
-  return response.json();
+  // Parse response with error handling for non-JSON responses
+  try {
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      console.error('Unexpected non-JSON response from API');
+      throw new Error('Server returned an unexpected response. Please try again.');
+    }
+  } catch (parseError) {
+    if (parseError instanceof SyntaxError) {
+      console.error('JSON parse error:', parseError);
+      throw new Error('Server returned invalid data. Please try again.');
+    }
+    throw parseError;
+  }
 };
 
 /**
@@ -435,7 +500,22 @@ export const assessPartCondition = async (
     throw new Error(errorMessage);
   }
 
-  return response.json();
+  // Parse response with error handling for non-JSON responses
+  try {
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    } else {
+      console.error('Unexpected non-JSON response from API');
+      throw new Error('Server returned an unexpected response. Please try again.');
+    }
+  } catch (parseError) {
+    if (parseError instanceof SyntaxError) {
+      console.error('JSON parse error:', parseError);
+      throw new Error('Server returned invalid data. Please try again.');
+    }
+    throw parseError;
+  }
 };
 
 export default {

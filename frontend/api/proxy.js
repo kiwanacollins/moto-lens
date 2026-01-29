@@ -44,15 +44,65 @@ export default async function handler(req, res) {
 
     // Forward the request to backend
     const response = await fetch(targetUrl, options);
-    const data = await response.json();
     
-    // Return the backend response
-    return res.status(response.status).json(data);
+    // Check content type before parsing
+    const contentType = response.headers.get('content-type');
+    
+    if (contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      return res.status(response.status).json(data);
+    } else {
+      // Non-JSON response from backend
+      const text = await response.text();
+      console.error('Non-JSON response from backend:', text.substring(0, 200));
+      
+      // Check for common error patterns
+      if (text.includes('Request Entity Too Large') || response.status === 413) {
+        return res.status(413).json({
+          success: false,
+          error: 'Image too large',
+          message: 'Image file is too large. Please use a smaller image (max 10MB).'
+        });
+      }
+      
+      if (response.status === 502 || response.status === 503 || response.status === 504) {
+        return res.status(response.status).json({
+          success: false,
+          error: 'Backend unavailable',
+          message: 'The analysis service is temporarily unavailable. Please try again in a moment.'
+        });
+      }
+      
+      return res.status(response.status || 500).json({
+        success: false,
+        error: 'Invalid response',
+        message: 'Server returned an unexpected response. Please try again.'
+      });
+    }
   } catch (error) {
     console.error('Proxy error:', error);
+    
+    // Handle specific error types
+    if (error.cause?.code === 'ECONNREFUSED') {
+      return res.status(503).json({ 
+        success: false,
+        error: 'Backend offline', 
+        message: 'Analysis server is not responding. Please try again later.' 
+      });
+    }
+    
+    if (error.name === 'AbortError' || error.cause?.code === 'ETIMEDOUT') {
+      return res.status(504).json({ 
+        success: false,
+        error: 'Request timeout', 
+        message: 'Analysis is taking too long. Please try with a smaller image.' 
+      });
+    }
+    
     return res.status(500).json({ 
+      success: false,
       error: 'Proxy failed', 
-      message: error.message 
+      message: 'Failed to connect to analysis service. Please try again.' 
     });
   }
 }
