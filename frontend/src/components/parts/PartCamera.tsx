@@ -417,12 +417,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
 
     // Compress and resize image for optimal analysis - aggressive settings for mobile
     const compressImage = useCallback(
-        (
-            canvas: HTMLCanvasElement,
-            maxWidth = 1280,
-            maxHeight = 720,
-            quality = 0.7
-        ): Promise<File> => {
+        (canvas: HTMLCanvasElement, maxWidth = 1280, maxHeight = 720, quality = 0.7): Promise<File> => {
             return new Promise(resolve => {
                 const context = canvas.getContext('2d');
                 if (!context) {
@@ -585,7 +580,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                         console.log(
                             `Image compressed to: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`
                         );
-                        
+
                         // If still too large, compress again with lower quality
                         if (compressedFile.size > 3 * 1024 * 1024) {
                             console.log('Image still large, re-compressing with lower quality...');
@@ -638,7 +633,7 @@ export const PartCamera: React.FC<PartCameraProps> = ({
                         console.log(
                             `Image compressed to: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`
                         );
-                        
+
                         // If still too large, compress again with lower quality
                         if (compressedFile.size > 3 * 1024 * 1024) {
                             console.log('Image still large, re-compressing with lower quality...');
