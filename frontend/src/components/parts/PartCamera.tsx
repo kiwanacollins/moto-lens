@@ -288,6 +288,32 @@ export const PartCamera: React.FC<PartCameraProps> = ({
         });
     }, []);
 
+    // CRITICAL: Assign stream to video element AFTER it's rendered
+    // The video element is conditionally rendered based on cameraState.stream,
+    // so we need to assign the srcObject after the render cycle completes
+    useEffect(() => {
+        if (cameraState.stream && videoRef.current) {
+            const video = videoRef.current;
+            
+            // Only assign if not already assigned
+            if (video.srcObject !== cameraState.stream) {
+                console.log('useEffect: Assigning stream to video element');
+                video.srcObject = cameraState.stream;
+                
+                // Force play after assignment
+                video.play()
+                    .then(() => console.log('useEffect: Video playing'))
+                    .catch(err => {
+                        console.warn('useEffect: Video play failed, retrying muted:', err);
+                        video.muted = true;
+                        video.play()
+                            .then(() => console.log('useEffect: Video playing (muted)'))
+                            .catch(e => console.error('useEffect: Video play failed completely:', e));
+                    });
+            }
+        }
+    }, [cameraState.stream]);
+
     // Handle modal state changes
     useEffect(() => {
         let mounted = true;
