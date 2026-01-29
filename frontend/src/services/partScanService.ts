@@ -7,7 +7,7 @@
 
 // Use proxy for production to avoid mixed content issues
 const isProd = typeof window !== 'undefined' && window.location.hostname !== 'localhost';
-const API_BASE_URL = isProd 
+const API_BASE_URL = isProd
   ? '/api/proxy'  // Use Vercel serverless proxy in production
   : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api');
 

@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   // Example: /api/proxy/vin/decode -> path = vin/decode
   const pathArray = req.url.split('/api/proxy/');
   const path = pathArray[1] || '';
-  
+
   if (!path) {
     return res.status(400).json({ error: 'Missing path' });
   }
@@ -44,10 +44,10 @@ export default async function handler(req, res) {
 
     // Forward the request to backend
     const response = await fetch(targetUrl, options);
-    
+
     // Check content type before parsing
     const contentType = response.headers.get('content-type');
-    
+
     if (contentType && contentType.includes('application/json')) {
       const data = await response.json();
       return res.status(response.status).json(data);
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
       // Non-JSON response from backend
       const text = await response.text();
       console.error('Non-JSON response from backend:', text.substring(0, 200));
-      
+
       // Check for common error patterns
       if (text.includes('Request Entity Too Large') || response.status === 413) {
         return res.status(413).json({
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
           message: 'Image file is too large. Please use a smaller image (max 10MB).'
         });
       }
-      
+
       if (response.status === 502 || response.status === 503 || response.status === 504) {
         return res.status(response.status).json({
           success: false,
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
           message: 'The analysis service is temporarily unavailable. Please try again in a moment.'
         });
       }
-      
+
       return res.status(response.status || 500).json({
         success: false,
         error: 'Invalid response',
@@ -81,28 +81,28 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error('Proxy error:', error);
-    
+
     // Handle specific error types
     if (error.cause?.code === 'ECONNREFUSED') {
-      return res.status(503).json({ 
+      return res.status(503).json({
         success: false,
-        error: 'Backend offline', 
-        message: 'Analysis server is not responding. Please try again later.' 
+        error: 'Backend offline',
+        message: 'Analysis server is not responding. Please try again later.'
       });
     }
-    
+
     if (error.name === 'AbortError' || error.cause?.code === 'ETIMEDOUT') {
-      return res.status(504).json({ 
+      return res.status(504).json({
         success: false,
-        error: 'Request timeout', 
-        message: 'Analysis is taking too long. Please try with a smaller image.' 
+        error: 'Request timeout',
+        message: 'Analysis is taking too long. Please try with a smaller image.'
       });
     }
-    
-    return res.status(500).json({ 
+
+    return res.status(500).json({
       success: false,
-      error: 'Proxy failed', 
-      message: 'Failed to connect to analysis service. Please try again.' 
+      error: 'Proxy failed',
+      message: 'Failed to connect to analysis service. Please try again.'
     });
   }
 }
