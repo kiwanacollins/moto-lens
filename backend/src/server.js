@@ -12,7 +12,7 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '..', '.env') });
 
 // Services
-import autodevService from './services/autodevService.js';
+import multiProviderVinService from './services/multiProviderVinService.js';
 import vinUtils from './utils/vinValidator.js';
 import geminiAiService from './services/geminiAiService.js';
 import geminiVisionService from './services/geminiVisionService.js';
@@ -90,14 +90,25 @@ app.get('/api/vin/decode/:vin', async (req, res, next) => {
     try {
         const validation = vinUtils.validateVIN(vin);
         if (!validation.valid) {
-            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+            return res.status(400).json({
+                error: 'Invalid VIN',
+                message: validation.error,
+                vinInput: vin
+            });
         }
 
-        // Call Auto.dev service
-        const apiResponse = await autodevService.decodeVIN(validation.vin);
-        const vehicle = autodevService.parseVehicleData(apiResponse);
+        // Call multi-provider VIN service (NHTSA primary, Vincario fallback)
+        const apiResponse = await multiProviderVinService.decodeVIN(validation.vin);
+        const vehicle = multiProviderVinService.parseVehicleData(apiResponse);
 
-        return res.json({ success: true, vehicle });
+        // Enrich vehicle data with AI predictions for missing fields (cached for consistency)
+        const enrichedVehicle = await vehicleEnrichmentService.enrichVehicleData(vehicle);
+
+        return res.json({
+            success: true,
+            vehicle: enrichedVehicle,
+            enrichmentApplied: enrichedVehicle._enriched || false
+        });
     } catch (err) {
         // VINDecodeError from service exposes statusCode
         if (err && err.name === 'VINDecodeError') {
@@ -117,17 +128,20 @@ app.post('/api/vin/decode', async (req, res) => {
     try {
         const validation = vinUtils.validateVIN(vin);
         if (!validation.valid) {
-            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+            return res.status(400).json({
+                error: 'Invalid VIN',
+                message: validation.error,
+                vinInput: vin
+            });
         }
 
-        // Decode VIN from external API
-        const apiResponse = await autodevService.decodeVIN(validation.vin);
-        const vehicle = autodevService.parseVehicleData(apiResponse);
+        // Decode VIN from multi-provider service
+        const vehicle = await multiProviderVinService.decodeVIN(validation.vin);
+        console.log('VIN decoded successfully:', { make: vehicle.make, model: vehicle.model, year: vehicle.year });
 
-        // Enrich vehicle data with AI predictions for missing fields
-        console.log('Original vehicle data:', vehicle);
+        // Enrich vehicle data with AI predictions for missing fields (cached for consistency)
         const enrichedVehicle = await vehicleEnrichmentService.enrichVehicleData(vehicle);
-        console.log('Enriched vehicle data:', enrichedVehicle);
+        console.log('Vehicle enriched:', { enriched: enrichedVehicle._enriched, source: enrichedVehicle._enrichedFrom });
 
         return res.json({
             success: true,
@@ -152,34 +166,41 @@ app.get('/api/vehicle/images/:vin', async (req, res) => {
         // First validate the VIN
         const validation = vinUtils.validateVIN(vin);
         if (!validation.valid) {
-            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+            return res.status(400).json({
+                error: 'Invalid VIN',
+                message: validation.error,
+                vinInput: vin
+            });
         }
 
         // Decode VIN to get vehicle data
-        const apiResponse = await autodevService.decodeVIN(validation.vin);
-        const vehicle = autodevService.parseVehicleData(apiResponse);
+        const vehicleData = await multiProviderVinService.decodeVIN(validation.vin);
+
+        // Enrich vehicle data with AI predictions for missing fields (cached for consistency)
+        const enrichedVehicle = await vehicleEnrichmentService.enrichVehicleData(vehicleData);
 
         // Check for minimum required data
-        if (!vehicle.make || !vehicle.model || !vehicle.year) {
+        if (!enrichedVehicle.make || !enrichedVehicle.model || !enrichedVehicle.year) {
             return res.status(400).json({
                 error: 'INSUFFICIENT_DATA',
                 message: 'Vehicle data incomplete - make, model, and year required for image search'
             });
         }
 
-        // Search for vehicle images using web search APIs
-        const imageResults = await imageService.searchVehicleImages(vehicle);
+        // Search for vehicle images using web search APIs with enriched data
+        const imageResults = await imageService.searchVehicleImages(enrichedVehicle);
 
         return res.json({
             success: true,
             vin: validation.vin,
             vehicle: {
-                make: vehicle.make,
-                model: vehicle.model,
-                year: vehicle.year,
-                trim: vehicle.trim
+                make: enrichedVehicle.make,
+                model: enrichedVehicle.model,
+                year: enrichedVehicle.year,
+                trim: enrichedVehicle.trim
             },
             source: 'web-search',
+            enrichmentApplied: enrichedVehicle._enriched || false,
             ...imageResults
         });
 
@@ -261,8 +282,7 @@ app.get('/api/parts/images', async (req, res) => {
             }
 
             // Decode VIN to get vehicle data
-            const apiResponse = await autodevService.decodeVIN(validation.vin);
-            vehicleData = autodevService.parseVehicleData(apiResponse);
+            vehicleData = await multiProviderVinService.decodeVIN(validation.vin);
         } else if (make && model && year) {
             // Use provided vehicle data
             vehicleData = { make, model, year: parseInt(year) };
@@ -386,23 +406,27 @@ app.get('/api/vehicle/summary/:vin', async (req, res) => {
         }
 
         // Decode VIN to get vehicle data
-        const apiResponse = await autodevService.decodeVIN(validation.vin);
-        const vehicleData = autodevService.parseVehicleData(apiResponse);
+        const vehicleData = await multiProviderVinService.decodeVIN(validation.vin);
 
-        // Generate summary using Gemini
-        const summary = await geminiAiService.generateVehicleSummary(vehicleData);
+        // Enrich vehicle data with AI predictions for missing fields (cached for consistency)
+        const enrichedVehicle = await vehicleEnrichmentService.enrichVehicleData(vehicleData);
+        console.log('Vehicle enriched for summary:', { enriched: enrichedVehicle._enriched, source: enrichedVehicle._enrichedFrom });
+
+        // Generate summary using Gemini with enriched data
+        const summary = await geminiAiService.generateVehicleSummary(enrichedVehicle);
 
         return res.json({
             success: true,
             vin: validation.vin,
             vehicle: {
-                make: vehicleData.make,
-                model: vehicleData.model,
-                year: vehicleData.year,
-                engine: vehicleData.engine,
-                bodyType: vehicleData.bodyType,
-                trim: vehicleData.trim
+                make: enrichedVehicle.make,
+                model: enrichedVehicle.model,
+                year: enrichedVehicle.year,
+                engine: enrichedVehicle.engine,
+                bodyType: enrichedVehicle.bodyType,
+                trim: enrichedVehicle.trim
             },
+            enrichmentApplied: enrichedVehicle._enriched || false,
             ...summary
         });
     } catch (err) {
@@ -458,20 +482,23 @@ app.get('/api/parts/spare-parts/:vin', async (req, res) => {
         }
 
         // Decode VIN to get vehicle data
-        const apiResponse = await autodevService.decodeVIN(validation.vin);
-        const vehicleData = autodevService.parseVehicleData(apiResponse);
+        const vehicleData = await multiProviderVinService.decodeVIN(validation.vin);
 
-        // Generate spare parts recommendations using Gemini
-        const sparePartsSummary = await geminiAiService.generateSparePartsSummary(vehicleData, system || 'general');
+        // Enrich vehicle data with AI predictions for missing fields (cached for consistency)
+        const enrichedVehicle = await vehicleEnrichmentService.enrichVehicleData(vehicleData);
+
+        // Generate spare parts recommendations using Gemini with enriched data
+        const sparePartsSummary = await geminiAiService.generateSparePartsSummary(enrichedVehicle, system || 'general');
 
         return res.json({
             success: true,
             vin: validation.vin,
             vehicle: {
-                make: vehicleData.make,
-                model: vehicleData.model,
-                year: vehicleData.year
+                make: enrichedVehicle.make,
+                model: enrichedVehicle.model,
+                year: enrichedVehicle.year
             },
+            enrichmentApplied: enrichedVehicle._enriched || false,
             ...sparePartsSummary
         });
     } catch (err) {

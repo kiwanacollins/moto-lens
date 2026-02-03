@@ -33,7 +33,7 @@ export function validateVin(vin: string): { valid: boolean; error?: string } {
   }
 
   if (!hasValidVinCharacters(formatted)) {
-    return { valid: false, error: 'VIN contains invalid characters (I, O, Q not allowed)' };
+    return { valid: false, error: 'VIN contains invalid characters. Only letters A-Z (excluding I, O, Q) and numbers 0-9 are allowed.' };
   }
 
   return { valid: true };

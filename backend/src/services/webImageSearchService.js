@@ -51,15 +51,15 @@ export async function searchVehicleImages(vehicleData) {
             params: {
                 engine: 'google_images',
                 q: searchQuery,
-                num: 10,
+                num: 6, // Reduced from 10 for faster response
                 api_key: serpApiKey,
                 ijn: 0,
                 safe: 'active',
                 tbm: 'isch',
-                tbs: 'isz:l', // Large images only
-                no_cache: false // Use cache to save API calls
+                tbs: 'isz:m', // Medium images (faster to load than large)
+                no_cache: false
             },
-            timeout: 8000 // 8 second timeout
+            timeout: 6000 // Reduced from 8 seconds
         });
 
         const results = response.data.images_results || [];
@@ -72,8 +72,8 @@ export async function searchVehicleImages(vehicleData) {
             console.log('📸 First thumbnail URL:', results[0].thumbnail);
         }
 
-        // Process results into MotoLens format
-        const images = results.slice(0, 8).map((result, index) => ({
+        // Process results into MotoLens format - limit to 5 images for speed
+        const images = results.slice(0, 5).map((result, index) => ({
             angle: getAngle(index),
             imageUrl: result.original || result.link,
             thumbnail: result.thumbnail,
@@ -120,7 +120,7 @@ export async function searchPartImages(partName, vehicleData = {}) {
     const make = vehicleData?.make || 'automotive';
     const model = vehicleData?.model || '';
     const year = vehicleData?.year || '';
-    
+
     const cacheKey = `part_${make}_${model}_${partName}`.toLowerCase().replace(/\s+/g, '_');
 
     // Check cache

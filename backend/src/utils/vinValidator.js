@@ -56,10 +56,13 @@ export function validateVIN(vin) {
     }
 
     // Validate checksum (position 9)
-    const checksumValid = validateChecksum(upperVIN);
-    if (!checksumValid) {
-        // Note: Some older/non-US VINs may not follow checksum standard
-        // We log a warning but don't fail validation
+    const checksumResult = validateChecksum(upperVIN);
+
+    // For now, we'll be lenient with checksum validation since:
+    // 1. Many European VINs don't follow US checksum standards  
+    // 2. Some older VINs may have different calculation methods
+    // 3. The real validation comes from external APIs (NHTSA, etc.)
+    if (!checksumResult) {
         console.warn(`VIN checksum validation failed for: ${upperVIN} (may be valid non-US VIN)`);
     }
 

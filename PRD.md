@@ -140,28 +140,33 @@ This combination:
 - Body type
 - Manufacturer
 
-### 🔌 VIN API (FINAL DECISION)
-**✅ Auto.dev API**
+### 🔌 VIN API (UPDATED DECISION)
+**✅ NHTSA vPIC (Primary) + Vincario (Fallback)**
 
-#### Why Auto.dev is the best fit
-- **1,000 FREE API calls/month** (covers entire MVP usage)
-- True pay-as-you-go: **$0.004 per call** after free tier
-- No subscription or monthly commitment required
-- Global coverage including European & German vehicles
-- Developer-friendly with excellent documentation
-- At 1-2 users/day (~60 calls/month), stays **FREE indefinitely**
-- Predictable, transparent pricing
-- Perfect for low-usage MVP scenarios
+#### Why this multi-provider approach is the best fit
+- **100% FREE primary provider** - NHTSA vPIC requires no API key
+- **Government reliability** - US Department of Transportation backing
+- **Excellent German vehicle support** from both providers
+- **Intelligent fallback** - Vincario for European vehicles when NHTSA insufficient
+- **Consistent AI enrichment** - cached results prevent conflicting specifications
+- **True pay-as-you-go** fallback: €29/month for 1,000 Vincario requests only when needed
 
 #### Cost Projection
-- **Month 1–∞:** $0 (under 1,000 free calls)
-- **Even at 1,000 calls/month:** Only $4
+- **Month 1–∞:** $0 (NHTSA handles most requests)
+- **Fallback usage:** Only $35/month (€29) if European coverage needed
 - **Well within $1,000 budget:** ✅
 
-#### Role
-- VIN → authoritative vehicle metadata
-- **Auto.dev is the source of truth**
-- AI only enhances, never replaces VIN data
+#### Architecture
+- **NHTSA vPIC** → authoritative vehicle metadata (free)
+- **Vincario fallback** → European vehicle specialist (paid only when needed)
+- **Gemini AI enhancement** → fills missing data consistently (cached)
+
+#### Benefits over Auto.dev
+- ✅ **Eliminates false data** from unreliable API responses
+- ✅ **Prevents inconsistent AI enrichment** through intelligent caching
+- ✅ **Reduces costs** - primary API is completely free
+- ✅ **Improves reliability** - government-backed primary source
+- ✅ **Better German vehicle coverage** - specialized European fallback
 
 ---
 
@@ -281,11 +286,17 @@ User enters VIN
       ↓
 Backend API
       ↓
-VINLink VIN Decode
+Multi-Provider VIN Service
+  ├── NHTSA vPIC (Primary - Free)
+  └── Vincario (Fallback - EU Specialist)
       ↓
-Vehicle Metadata
+Vehicle Metadata + Validation Scores
       ↓
-Gemini / Imagen Image Generation
+Cached AI Enhancement (Consistent Results)
+      ↓
+Combined Vehicle Data
+      ↓
+Web Image Search (Vehicle Photos)
       ↓
 360° Viewer (react-360-view)
       ↓

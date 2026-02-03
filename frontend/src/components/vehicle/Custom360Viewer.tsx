@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Paper, Text, Center, Group, Alert } from '@mantine/core';
+import { Box, Paper, Text, Center, Group, Alert, Skeleton } from '@mantine/core';
 import { MdRotateLeft, MdRotateRight, MdTouchApp } from 'react-icons/md';
 import { FiRotateCw } from 'react-icons/fi';
 import type { VehicleImage } from '../../types/vehicle';
@@ -28,8 +28,10 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [imagesLoaded, setImagesLoaded] = useState(false);
   const [showHint, setShowHint] = useState(true);
+  // Track which images have fully loaded (for smooth transitions)
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [currentImageLoaded, setCurrentImageLoaded] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -41,11 +43,11 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
   const getSensitivity = () => {
     switch (dragSensitivity) {
       case 'low':
-        return 40; // More drag needed
+        return 40;
       case 'high':
-        return 10; // Less drag needed
+        return 10;
       default:
-        return 20; // Medium
+        return 20;
     }
   };
 
@@ -57,36 +59,36 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
     return () => clearTimeout(timer);
   }, []);
 
-  // Preload images
+  // Preload adjacent images in background (lazy loading)
   useEffect(() => {
     if (validImages.length === 0) return;
 
-    let loadedCount = 0;
-    let errorCount = 0;
+    // Preload current, next, and previous images
+    const indicesToPreload = [
+      currentIndex,
+      (currentIndex + 1) % validImages.length,
+      (currentIndex - 1 + validImages.length) % validImages.length,
+    ];
 
-    const checkComplete = () => {
-      if (loadedCount + errorCount === validImages.length) {
-        setImagesLoaded(true);
+    indicesToPreload.forEach(idx => {
+      if (!loadedImages.has(idx)) {
+        const img = new Image();
+        img.onload = () => {
+          setLoadedImages(prev => new Set([...prev, idx]));
+        };
+        img.src = validImages[idx].imageUrl;
       }
-    };
-
-    validImages.forEach(img => {
-      const image = new Image();
-      image.onload = () => {
-        loadedCount++;
-        checkComplete();
-      };
-      image.onerror = () => {
-        errorCount++;
-        checkComplete();
-      };
-      image.src = img.imageUrl;
     });
-  }, [validImages]);
+  }, [currentIndex, validImages, loadedImages]);
 
-  // Autoplay functionality
+  // Handle current image load state
   useEffect(() => {
-    if (enableAutoplay && imagesLoaded && validImages.length > 1) {
+    setCurrentImageLoaded(loadedImages.has(currentIndex));
+  }, [currentIndex, loadedImages]);
+
+  // Autoplay functionality - starts immediately when we have images
+  useEffect(() => {
+    if (enableAutoplay && validImages.length > 1) {
       autoplayRef.current = setInterval(() => {
         setCurrentIndex(prev => (prev + 1) % validImages.length);
       }, autoplaySpeed);
@@ -97,7 +99,7 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
         clearInterval(autoplayRef.current);
       }
     };
-  }, [enableAutoplay, autoplaySpeed, imagesLoaded, validImages.length]);
+  }, [enableAutoplay, autoplaySpeed, validImages.length]);
 
   // Drag handlers
   const handleStart = useCallback((clientX: number, clientY: number) => {
@@ -189,27 +191,17 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
 
   // Navigation functions
   const goToNext = () => {
-    console.log('goToNext clicked, validImages.length:', validImages.length);
     if (validImages.length <= 1) return;
-    setCurrentIndex(prev => {
-      const newIndex = (prev + 1) % validImages.length;
-      console.log('Next: current index', prev, '-> new index', newIndex);
-      return newIndex;
-    });
+    setCurrentIndex(prev => (prev + 1) % validImages.length);
   };
 
   const goToPrev = () => {
-    console.log('goToPrev clicked, validImages.length:', validImages.length);
     if (validImages.length <= 1) return;
-    setCurrentIndex(prev => {
-      const newIndex = (prev - 1 + validImages.length) % validImages.length;
-      console.log('Prev: current index', prev, '-> new index', newIndex);
-      return newIndex;
-    });
+    setCurrentIndex(prev => (prev - 1 + validImages.length) % validImages.length);
   };
 
-  // Loading state
-  if (loading || !imagesLoaded) {
+  // Only show loading when fetching from API (not preloading)
+  if (loading) {
     return (
       <Paper
         shadow="sm"
@@ -235,7 +227,7 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
               }}
             />
             <Text c="dark.9" fw={600} size="lg" ff="Inter">
-              {loading ? 'Loading Vehicle Images...' : 'Preparing 360° View...'}
+              Loading Vehicle Images...
             </Text>
             <Text c="dark.6" size="sm" ff="Inter" mt="xs">
               {vehicleName}
@@ -278,6 +270,12 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
 
   const currentImage = validImages[currentIndex];
 
+  // Handle image load for current image
+  const handleImageLoad = () => {
+    setLoadedImages(prev => new Set([...prev, currentIndex]));
+    setCurrentImageLoaded(true);
+  };
+
   return (
     <Paper
       shadow="sm"
@@ -312,10 +310,37 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
           justifyContent: 'center',
         }}
       >
-        {/* Vehicle Image */}
+        {/* Thumbnail placeholder (shows while full image loads) */}
+        {!currentImageLoaded && currentImage.thumbnail && (
+          <img
+            src={currentImage.thumbnail}
+            alt={`${vehicleName} - loading`}
+            style={{
+              position: 'absolute',
+              maxWidth: '100%',
+              maxHeight: '100%',
+              width: 'auto',
+              height: 'auto',
+              objectFit: 'contain',
+              objectPosition: 'center',
+              filter: 'blur(2px)',
+              opacity: 0.7,
+            }}
+            draggable={false}
+          />
+        )}
+
+        {/* Skeleton placeholder (shows if no thumbnail) */}
+        {!currentImageLoaded && !currentImage.thumbnail && (
+          <Skeleton height="80%" width="80%" radius="md" animate />
+        )}
+
+        {/* Full Vehicle Image */}
         <img
+          key={currentIndex}
           src={currentImage.imageUrl}
           alt={`${vehicleName} - ${currentImage.angle} view`}
+          onLoad={handleImageLoad}
           style={{
             maxWidth: '100%',
             maxHeight: '100%',
@@ -323,8 +348,9 @@ const Custom360Viewer: React.FC<Custom360ViewerProps> = ({
             height: 'auto',
             objectFit: 'contain',
             objectPosition: 'center',
-            transition: isDragging ? 'none' : 'opacity 0.2s ease',
+            transition: 'opacity 0.3s ease',
             display: 'block',
+            opacity: currentImageLoaded ? 1 : 0,
           }}
           draggable={false}
         />

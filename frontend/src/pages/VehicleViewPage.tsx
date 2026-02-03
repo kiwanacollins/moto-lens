@@ -13,7 +13,6 @@ import {
   Box,
   Transition,
   ScrollArea,
-  SimpleGrid,
 } from '@mantine/core';
 import { MdArrowBack, MdLogout } from 'react-icons/md';
 import { FiInfo, FiCamera } from 'react-icons/fi';
@@ -22,34 +21,6 @@ import { decodeVIN, getVehicleSummary } from '../services/vehicleService';
 import type { VehicleData, VehicleSummary } from '../types/vehicle';
 import Vehicle360Viewer from '../components/vehicle/Vehicle360Viewer';
 import PartsGrid from '../components/parts/PartsGrid';
-
-// Premium spec field component with refined typography
-// Spec card component - individual contained box for each specification
-const SpecCard = ({
-  label,
-  value,
-  mono = false,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-}) => (
-  <Box
-    p="md"
-    style={{
-      backgroundColor: '#fafafa',
-      borderRadius: '8px',
-      border: '1px solid #f4f4f5',
-    }}
-  >
-    <Text size="xs" c="dimmed" ff="Inter" fw={600} tt="uppercase" lts={0.5} mb={6}>
-      {label}
-    </Text>
-    <Text size="sm" c="dark.9" ff={mono ? 'JetBrains Mono' : 'Inter'} fw={500} lh={1.4}>
-      {value}
-    </Text>
-  </Box>
-);
 
 export default function VehicleViewPage() {
   const { vin } = useParams<{ vin: string }>();
@@ -72,8 +43,18 @@ export default function VehicleViewPage() {
       const vehicleInfo = await decodeVIN(vin);
       setVehicleData(vehicleInfo);
 
-      // Get AI summary
-      const summary = await getVehicleSummary(vehicleInfo);
+      // Check if VIN has validation issues but still returned data
+      if (vehicleInfo.vinValid === false) {
+        console.warn('VIN validation issues detected:', {
+          vin,
+          make: vehicleInfo.make,
+          model: vehicleInfo.model,
+          vinValid: vehicleInfo.vinValid
+        });
+      }
+
+      // Get AI summary - use the original VIN from URL, not the potentially modified one from backend
+      const summary = await getVehicleSummary({ ...vehicleInfo, vin: vin });
       setVehicleSummary(summary);
     } catch (err) {
       console.error('Error loading vehicle data:', err);
@@ -186,49 +167,55 @@ export default function VehicleViewPage() {
               <Stack gap="xl">
                 {vehicleData && (
                   <>
-                    {/* Vehicle Header Card */}
+                    {/* Vehicle Identity Card */}
                     <Paper
                       shadow="sm"
-                      p="xl"
+                      p={{ base: "lg", sm: "xl" }}
                       radius="lg"
                       withBorder
                       bg="white"
                       style={{ borderColor: '#e4e4e7' }}
                     >
-                      {/* Vehicle Title Section */}
-                      <Group gap="md" align="center" mb="lg">
-                        <div style={{ flex: 1 }}>
-                          <Text ff="Inter" fw={600} c="dark.9" size="lg" lh={1.3}>
-                            {vehicleData.year} {vehicleData.make} {vehicleData.model}
-                          </Text>
-                          {vehicleData.trim && (
-                            <Text size="sm" c="dimmed" ff="Inter" fw={500}>
-                              {vehicleData.trim}
-                            </Text>
-                          )}
-                        </div>
+                      {/* Header with checkmark */}
+                      <Group gap="sm" mb="lg">
+                        <Text size="lg" c="green.6">✔</Text>
+                        <Title order={4} ff="Inter" fw={600} c="dark.9">
+                          Vehicle Identity
+                        </Title>
                       </Group>
 
-                      {/* Specifications Grid */}
-                      <SimpleGrid cols={{ base: 2, sm: 2 }} spacing="md" verticalSpacing="md">
-                        <SpecCard label="Engine" value={vehicleData.engine || '—'} />
-                        <SpecCard label="Body Type" value={vehicleData.bodyType || '—'} />
-                        <SpecCard label="Transmission" value={vehicleData.transmission || '—'} />
-                        <SpecCard label="Drivetrain" value={vehicleData.drivetrain || '—'} />
-                        {vehicleData.fuelType && (
-                          <SpecCard label="Fuel Type" value={vehicleData.fuelType} />
-                        )}
-                        {vehicleData.horsepower && (
-                          <SpecCard label="Power" value={vehicleData.horsepower} />
-                        )}
-                        <SpecCard label="Manufacturer" value={vehicleData.manufacturer} />
-                        {vehicleData.doors && vehicleData.seats && (
-                          <SpecCard
-                            label="Configuration"
-                            value={`${vehicleData.doors} doors · ${vehicleData.seats} seats`}
-                          />
-                        )}
-                      </SimpleGrid>
+                      {/* Vehicle Details List */}
+                      <Stack gap="md">
+                        {/* Make */}
+                        <div>
+                          <Text size="xs" c="dimmed" ff="Inter" fw={500} mb={4}>Make</Text>
+                          <Text size="sm" c="dark.9" ff="Inter" fw={600}>{vehicleData.make}</Text>
+                        </div>
+
+                        {/* Model */}
+                        <div>
+                          <Text size="xs" c="dimmed" ff="Inter" fw={500} mb={4}>Model</Text>
+                          <Text size="sm" c="dark.9" ff="Inter" fw={600}>{vehicleData.model || '—'}</Text>
+                        </div>
+
+                        {/* Year */}
+                        <div>
+                          <Text size="xs" c="dimmed" ff="Inter" fw={500} mb={4}>Year</Text>
+                          <Text size="sm" c="dark.9" ff="Inter" fw={600}>{vehicleData.year}</Text>
+                        </div>
+
+                        {/* Engine */}
+                        <div>
+                          <Text size="xs" c="dimmed" ff="Inter" fw={500} mb={4}>Engine</Text>
+                          <Text size="sm" c="dark.9" ff="Inter" fw={600}>{vehicleData.engine || '—'}</Text>
+                        </div>
+
+                        {/* Country of Manufacture */}
+                        <div>
+                          <Text size="xs" c="dimmed" ff="Inter" fw={500} mb={4}>Country of Manufacture</Text>
+                          <Text size="sm" c="dark.9" ff="Inter" fw={600}>{vehicleData.origin || '—'}</Text>
+                        </div>
+                      </Stack>
 
                       {/* VIN Section */}
                       <Box
@@ -250,14 +237,15 @@ export default function VehicleViewPage() {
                           Vehicle Identification Number
                         </Text>
                         <Text ff="JetBrains Mono" fw={500} c="blue.5" size="lg" lts={1}>
-                          {vehicleData.vin}
+                          {vin}
                         </Text>
                       </Box>
                     </Paper>
 
                     {/* 360° Vehicle Viewer - Now using web search images */}
+                    {/* Always use the URL VIN parameter, not vehicleData.vin which may be modified by NHTSA */}
                     <Vehicle360Viewer
-                      vin={vehicleData.vin}
+                      vin={vin}
                       vehicleName={`${vehicleData.year} ${vehicleData.make} ${vehicleData.model}`}
                       height={500}
                       dragSensitivity="medium"
@@ -280,8 +268,9 @@ export default function VehicleViewPage() {
                           size="lg"
                           onClick={() => {
                             // Save current vehicle data for context in part scanner
-                            if (vehicleData) {
-                              localStorage.setItem('currentVehicle', JSON.stringify(vehicleData));
+                            // Ensure we use the original VIN from URL, not the potentially modified one
+                            if (vehicleData && vin) {
+                              localStorage.setItem('currentVehicle', JSON.stringify({ ...vehicleData, vin }));
                             }
                             navigate('/scan');
                           }}
@@ -322,20 +311,37 @@ export default function VehicleViewPage() {
                           </Title>
                         </Group>
 
-                        <Stack gap="sm">
-                          {vehicleSummary.bulletPoints.map((point, index) => (
-                            <Box
-                              key={index}
-                              pl="sm"
-                              style={{
-                                borderLeft: '2px solid #e4e4e7',
-                              }}
-                            >
-                              <Text size="xs" c="dark.7" ff="Inter" fw={400} lh={1.6}>
-                                {point}
-                              </Text>
-                            </Box>
-                          ))}
+                        <Stack gap="md">
+                          {vehicleSummary.bulletPoints.map((point, index) => {
+                            // Parse markdown-style bold text (**text**)
+                            const parts = point.split(/(\*\*[^*]+\*\*)/g);
+                            return (
+                              <Box
+                                key={index}
+                                p="md"
+                                style={{
+                                  backgroundColor: '#fafafa',
+                                  borderRadius: '8px',
+                                  borderLeft: '3px solid #0ea5e9',
+                                }}
+                              >
+                                <Text size="sm" c="dark.7" ff="Inter" fw={400} lh={1.7}>
+                                  {parts.map((part, i) => {
+                                    // Check if this part is bold (wrapped in **)
+                                    if (part.startsWith('**') && part.endsWith('**')) {
+                                      const boldText = part.slice(2, -2);
+                                      return (
+                                        <Text key={i} span fw={600} c="dark.9">
+                                          {boldText}
+                                        </Text>
+                                      );
+                                    }
+                                    return <span key={i}>{part}</span>;
+                                  })}
+                                </Text>
+                              </Box>
+                            );
+                          })}
                         </Stack>
                       </Paper>
                     )}

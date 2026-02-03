@@ -18,6 +18,8 @@ export interface VehicleData {
   torque?: string;
   doors?: number;
   seats?: number;
+  origin?: string; // Country of manufacture
+  vinValid?: boolean; // VIN validation status from backend
   // Enrichment metadata
   _enriched?: boolean;
   _enrichedAt?: string;

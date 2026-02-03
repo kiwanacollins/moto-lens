@@ -4,12 +4,58 @@
  * Handles text-based AI generation for vehicle summaries, part identification,
  * and spare parts recommendations using professional prompts.
  * Ensures output is clear, technical, and does NOT sound AI-generated.
+ * Includes rate limiting protection and intelligent retry logic.
  */
 
 import axios from 'axios';
 
 const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 const MODEL = 'gemini-2.0-flash'; // Available model from API
+
+// Rate limiting configuration
+class RateLimiter {
+    constructor() {
+        this.requestQueue = [];
+        this.lastRequestTime = 0;
+        this.minInterval = 1000; // Minimum 1 second between requests
+        this.isProcessing = false;
+    }
+
+    async throttledRequest(requestFn) {
+        return new Promise((resolve, reject) => {
+            this.requestQueue.push({ requestFn, resolve, reject });
+            this.processQueue();
+        });
+    }
+
+    async processQueue() {
+        if (this.isProcessing || this.requestQueue.length === 0) return;
+
+        this.isProcessing = true;
+
+        while (this.requestQueue.length > 0) {
+            const timeSinceLastRequest = Date.now() - this.lastRequestTime;
+
+            if (timeSinceLastRequest < this.minInterval) {
+                await new Promise(resolve => setTimeout(resolve, this.minInterval - timeSinceLastRequest));
+            }
+
+            const { requestFn, resolve, reject } = this.requestQueue.shift();
+            this.lastRequestTime = Date.now();
+
+            try {
+                const result = await requestFn();
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        }
+
+        this.isProcessing = false;
+    }
+}
+
+const rateLimiter = new RateLimiter();
 
 // Helper function to get API key
 function getApiKey() {
@@ -50,16 +96,21 @@ Response format requirements:
 export async function generateVehicleSummary(vehicleData) {
     const { make, model, year, engine, bodyType, trim } = vehicleData;
 
-    const userPrompt = `Provide a technical summary of a ${year} ${make} ${model}${trim ? ` ${trim}` : ''} with engine: ${engine}, body type: ${bodyType}.
+    const userPrompt = `Provide a professional technical summary for a ${year} ${make} ${model}${trim ? ` ${trim}` : ''} (Engine: ${engine || 'standard'}, Body: ${bodyType || 'standard'}).
 
-Generate exactly 5 concise bullet points covering:
-1. Engine performance and specifications
-2. Transmission and drivetrain characteristics
-3. Chassis and suspension key points
-4. Common maintenance intervals or known issues
-5. Notable features or quirks for this year/model
+Generate exactly 5 sections. Each section MUST:
+- Start with a bold category label using **Category:** format
+- Be concise (2-3 sentences max)
+- Include specific technical data where available
 
-Format: Return ONLY the 5 bullet points, one per line, starting with "•". No introduction or explanation.`;
+Sections required:
+1. **Engine:** Power output, displacement, configuration, fuel economy
+2. **Transmission:** Type, speeds, fluid type, notable features
+3. **Chassis/Suspension:** Platform, suspension type, brake specs
+4. **Maintenance/Issues:** Service intervals, common problems for this model
+5. **Features/Quirks:** Unique features, known quirks for this year/model
+
+Format: Return ONLY the 5 sections, one per line. Use **bold** for category labels. No intro text.`;
 
     try {
         const response = await callGeminiAPI(userPrompt);
@@ -212,69 +263,104 @@ export async function generateResponse(prompt) {
 }
 
 /**
- * Call Gemini API with system prompt
+ * Call Gemini API with system prompt, rate limiting, and retry logic
  * @param {string} userPrompt - User prompt
  * @returns {Promise<string>} API response text
  */
 async function callGeminiAPI(userPrompt) {
-    try {
-        const apiKey = getApiKey();
+    const maxRetries = 3;
+    const baseDelay = 2000; // 2 seconds base delay
 
-        const response = await axios.post(
-            `${GEMINI_API_BASE_URL}/${MODEL}:generateContent?key=${apiKey}`,
-            {
-                systemInstruction: {
-                    parts: [{
-                        text: SYSTEM_PROMPT
-                    }]
-                },
-                contents: [{
-                    parts: [{
-                        text: userPrompt
-                    }]
-                }],
-                generationConfig: {
-                    temperature: 0.3, // Low temperature for consistent, factual output
-                    topP: 0.8,
-                    topK: 10,
-                    maxOutputTokens: 2048
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            // Use rate limiter to throttle requests
+            return await rateLimiter.throttledRequest(async () => {
+                const apiKey = getApiKey();
+
+                console.log(`🤖 Gemini API call (attempt ${attempt}/${maxRetries})`);
+
+                const response = await axios.post(
+                    `${GEMINI_API_BASE_URL}/${MODEL}:generateContent?key=${apiKey}`,
+                    {
+                        systemInstruction: {
+                            parts: [{
+                                text: SYSTEM_PROMPT
+                            }]
+                        },
+                        contents: [{
+                            parts: [{
+                                text: userPrompt
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.3, // Low temperature for consistent, factual output
+                            topP: 0.8,
+                            topK: 10,
+                            maxOutputTokens: 2048
+                        }
+                        // Note: Safety settings removed - BLOCK_NONE not allowed for standard API keys
+                        // Default safety settings are sufficient for automotive technical content
+                    },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        timeout: 30000
+                    }
+                );
+
+                // Extract text from response
+                const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) {
+                    throw new Error('No text content in API response');
                 }
-                // Note: Safety settings removed - BLOCK_NONE not allowed for standard API keys
-                // Default safety settings are sufficient for automotive technical content
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                timeout: 30000
+
+                console.log(`✅ Gemini API success (attempt ${attempt})`);
+                return text;
+            });
+        } catch (error) {
+            const isRateLimit = error.response?.status === 429;
+            const isQuotaExceeded = error.response?.status === 403;
+            const isLastAttempt = attempt === maxRetries;
+
+            if (isRateLimit) {
+                if (isLastAttempt) {
+                    throw new GeminiAiError(
+                        'API rate limit exceeded. Please try again in a moment.',
+                        'RATE_LIMIT',
+                        429
+                    );
+                } else {
+                    // Exponential backoff for rate limits
+                    const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000;
+                    console.log(`⏳ Rate limited, retrying in ${Math.round(delay / 1000)}s...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
             }
-        );
 
-        // Extract text from response
-        const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) {
-            throw new Error('No text content in API response');
+            if (isQuotaExceeded) {
+                throw new GeminiAiError(
+                    'API key is invalid or quota exceeded.',
+                    'INVALID_API_KEY',
+                    403
+                );
+            }
+
+            if (isLastAttempt) {
+                console.error(`❌ Gemini API failed after ${maxRetries} attempts:`, error.message);
+                throw new GeminiAiError(
+                    error.message || 'Failed to call Gemini API',
+                    'API_ERROR',
+                    500
+                );
+            }
+
+            // For other errors, wait briefly before retry
+            const delay = 1000;
+            console.log(`⚠️ API error, retrying in ${delay / 1000}s... (${error.message})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
         }
-
-        return text;
-    } catch (error) {
-        if (error.response?.status === 429) {
-            throw new GeminiAiError(
-                'API rate limit exceeded. Please try again in a moment.',
-                'RATE_LIMIT',
-                429
-            );
-        }
-
-        if (error.response?.status === 403) {
-            throw new GeminiAiError(
-                'API key is invalid or quota exceeded.',
-                'INVALID_API_KEY',
-                403
-            );
-        }
-
-        throw error;
     }
 }
 

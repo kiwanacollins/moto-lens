@@ -1,6 +1,7 @@
 # 📋 MOTO LENS - Development Tasks
 
-WVWZZZCDZMW072001
+1HGCM82633A123456 <!-- Test VIN: 2003 Honda Accord -->
+<!-- Invalid VIN example: WVWZZZCDZMW072001 (shows validation warnings) -->
 
 ## Project Overview
 Building a mobile-first PWA for German vehicle VIN decoding and interactive part identification.
