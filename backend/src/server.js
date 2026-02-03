@@ -123,7 +123,7 @@ app.get('/api/vin/decode/:vin', async (req, res, next) => {
 
 // POST decode by JSON body { vin: '...' }
 app.post('/api/vin/decode', async (req, res) => {
-    const { vin } = req.body || {};
+    const { vin, enrich = false } = req.body || {};
 
     try {
         const validation = vinUtils.validateVIN(vin);
@@ -139,14 +139,23 @@ app.post('/api/vin/decode', async (req, res) => {
         const vehicle = await multiProviderVinService.decodeVIN(validation.vin);
         console.log('VIN decoded successfully:', { make: vehicle.make, model: vehicle.model, year: vehicle.year });
 
-        // Enrich vehicle data with AI predictions for missing fields (cached for consistency)
-        const enrichedVehicle = await vehicleEnrichmentService.enrichVehicleData(vehicle);
-        console.log('Vehicle enriched:', { enriched: enrichedVehicle._enriched, source: enrichedVehicle._enrichedFrom });
+        // Skip enrichment by default for faster response (can be enabled with enrich=true)
+        if (enrich) {
+            // Enrich vehicle data with AI predictions for missing fields (cached for consistency)
+            const enrichedVehicle = await vehicleEnrichmentService.enrichVehicleData(vehicle);
+            console.log('Vehicle enriched:', { enriched: enrichedVehicle._enriched, source: enrichedVehicle._enrichedFrom });
+
+            return res.json({
+                success: true,
+                vehicle: enrichedVehicle,
+                enrichmentApplied: enrichedVehicle._enriched || false
+            });
+        }
 
         return res.json({
             success: true,
-            vehicle: enrichedVehicle,
-            enrichmentApplied: enrichedVehicle._enriched || false
+            vehicle,
+            enrichmentApplied: false
         });
     } catch (err) {
         if (err && err.name === 'VINDecodeError') {

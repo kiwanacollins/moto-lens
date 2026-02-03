@@ -3,6 +3,36 @@ import type { VehicleData, VehicleSummary, VehicleImage } from '../types/vehicle
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
+// Default timeout for API requests (8 seconds)
+const DEFAULT_TIMEOUT = 8000;
+
+/**
+ * Fetch with timeout support
+ */
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit = {},
+  timeout = DEFAULT_TIMEOUT
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timed out - please try again');
+    }
+    throw error;
+  }
+}
+
 /**
  * Decodes a VIN and returns vehicle information
  * Note: Only basic validation is done here - backend handles full validation
@@ -14,7 +44,7 @@ export async function decodeVIN(vin: string): Promise<VehicleData> {
     throw new Error('VIN must be exactly 17 characters');
   }
 
-  const response = await fetch(`${API_BASE_URL}/vin/decode`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/vin/decode`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -45,12 +75,16 @@ export async function decodeVIN(vin: string): Promise<VehicleData> {
  * Gets web-searched vehicle images from different angles using VIN
  */
 export async function getVehicleImages(vin: string): Promise<VehicleImage[]> {
-  const response = await fetch(`${API_BASE_URL}/vehicle/images/${encodeURIComponent(vin)}`, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}/vehicle/images/${encodeURIComponent(vin)}`,
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
     },
-  });
+    12000 // 12s timeout for image search
+  );
 
   if (!response.ok) {
     throw new Error('Failed to get vehicle images');
@@ -66,15 +100,19 @@ export async function getVehicleImages(vin: string): Promise<VehicleImage[]> {
  * Gets web-searched vehicle images using vehicle data (fallback method)
  */
 export async function getVehicleImagesByData(vehicleData: VehicleData): Promise<VehicleImage[]> {
-  const response = await fetch(`${API_BASE_URL}/vehicle/images`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}/vehicle/images`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        vehicleData,
+      }),
     },
-    body: JSON.stringify({
-      vehicleData,
-    }),
-  });
+    12000 // 12s timeout for image search
+  );
 
   if (!response.ok) {
     throw new Error('Failed to get vehicle images');
@@ -98,12 +136,16 @@ export async function getVehicleSummary(vehicleData: VehicleData): Promise<Vehic
 
   // URL encode the VIN to handle special characters
   const encodedVin = encodeURIComponent(originalVin);
-  const response = await fetch(`${API_BASE_URL}/vehicle/summary/${encodedVin}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
+  const response = await fetchWithTimeout(
+    `${API_BASE_URL}/vehicle/summary/${encodedVin}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     },
-  });
+    15000 // 15s timeout for AI summary (Gemini can be slow)
+  );
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
@@ -131,14 +173,15 @@ export async function getVehicleSummary(vehicleData: VehicleData): Promise<Vehic
  * Search for spare parts images using web search
  */
 export async function getPartImages(partName: string, vin: string): Promise<VehicleImage[]> {
-  const response = await fetch(
+  const response = await fetchWithTimeout(
     `${API_BASE_URL}/parts/images?partName=${encodeURIComponent(partName)}&vin=${encodeURIComponent(vin)}`,
     {
       method: 'GET',
       headers: {
         Accept: 'application/json',
       },
-    }
+    },
+    10000 // 10s timeout for part images
   );
 
   if (!response.ok) {

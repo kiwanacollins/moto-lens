@@ -24,7 +24,7 @@ const NHTSA_API_BASE = 'https://vpic.nhtsa.dot.gov/api/vehicles';
 export async function decodeVIN(vin) {
     try {
         const response = await axios.get(`${NHTSA_API_BASE}/decodevin/${vin}?format=json`, {
-            timeout: 10000, // 10 second timeout
+            timeout: 8000, // 8 second timeout (reduced from 10)
             headers: {
                 'User-Agent': 'MotoLens/1.0.0 (Garage Management Tool)',
             },

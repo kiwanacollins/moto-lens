@@ -28,6 +28,10 @@ export default async function handler(req, res) {
   const BACKEND_URL = process.env.BACKEND_API_URL || 'http://207.180.249.87/api';
   const targetUrl = `${BACKEND_URL}/${path}`;
 
+  // Create AbortController for timeout (8 seconds to stay under Vercel's 10s limit)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
   try {
     // Prepare request options
     const options = {
@@ -35,6 +39,7 @@ export default async function handler(req, res) {
       headers: {
         'Content-Type': 'application/json',
       },
+      signal: controller.signal,
     };
 
     // Add body for POST/PUT requests
@@ -44,6 +49,7 @@ export default async function handler(req, res) {
 
     // Forward the request to backend
     const response = await fetch(targetUrl, options);
+    clearTimeout(timeoutId);
 
     // Check content type before parsing
     const contentType = response.headers.get('content-type');
@@ -80,7 +86,17 @@ export default async function handler(req, res) {
       });
     }
   } catch (error) {
-    console.error('Proxy error:', error);
+    clearTimeout(timeoutId);
+    console.error('Proxy error:', error.name, error.message);
+
+    // Handle abort/timeout errors first
+    if (error.name === 'AbortError') {
+      return res.status(504).json({
+        success: false,
+        error: 'Request timeout',
+        message: 'Request timed out - please try again'
+      });
+    }
 
     // Handle specific error types
     if (error.cause?.code === 'ECONNREFUSED') {
@@ -91,11 +107,11 @@ export default async function handler(req, res) {
       });
     }
 
-    if (error.name === 'AbortError' || error.cause?.code === 'ETIMEDOUT') {
+    if (error.cause?.code === 'ETIMEDOUT') {
       return res.status(504).json({
         success: false,
         error: 'Request timeout',
-        message: 'Analysis is taking too long. Please try with a smaller image.'
+        message: 'Request timed out - please try again'
       });
     }
 
