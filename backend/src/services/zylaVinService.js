@@ -126,62 +126,98 @@ export async function decodeVIN(vin) {
 export function parseVehicleData(zylaResponse, originalVin = null) {
     // Zyla Labs API response structure:
     // {
+    //   "Make": "Mercedes-Benz",
+    //   "Model": "SL 350",
+    //   "Model year": "2003",
+    //   "Trim level": "R230",
+    //   "Body style": "2 Doors Convertible",
+    //   "Engine type": "V6",
+    //   "Fuel type": "Gasoline",
+    //   "Transmission": "5-Speed Automatic",
+    //   "Vehicle type": "Passenger car",
+    //   "Manufactured in": "Germany",
     //   "Manufacturer": "Daimler AG",
-    //   "Adress line 1": "Mercedesstrasse 137",
-    //   "Adress line 2": "D-70546 Stuttgart",
-    //   "Region": "Europe",
-    //   "Country": "Germany",
-    //   "Note": "...",
-    //   "VIN": "WDBRF61J21F123456"
+    //   "Body type": "Convertible",
+    //   "Number of doors": "2",
+    //   "Number of seats": "5-2",
+    //   "Displacement SI": "3724",
+    //   "Displacement Nominal": "3.7",
+    //   "Engine cylinders": "6",
+    //   "Engine HorsePower": "245",
+    //   "Driveline": "RWD",
+    //   "VIN": "WDB2304671F079293"
     // }
-    
+
     const data = zylaResponse;
 
-    // Extract manufacturer name and try to derive make from it
-    const manufacturer = data.Manufacturer || data.manufacturer || null;
-    const make = derivesMakeFromManufacturer(manufacturer);
+    // Extract make - Zyla provides it directly
+    const make = data.Make || data.make || derivesMakeFromManufacturer(data.Manufacturer) || 'Unknown';
     
-    // Try to extract year from VIN (position 10)
-    const year = extractYearFromVIN(originalVin || data.VIN);
+    // Extract model
+    const model = data.Model || data.model || null;
     
+    // Extract year - prefer API response, fallback to VIN extraction
+    const yearFromApi = parseInt(data['Model year'] || data['Model Year'] || data.year);
+    const year = !isNaN(yearFromApi) ? yearFromApi : extractYearFromVIN(originalVin || data.VIN);
+
+    // Build engine description from available data
+    const engine = buildEngineDescription(data);
+    
+    // Extract displacement as number
+    const displacementNominal = parseFloat(data['Displacement Nominal'] || data['Displacement (L)']);
+    const displacementSI = parseInt(data['Displacement SI']);
+    const displacement = !isNaN(displacementNominal) ? displacementNominal : 
+                        (!isNaN(displacementSI) ? displacementSI / 1000 : null);
+
     // Determine VIN validity
-    const vinValid = manufacturer !== null || data.VIN !== null;
+    const vinValid = make !== 'Unknown' || model !== null || year !== null;
 
     return {
         // Core identification
         vin: originalVin || data.VIN || '',
         vinValid,
 
-        // Basic vehicle info - Zyla Labs provides limited data
-        make: make || manufacturer || 'Unknown',
-        model: data.Model || data.model || null, // Zyla may not provide this
+        // Basic vehicle info
+        make: make.toUpperCase(),
+        model: model,
         year: year || null,
-        trim: data.Trim || data.trim || null,
+        trim: data['Trim level'] || data.Trim || null,
 
-        // Technical specifications - not typically provided by Zyla Labs
-        engine: data.engine || null,
-        bodyType: data.body_type || data['Body Type'] || null,
-        transmission: data.transmission || null,
-        drivetrain: data.drivetrain || null,
+        // Technical specifications
+        engine: engine,
+        bodyType: data['Body style'] || data['Body type'] || data['Vehicle type'] || null,
+        transmission: data.Transmission || data['Automatic gearbox'] || null,
+        drivetrain: data.Driveline || data.driveline || null,
 
-        // Manufacturer info from Zyla Labs
-        manufacturer: manufacturer || 'Unknown',
-        origin: data.Country || determineOrigin(make, manufacturer),
-        manufacturerAddress: data['Adress line 1'] ? 
+        // Manufacturer info
+        manufacturer: data.Manufacturer || make || 'Unknown',
+        origin: data['Manufactured in'] || data.Country || determineOrigin(make, data.Manufacturer),
+        manufacturerAddress: data['Adress line 1'] ?
             `${data['Adress line 1']}, ${data['Adress line 2'] || ''}`.trim() : null,
         region: data.Region || null,
 
         // VIN metadata
-        wmi: originalVin ? originalVin.substring(0, 3) : null,
+        wmi: originalVin ? originalVin.substring(0, 3) : (data.VIN ? data.VIN.substring(0, 3) : null),
         checksum: vinValid,
 
         // Additional details
-        style: null,
-        doors: null,
-        seats: null,
-        fuelType: null,
-        displacement: null,
-        cylinders: null,
+        style: data['Body style'] || null,
+        doors: parseInt(data['Number of doors']) || null,
+        seats: parseSeatCount(data['Number of seats']),
+        fuelType: data['Fuel type'] || null,
+        displacement: displacement,
+        cylinders: parseInt(data['Engine cylinders']) || null,
+        
+        // Extended engine info
+        engineType: data['Engine type'] || null,
+        engineHead: data['Engine head'] || null,
+        engineValves: parseInt(data['Engine valves']) || null,
+        horsepower: parseInt(data['Engine HorsePower']) || null,
+        kilowatts: parseInt(data['Engine KiloWatts']) || null,
+        
+        // Emissions and standards
+        emissionStandard: data['Emission standard'] || null,
+        vehicleType: data['Vehicle type'] || null,
 
         // Zyla-specific data
         note: data.Note || null,
@@ -195,15 +231,67 @@ export function parseVehicleData(zylaResponse, originalVin = null) {
 }
 
 /**
- * Derive make from manufacturer name
+ * Parse seat count from Zyla format (e.g., "5-2" means 5 seats, 2 rows)
+ * @param {string} seatStr - Seat string from Zyla API
+ * @returns {number|null} Number of seats
+ */
+function parseSeatCount(seatStr) {
+    if (!seatStr) return null;
+    const parts = String(seatStr).split('-');
+    return parseInt(parts[0]) || null;
+}
+
+/**
+ * Build engine description from Zyla Labs data
+ * @param {Object} data - Parsed Zyla Labs data
+ * @returns {string|null} Engine description
+ */
+function buildEngineDescription(data) {
+    const components = [];
+
+    // Displacement
+    const displacementNominal = data['Displacement Nominal'];
+    if (displacementNominal) {
+        components.push(`${displacementNominal}L`);
+    }
+
+    // Engine type (V6, V8, Inline-4, etc.)
+    const engineType = data['Engine type'];
+    if (engineType) {
+        components.push(engineType);
+    }
+
+    // Cylinders (if not already in engine type)
+    const cylinders = data['Engine cylinders'];
+    if (cylinders && !engineType) {
+        components.push(`${cylinders}-cylinder`);
+    }
+
+    // Fuel type
+    const fuelType = data['Fuel type'];
+    if (fuelType) {
+        components.push(fuelType.toLowerCase());
+    }
+
+    // Horsepower
+    const hp = data['Engine HorsePower'];
+    if (hp) {
+        components.push(`${hp}hp`);
+    }
+
+    return components.length > 0 ? components.join(' ') : null;
+}
+
+/**
+ * Derive make from manufacturer name (fallback when Make field is missing)
  * @param {string} manufacturer - Manufacturer name (e.g., "Daimler AG")
  * @returns {string|null} Vehicle make
  */
 function derivesMakeFromManufacturer(manufacturer) {
     if (!manufacturer) return null;
-    
+
     const mfgUpper = manufacturer.toUpperCase();
-    
+
     // German manufacturers
     if (mfgUpper.includes('DAIMLER') || mfgUpper.includes('MERCEDES')) {
         return 'MERCEDES-BENZ';
@@ -220,61 +308,25 @@ function derivesMakeFromManufacturer(manufacturer) {
     if (mfgUpper.includes('PORSCHE')) {
         return 'PORSCHE';
     }
-    
+
     // Japanese manufacturers
     if (mfgUpper.includes('TOYOTA')) return 'TOYOTA';
     if (mfgUpper.includes('HONDA')) return 'HONDA';
     if (mfgUpper.includes('NISSAN')) return 'NISSAN';
     if (mfgUpper.includes('MAZDA')) return 'MAZDA';
     if (mfgUpper.includes('SUBARU')) return 'SUBARU';
-    
+
     // American manufacturers
     if (mfgUpper.includes('FORD')) return 'FORD';
     if (mfgUpper.includes('GENERAL MOTORS') || mfgUpper.includes('CHEVROLET')) return 'CHEVROLET';
     if (mfgUpper.includes('CHRYSLER') || mfgUpper.includes('STELLANTIS')) return 'CHRYSLER';
     if (mfgUpper.includes('TESLA')) return 'TESLA';
-    
+
     // Korean manufacturers
     if (mfgUpper.includes('HYUNDAI')) return 'HYUNDAI';
     if (mfgUpper.includes('KIA')) return 'KIA';
-    
+
     return null;
-}
-
-/**
- * Build engine description from Zyla Labs data
- * @param {Object} data - Parsed Zyla Labs data
- * @returns {string|null} Engine description
- */
-function buildEngineDescription(data) {
-    const components = [];
-
-    const displacement = data.displacement || data.Displacement || data.engine_displacement;
-    if (displacement) {
-        components.push(`${displacement}L`);
-    }
-
-    const config = data.engine_configuration || data.EngineConfiguration || data.engine_type;
-    if (config) {
-        components.push(config);
-    }
-
-    const cylinders = data.cylinders || data.Cylinders || data.engine_cylinders;
-    if (cylinders) {
-        components.push(`${cylinders}-cylinder`);
-    }
-
-    const fuelType = data.fuel_type || data.FuelType || data.fuel_type_primary;
-    if (fuelType) {
-        components.push(fuelType.toLowerCase());
-    }
-
-    const turbo = data.turbo || data.Turbo;
-    if (turbo === 'Yes' || turbo === true) {
-        components.push('turbo');
-    }
-
-    return components.length > 0 ? components.join(' ') : null;
 }
 
 /**
