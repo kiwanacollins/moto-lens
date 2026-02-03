@@ -21,7 +21,7 @@ export interface VehicleData {
   seats?: number;
   origin?: string; // Country of manufacture
   vinValid?: boolean; // VIN validation status from backend
-  
+
   // Extended vehicle data from Zyla Labs
   engineType?: string; // V6, V8, Inline-4, etc.
   engineHead?: string; // SOHC, DOHC, etc.
@@ -32,7 +32,7 @@ export interface VehicleData {
   manufacturerAddress?: string; // Full manufacturer address
   region?: string; // Europe, etc.
   note?: string; // Additional notes from API
-  
+
   // Enrichment metadata
   _enriched?: boolean;
   _enrichedAt?: string;

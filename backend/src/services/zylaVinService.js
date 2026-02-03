@@ -152,22 +152,22 @@ export function parseVehicleData(zylaResponse, originalVin = null) {
 
     // Extract make - Zyla provides it directly
     const make = data.Make || data.make || derivesMakeFromManufacturer(data.Manufacturer) || 'Unknown';
-    
+
     // Extract model
     const model = data.Model || data.model || null;
-    
+
     // Extract year - prefer API response, fallback to VIN extraction
     const yearFromApi = parseInt(data['Model year'] || data['Model Year'] || data.year);
     const year = !isNaN(yearFromApi) ? yearFromApi : extractYearFromVIN(originalVin || data.VIN);
 
     // Build engine description from available data
     const engine = buildEngineDescription(data);
-    
+
     // Extract displacement as number
     const displacementNominal = parseFloat(data['Displacement Nominal'] || data['Displacement (L)']);
     const displacementSI = parseInt(data['Displacement SI']);
-    const displacement = !isNaN(displacementNominal) ? displacementNominal : 
-                        (!isNaN(displacementSI) ? displacementSI / 1000 : null);
+    const displacement = !isNaN(displacementNominal) ? displacementNominal :
+        (!isNaN(displacementSI) ? displacementSI / 1000 : null);
 
     // Determine VIN validity
     const vinValid = make !== 'Unknown' || model !== null || year !== null;
@@ -207,14 +207,14 @@ export function parseVehicleData(zylaResponse, originalVin = null) {
         fuelType: data['Fuel type'] || null,
         displacement: displacement,
         cylinders: parseInt(data['Engine cylinders']) || null,
-        
+
         // Extended engine info
         engineType: data['Engine type'] || null,
         engineHead: data['Engine head'] || null,
         engineValves: parseInt(data['Engine valves']) || null,
         horsepower: parseInt(data['Engine HorsePower']) || null,
         kilowatts: parseInt(data['Engine KiloWatts']) || null,
-        
+
         // Emissions and standards
         emissionStandard: data['Emission standard'] || null,
         vehicleType: data['Vehicle type'] || null,

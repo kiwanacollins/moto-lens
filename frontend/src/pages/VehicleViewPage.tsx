@@ -49,7 +49,7 @@ export default function VehicleViewPage() {
           vin,
           make: vehicleInfo.make,
           model: vehicleInfo.model,
-          vinValid: vehicleInfo.vinValid
+          vinValid: vehicleInfo.vinValid,
         });
       }
 
@@ -172,7 +172,7 @@ export default function VehicleViewPage() {
                       {/* Basic Vehicle Identification */}
                       <Paper
                         shadow="sm"
-                        p={{ base: "lg", sm: "xl" }}
+                        p={{ base: 'lg', sm: 'xl' }}
                         radius="lg"
                         withBorder
                         bg="white"
@@ -181,36 +181,66 @@ export default function VehicleViewPage() {
                         <Title order={3} ff="Inter" fw={600} c="dark.9" mb="lg">
                           Basic Vehicle Identification
                         </Title>
-                        
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                            gap: '1rem',
+                          }}
+                        >
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Make</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.make}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Make
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.make}
+                            </Text>
                           </div>
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Model</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.model || '—'}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Model
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.model || '—'}
+                            </Text>
                           </div>
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Model Year</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.year}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Model Year
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.year}
+                            </Text>
                           </div>
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Product Type</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.vehicleType || 'Car'}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Product Type
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.vehicleType || 'Car'}
+                            </Text>
                           </div>
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Body</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.bodyType || '—'}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Body
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.bodyType || '—'}
+                            </Text>
                           </div>
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Drive</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.drivetrain || '—'}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Drive
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.drivetrain || '—'}
+                            </Text>
                           </div>
                         </div>
                       </Paper>
@@ -218,7 +248,7 @@ export default function VehicleViewPage() {
                       {/* Engine Section */}
                       <Paper
                         shadow="sm"
-                        p={{ base: "lg", sm: "xl" }}
+                        p={{ base: 'lg', sm: 'xl' }}
                         radius="lg"
                         withBorder
                         bg="white"
@@ -227,58 +257,100 @@ export default function VehicleViewPage() {
                         <Title order={3} ff="Inter" fw={600} c="dark.9" mb="lg">
                           Engine
                         </Title>
-                        
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                            gap: '1rem',
+                          }}
+                        >
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Engine Displacement (ccm)</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Engine Displacement (ccm)
+                            </Text>
                             <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.displacement ? (vehicleData.displacement * 1000).toLocaleString() : '—'}
+                              {vehicleData.displacement
+                                ? (vehicleData.displacement * 1000).toLocaleString()
+                                : '—'}
                             </Text>
                           </div>
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Engine Power (kW)</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.kilowatts || '—'}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Engine Power (kW)
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.kilowatts || '—'}
+                            </Text>
                           </div>
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Engine Power (HP)</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.horsepower || '—'}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Engine Power (HP)
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.horsepower || '—'}
+                            </Text>
                           </div>
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Fuel Type - Primary</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.fuelType || '—'}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Fuel Type - Primary
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.fuelType || '—'}
+                            </Text>
                           </div>
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Engine Type</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.engineType || '—'}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Engine Type
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.engineType || '—'}
+                            </Text>
                           </div>
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Transmission</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.transmission || '—'}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Transmission
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.transmission || '—'}
+                            </Text>
                           </div>
-                          
+
                           {vehicleData.cylinders && (
                             <div>
-                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Cylinders</Text>
-                              <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.cylinders}</Text>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Cylinders
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.cylinders}
+                              </Text>
                             </div>
                           )}
-                          
+
                           {vehicleData.engineValves && (
                             <div>
-                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Engine Valves</Text>
-                              <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.engineValves}</Text>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Engine Valves
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.engineValves}
+                              </Text>
                             </div>
                           )}
-                          
+
                           {vehicleData.emissionStandard && (
                             <div>
-                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Emission Standard</Text>
-                              <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.emissionStandard}</Text>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Emission Standard
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.emissionStandard}
+                              </Text>
                             </div>
                           )}
                         </div>
@@ -287,7 +359,7 @@ export default function VehicleViewPage() {
                       {/* Manufacturer Section */}
                       <Paper
                         shadow="sm"
-                        p={{ base: "lg", sm: "xl" }}
+                        p={{ base: 'lg', sm: 'xl' }}
                         radius="lg"
                         withBorder
                         bg="white"
@@ -296,33 +368,55 @@ export default function VehicleViewPage() {
                         <Title order={3} ff="Inter" fw={600} c="dark.9" mb="lg">
                           Manufacturer
                         </Title>
-                        
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                            gap: '1rem',
+                          }}
+                        >
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Manufacturer</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.manufacturer}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Manufacturer
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.manufacturer}
+                            </Text>
                           </div>
-                          
+
                           {vehicleData.manufacturerAddress && (
                             <div style={{ gridColumn: 'span 2' }}>
-                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Manufacturer Address</Text>
-                              <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.manufacturerAddress}</Text>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Manufacturer Address
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.manufacturerAddress}
+                              </Text>
                             </div>
                           )}
-                          
+
                           <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Plant Country</Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.origin || '—'}</Text>
+                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                              Plant Country
+                            </Text>
+                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                              {vehicleData.origin || '—'}
+                            </Text>
                           </div>
-                          
+
                           {vehicleData.region && (
                             <div>
-                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>Region</Text>
-                              <Text size="md" c="dark.9" ff="Inter" fw={600}>{vehicleData.region}</Text>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Region
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.region}
+                              </Text>
                             </div>
                           )}
                         </div>
-                        
+
                         {/* VIN Section */}
                         <Box
                           mt="xl"
@@ -346,12 +440,15 @@ export default function VehicleViewPage() {
                             {vin}
                           </Text>
                         </Box>
-                        
+
                         {/* Data Source */}
                         {vehicleData._source && (
                           <Box mt="md">
                             <Text size="xs" c="dimmed" ff="Inter" fw={500}>
-                              Data Source: {vehicleData._source === 'zyla-labs' ? 'Zyla Labs' : vehicleData._source.toUpperCase()}
+                              Data Source:{' '}
+                              {vehicleData._source === 'zyla-labs'
+                                ? 'Zyla Labs'
+                                : vehicleData._source.toUpperCase()}
                             </Text>
                           </Box>
                         )}
@@ -386,7 +483,10 @@ export default function VehicleViewPage() {
                             // Save current vehicle data for context in part scanner
                             // Ensure we use the original VIN from URL, not the potentially modified one
                             if (vehicleData && vin) {
-                              localStorage.setItem('currentVehicle', JSON.stringify({ ...vehicleData, vin }));
+                              localStorage.setItem(
+                                'currentVehicle',
+                                JSON.stringify({ ...vehicleData, vin })
+                              );
                             }
                             navigate('/scan');
                           }}
