@@ -2,11 +2,13 @@
  * Multi-Provider VIN Service
  * 
  * Robust VIN decoding with multiple API providers and intelligent fallback
- * Primary: NHTSA vPIC (free, government-backed)
- * Fallback: Vincario (European specialist, paid)
+ * Primary: Zyla Labs VIN Decode API
+ * Fallback: NHTSA vPIC (free, government-backed)
+ * Secondary Fallback: Vincario (European specialist, paid)
  * Enhancement: Gemini AI for missing data
  */
 
+import zylaVinService from './zylaVinService.js';
 import nhtsaVinService from './nhtsaVinService.js';
 import vincarioVinService from './vincarioVinService.js';
 
@@ -14,13 +16,14 @@ import vincarioVinService from './vincarioVinService.js';
  * VIN decoding strategy configuration
  */
 const PROVIDERS = {
+    ZYLA: 'zyla',
     NHTSA: 'nhtsa',
     VINCARIO: 'vincario'
 };
 
 const STRATEGY_CONFIG = {
-    // Try NHTSA first (free), fallback to Vincario if needed
-    providers: [PROVIDERS.NHTSA, PROVIDERS.VINCARIO],
+    // Try Zyla Labs first (primary), fallback to NHTSA (free), then Vincario if needed
+    providers: [PROVIDERS.ZYLA, PROVIDERS.NHTSA, PROVIDERS.VINCARIO],
 
     // Conditions for trying fallback provider
     fallbackConditions: {
@@ -57,6 +60,11 @@ export async function decodeVIN(vin) {
             let parsedResult;
 
             switch (provider) {
+                case PROVIDERS.ZYLA:
+                    result = await zylaVinService.decodeVIN(vin);
+                    parsedResult = zylaVinService.parseVehicleData(result, vin);
+                    break;
+
                 case PROVIDERS.NHTSA:
                     result = await nhtsaVinService.decodeVIN(vin);
                     // Pass original VIN to preserve it (NHTSA returns modified VIN with ! for errors)
@@ -115,7 +123,7 @@ export async function decodeVIN(vin) {
     }
 
     // All providers failed
-    const primaryError = errors.find(e => e.provider === PROVIDERS.NHTSA) || errors[0];
+    const primaryError = errors.find(e => e.provider === PROVIDERS.ZYLA) || errors[0];
     throw new VINDecodeError(
         `All VIN providers failed. Primary error: ${primaryError?.error || 'Unknown error'}`,
         primaryError?.code || 'ALL_PROVIDERS_FAILED',
