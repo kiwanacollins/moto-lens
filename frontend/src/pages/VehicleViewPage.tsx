@@ -198,14 +198,16 @@ export default function VehicleViewPage() {
                             </Text>
                           </div>
 
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
-                              Model
-                            </Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.model || '—'}
-                            </Text>
-                          </div>
+                          {vehicleData.model && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Model
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.model}
+                              </Text>
+                            </div>
+                          )}
 
                           <div>
                             <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
@@ -225,23 +227,27 @@ export default function VehicleViewPage() {
                             </Text>
                           </div>
 
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
-                              Body
-                            </Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.bodyType || '—'}
-                            </Text>
-                          </div>
+                          {vehicleData.bodyType && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Body
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.bodyType}
+                              </Text>
+                            </div>
+                          )}
 
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
-                              Drive
-                            </Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.drivetrain || '—'}
-                            </Text>
-                          </div>
+                          {vehicleData.drivetrain && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Drive
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.drivetrain}
+                              </Text>
+                            </div>
+                          )}
                         </div>
                       </Paper>
 
@@ -265,61 +271,71 @@ export default function VehicleViewPage() {
                             gap: '1rem',
                           }}
                         >
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
-                              Engine Displacement (ccm)
-                            </Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.displacement
-                                ? (vehicleData.displacement * 1000).toLocaleString()
-                                : '—'}
-                            </Text>
-                          </div>
+                          {vehicleData.displacement && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Engine Displacement (ccm)
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {(vehicleData.displacement * 1000).toLocaleString()}
+                              </Text>
+                            </div>
+                          )}
 
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
-                              Engine Power (kW)
-                            </Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.kilowatts || '—'}
-                            </Text>
-                          </div>
+                          {vehicleData.kilowatts && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Engine Power (kW)
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.kilowatts}
+                              </Text>
+                            </div>
+                          )}
 
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
-                              Engine Power (HP)
-                            </Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.horsepower || '—'}
-                            </Text>
-                          </div>
+                          {vehicleData.horsepower && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Engine Power (HP)
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.horsepower}
+                              </Text>
+                            </div>
+                          )}
 
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
-                              Fuel Type - Primary
-                            </Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.fuelType || '—'}
-                            </Text>
-                          </div>
+                          {vehicleData.fuelType && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Fuel Type - Primary
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.fuelType}
+                              </Text>
+                            </div>
+                          )}
 
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
-                              Engine Type
-                            </Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.engineType || '—'}
-                            </Text>
-                          </div>
+                          {vehicleData.engineType && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Engine Type
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.engineType}
+                              </Text>
+                            </div>
+                          )}
 
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
-                              Transmission
-                            </Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.transmission || '—'}
-                            </Text>
-                          </div>
+                          {vehicleData.transmission && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Transmission
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.transmission}
+                              </Text>
+                            </div>
+                          )}
 
                           {vehicleData.cylinders && (
                             <div>
@@ -396,14 +412,16 @@ export default function VehicleViewPage() {
                             </div>
                           )}
 
-                          <div>
-                            <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
-                              Plant Country
-                            </Text>
-                            <Text size="md" c="dark.9" ff="Inter" fw={600}>
-                              {vehicleData.origin || '—'}
-                            </Text>
-                          </div>
+                          {vehicleData.origin && (
+                            <div>
+                              <Text size="sm" c="dark.6" ff="Inter" fw={500} mb={4}>
+                                Plant Country
+                              </Text>
+                              <Text size="md" c="dark.9" ff="Inter" fw={600}>
+                                {vehicleData.origin}
+                              </Text>
+                            </div>
+                          )}
 
                           {vehicleData.region && (
                             <div>
