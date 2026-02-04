@@ -2,28 +2,28 @@
  * Multi-Provider VIN Service
  * 
  * Robust VIN decoding with multiple API providers and intelligent fallback
- * Primary: Zyla Labs VIN Decode API
+ * Primary: Vincario VIN Decode API v3.2
  * Fallback: NHTSA vPIC (free, government-backed)
- * Secondary Fallback: Vincario (European specialist, paid)
+ * Secondary Fallback: Zyla Labs (additional coverage)
  * Enhancement: Gemini AI for missing data
  */
 
-import zylaVinService from './zylaVinService.js';
-import nhtsaVinService from './nhtsaVinService.js';
 import vincarioVinService from './vincarioVinService.js';
+import nhtsaVinService from './nhtsaVinService.js';
+import zylaVinService from './zylaVinService.js';
 
 /**
  * VIN decoding strategy configuration
  */
 const PROVIDERS = {
-    ZYLA: 'zyla',
+    VINCARIO: 'vincario',
     NHTSA: 'nhtsa',
-    VINCARIO: 'vincario'
+    ZYLA: 'zyla'
 };
 
 const STRATEGY_CONFIG = {
-    // Try Zyla Labs first (primary), fallback to NHTSA (free), then Vincario if needed
-    providers: [PROVIDERS.ZYLA, PROVIDERS.NHTSA, PROVIDERS.VINCARIO],
+    // Try Vincario first (primary), fallback to NHTSA (free), then Zyla if needed
+    providers: [PROVIDERS.VINCARIO, PROVIDERS.NHTSA, PROVIDERS.ZYLA],
 
     // Conditions for trying fallback provider
     fallbackConditions: {
@@ -60,9 +60,14 @@ export async function decodeVIN(vin) {
             let parsedResult;
 
             switch (provider) {
-                case PROVIDERS.ZYLA:
-                    result = await zylaVinService.decodeVIN(vin);
-                    parsedResult = zylaVinService.parseVehicleData(result, vin);
+                case PROVIDERS.VINCARIO:
+                    // Only try Vincario if API credentials are configured
+                    if (!process.env.VINCARIO_API_KEY || !process.env.VINCARIO_SECRET_KEY) {
+                        console.log(`⏭️ Skipping ${provider} - API credentials not configured`);
+                        continue;
+                    }
+                    result = await vincarioVinService.decodeVIN(vin);
+                    parsedResult = vincarioVinService.parseVehicleData(result, vin);
                     break;
 
                 case PROVIDERS.NHTSA:
@@ -71,14 +76,9 @@ export async function decodeVIN(vin) {
                     parsedResult = nhtsaVinService.parseVehicleData(result, vin);
                     break;
 
-                case PROVIDERS.VINCARIO:
-                    // Only try Vincario if API key is configured
-                    if (!process.env.VINCARIO_API_KEY) {
-                        console.log(`⏭️ Skipping ${provider} - API key not configured`);
-                        continue;
-                    }
-                    result = await vincarioVinService.decodeVIN(vin);
-                    parsedResult = vincarioVinService.parseVehicleData(result, vin);
+                case PROVIDERS.ZYLA:
+                    result = await zylaVinService.decodeVIN(vin);
+                    parsedResult = zylaVinService.parseVehicleData(result, vin);
                     break;
 
                 default:
@@ -123,7 +123,7 @@ export async function decodeVIN(vin) {
     }
 
     // All providers failed
-    const primaryError = errors.find(e => e.provider === PROVIDERS.ZYLA) || errors[0];
+    const primaryError = errors.find(e => e.provider === PROVIDERS.VINCARIO) || errors[0];
     throw new VINDecodeError(
         `All VIN providers failed. Primary error: ${primaryError?.error || 'Unknown error'}`,
         primaryError?.code || 'ALL_PROVIDERS_FAILED',

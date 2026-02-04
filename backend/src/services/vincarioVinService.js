@@ -1,61 +1,117 @@
 /**
- * Vincario (VinDecoder.eu) API Service
+ * Vincario VIN Decode API v3.2 Service
  * 
- * European-focused VIN decoding service with excellent German vehicle support
- * API Documentation: https://vindecoder.eu/api/
+ * Professional VIN decoding service with excellent global vehicle coverage
+ * API Documentation: https://vincario.com/api-docs/3.2/
  * 
  * Advantages:
- * - Excellent European/German vehicle support (99.3% accuracy)
- * - Free tier: 10 requests/day
- * - Paid plans: €29/month for 1,000 requests
- * - Superior handling of VIN format issues
- * - Comprehensive vehicle database (73M+ VINs)
+ * - Comprehensive global vehicle database (100M+ VINs)
+ * - High accuracy for all vehicle manufacturers
+ * - Professional API with robust authentication
+ * - Support for multiple data formats
+ * - Real-time vehicle data
+ * 
+ * Authentication: SHA1 control sum based on VIN|ID|API_key|Secret_key
  */
 
 import axios from 'axios';
+import crypto from 'crypto';
 
-const VINCARIO_API_BASE = 'https://vindecoder.eu/api';
+const VINCARIO_API_BASE = 'https://api.vincario.com/3.2';
 
 /**
- * Decode a VIN using Vincario API  
+ * Generate SHA1 control sum for Vincario API authentication
+ * @param {string} vin - Vehicle Identification Number (uppercase)
+ * @param {string} apiKey - API key
+ * @param {string} secretKey - Secret key
+ * @param {string} operationId - Operation ID (e.g., 'decode')
+ * @returns {string} First 10 characters of SHA1 hash
+ */
+function generateControlSum(vin, apiKey, secretKey, operationId = 'decode') {
+    const vinUppercase = vin.toUpperCase();
+    const dataString = `${vinUppercase}|${operationId}|${apiKey}|${secretKey}`;
+    
+    const hash = crypto.createHash('sha1').update(dataString).digest('hex');
+    return hash.substring(0, 10);
+}
+
+/**
+ * Decode a VIN using Vincario API v3.2
  * @param {string} vin - 17-character Vehicle Identification Number
  * @returns {Promise<Object>} Decoded vehicle data
  */
 export async function decodeVIN(vin) {
     const apiKey = process.env.VINCARIO_API_KEY;
+    const secretKey = process.env.VINCARIO_SECRET_KEY;
 
-    if (!apiKey) {
+    if (!apiKey || !secretKey) {
         throw new VINDecodeError(
-            'VINCARIO_API_KEY is not configured',
-            'API_KEY_MISSING',
+            'Vincario API credentials are not configured. Please set VINCARIO_API_KEY and VINCARIO_SECRET_KEY',
+            'API_CREDENTIALS_MISSING',
             500
         );
     }
 
+    if (!vin || typeof vin !== 'string' || vin.length !== 17) {
+        throw new VINDecodeError(
+            'VIN must be a 17-character string',
+            'INVALID_VIN_FORMAT',
+            400
+        );
+    }
+
     try {
-        const response = await axios.get(`${VINCARIO_API_BASE}/vin/${vin}`, {
+        // Generate control sum for authentication
+        const controlSum = generateControlSum(vin, apiKey, secretKey, 'decode');
+        
+        // Build API URL with authentication parameters
+        const apiUrl = `${VINCARIO_API_BASE}/${apiKey}/${controlSum}/decode/${vin.toUpperCase()}.json`;
+        
+        console.log(`🔍 Vincario API: Decoding VIN ${vin}`);
+        console.log(`📍 API URL: ${VINCARIO_API_BASE}/${apiKey}/${controlSum}/decode/{VIN}.json`);
+
+        const response = await axios.get(apiUrl, {
+            timeout: 15000, // 15 second timeout
             headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json',
-                'User-Agent': 'MotoLens/1.0.0 (Garage Management Tool)',
+                'User-Agent': 'MotoLens/1.0.0 (Professional Vehicle Diagnostics Tool)',
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
             },
-            timeout: 15000, // 15 second timeout (European servers can be slower)
         });
 
+        if (!response.data) {
+            throw new VINDecodeError(
+                'Empty response from Vincario API',
+                'EMPTY_RESPONSE',
+                500
+            );
+        }
+
+        console.log(`✅ Vincario API: Successfully decoded VIN`);
         return response.data;
     } catch (error) {
-        // Handle specific API errors
+        console.log(`❌ Vincario API error: ${error.message}`);
+
+        // Handle specific HTTP error responses
         if (error.response) {
             const { status, data } = error.response;
-
+            
             if (status === 400) {
                 throw new VINDecodeError(
-                    data.message || 'Invalid VIN format',
+                    'Invalid VIN format or parameters for Vincario API',
                     'INVALID_VIN_FORMAT',
                     400
                 );
             }
-
+            
+            if (status === 401 || status === 403) {
+                throw new VINDecodeError(
+                    'Vincario API authentication failed - check your API key and secret key',
+                    'AUTH_FAILED',
+                    status
+                );
+            }
+            
             if (status === 404) {
                 throw new VINDecodeError(
                     'VIN not found in Vincario database',
@@ -63,15 +119,7 @@ export async function decodeVIN(vin) {
                     404
                 );
             }
-
-            if (status === 401 || status === 403) {
-                throw new VINDecodeError(
-                    'Vincario API authentication failed - check your API key',
-                    'AUTH_FAILED',
-                    status
-                );
-            }
-
+            
             if (status === 429) {
                 throw new VINDecodeError(
                     'Vincario API rate limit exceeded',
@@ -80,14 +128,22 @@ export async function decodeVIN(vin) {
                 );
             }
 
+            if (status === 402) {
+                throw new VINDecodeError(
+                    'Vincario API quota exceeded - please check your account balance',
+                    'QUOTA_EXCEEDED',
+                    402
+                );
+            }
+            
             throw new VINDecodeError(
-                data.message || `Vincario API returned status ${status}`,
+                data?.error || data?.message || `Vincario API returned status ${status}`,
                 'API_ERROR',
                 status
             );
         }
 
-        // Network errors
+        // Handle network/timeout errors
         if (error.code === 'ECONNABORTED') {
             throw new VINDecodeError(
                 'Vincario API request timed out',
@@ -119,61 +175,91 @@ export async function decodeVIN(vin) {
  * @returns {Object} Cleaned VehicleData object
  */
 export function parseVehicleData(vincarioResponse, originalVin = null) {
-    // Decide operation and balance format varies between Vincario API versions
-    const data = vincarioResponse.decode || vincarioResponse;
+    // Vincario v3.2 returns data as an array under 'decode' key
+    const decodeArray = vincarioResponse.decode || [];
+    
+    // Convert array format to object for easier access
+    const data = {};
+    decodeArray.forEach(item => {
+        if (item.label && item.value !== undefined) {
+            data[item.label] = item.value;
+        }
+    });
 
-    if (!data || typeof data !== 'object') {
+    // Check if the response indicates an error
+    if (vincarioResponse.error || vincarioResponse.Error) {
         throw new VINDecodeError(
-            'Invalid Vincario response structure',
-            'INVALID_RESPONSE',
-            500
+            vincarioResponse.error || vincarioResponse.Error || 'Vincario API returned an error',
+            'API_RESPONSE_ERROR',
+            400
         );
     }
 
-    // Use original VIN if provided, otherwise use API response
-    const vinToUse = originalVin || data.vin || data.VIN || '';
+    // Use original VIN if provided, otherwise extract from response
+    const vinToUse = originalVin || data['VIN'] || '';
+    
+    // Determine VIN validity
+    const vinValid = !vincarioResponse.error && data['VIN'] && data['VIN'].length === 17;
 
     return {
-        // Core identification - use original VIN to preserve it
+        // Core identification
         vin: vinToUse,
-        vinValid: data.valid !== false && data.error !== true, // Vincario uses different validity indicators
+        vinValid,
 
-        // Basic vehicle info
-        make: data.make || data.brand || 'Unknown',
-        model: data.model || null,
-        year: parseInt(data.year) || extractYearFromVIN(data.vin) || null,
-        trim: data.trim || data.variant || data.version || null,
+        // Basic vehicle information
+        make: data['Make'] || 'Unknown',
+        model: data['Model'] || null,
+        year: parseYear(data['Model Year']),
+        trim: data['Trim'] || data['Series'] || data['Version'] || null,
 
         // Technical specifications
         engine: buildEngineDescription(data),
-        bodyType: data.bodyType || data.category || data.type || null,
-        transmission: data.transmission || null,
-        drivetrain: data.drive || data.drivetrain || null,
+        bodyType: data['Body'] || data['Product Type'] || null,
+        transmission: data['Transmission'] || null,
+        drivetrain: data['Drive'] || null,
 
-        // Manufacturer info
-        manufacturer: data.manufacturer || data.make || data.brand || 'Unknown',
-        origin: data.country || determineOrigin(data.make || data.brand),
+        // Manufacturer information
+        manufacturer: data['Manufacturer'] || data['Make'] || 'Unknown',
+        origin: determineOrigin(data['Make']),
 
         // VIN metadata
-        wmi: data.wmi || data.vin?.substring(0, 3) || '',
-        checksum: data.checksum !== false && !data.checksumError,
+        wmi: data['VIN']?.substring(0, 3) || vinToUse.substring(0, 3) || '',
+        checksum: data['Check Digit'] ? true : null,
 
-        // Additional details
-        style: data.style || data.series || null,
-        doors: parseInt(data.doors) || null,
-        seats: parseInt(data.seats) || null,
-        fuelType: data.fuel || data.fuelType || null,
-        displacement: parseFloat(data.displacement) || parseFloat(data.engineSize) || null,
-        cylinders: parseInt(data.cylinders) || null,
-        horsepower: data.power || data.horsepower || null,
-        torque: data.torque || null,
+        // Additional vehicle details
+        style: data['Series'] || data['Variant'] || null,
+        doors: parseInteger(data['Number of Doors']),
+        seats: parseInteger(data['Number of Seats']),
+        fuelType: data['Fuel Type - Primary'] || null,
+        displacement: parseFloat(data['Engine Displacement (ccm)']) || null,
+        cylinders: parseInteger(data['Engine Cylinders']),
+        horsepower: parseFloat(data['Engine Power (HP)']),
+        torque: parseFloat(data['Engine Torque (Nm)']),
+
+        // Physical specifications
+        length: parseInteger(data['Length (mm)']),
+        width: parseInteger(data['Width (mm)']),
+        height: parseInteger(data['Height (mm)']),
+        wheelbase: parseInteger(data['Wheelbase (mm)']),
+        weight: parseInteger(data['Weight Empty (kg)']),
+
+        // Additional Vincario-specific data
+        plantCity: data['Plant City'] || null,
+        plantCountry: data['Plant Country'] || null,
+        productionStarted: parseInteger(data['Production Started']),
+        productionStopped: parseInteger(data['Production Stopped']),
+        maxSpeed: parseInteger(data['Max Speed (km/h)']),
+        maxWeight: parseInteger(data['Max Weight (kg)']),
+        co2Emission: parseFloat(data['Average CO2 Emission (g/km)']),
+        wheelSize: data['Wheel Size'] || null,
+        airConditioning: data['Air Conditioning'] || null,
 
         // Vincario-specific data
         marketPrice: data.price || null,
         euroNCAP: data.euroNCAP || null,
 
         // Source attribution
-        _source: 'vincario',
+        _source: 'vincario-v3.2',
 
         // Raw data for debugging (only in development)
         _raw: process.env.NODE_ENV === 'development' ? vincarioResponse : undefined,
@@ -181,29 +267,47 @@ export function parseVehicleData(vincarioResponse, originalVin = null) {
 }
 
 /**
- * Build engine description from Vincario data
- * @param {Object} data - Parsed Vincario data
+ * Build comprehensive engine description from Vincario data
+ * @param {Object} data - Vincario response data
  * @returns {string|null} Engine description
  */
 function buildEngineDescription(data) {
     const components = [];
 
-    if (data.displacement || data.engineSize) {
-        const displacement = parseFloat(data.displacement || data.engineSize);
-        if (displacement > 50) {
-            // Convert CC to liters
+    // Engine displacement
+    const displacement = parseFloat(data['Engine Displacement (ccm)']) || parseFloat(data['Engine Displacement']);
+    if (displacement > 0) {
+        if (displacement >= 1000) {
             components.push(`${(displacement / 1000).toFixed(1)}L`);
-        } else if (displacement > 0) {
-            components.push(`${displacement}L`);
+        } else {
+            components.push(`${displacement}cc`);
         }
     }
 
-    if (data.fuelType || data.fuel) {
-        const fuel = (data.fuelType || data.fuel).toLowerCase();
+    // Engine type
+    if (data['Engine Type']) {
+        components.push(data['Engine Type']);
+    }
+
+    // Cylinder count
+    const cylinders = parseInteger(data['Engine Cylinders']);
+    if (cylinders > 0) {
+        components.push(`${cylinders}-cylinder`);
+    }
+
+    // Cylinder configuration
+    if (data['Engine Cylinders Position']) {
+        components.push(data['Engine Cylinders Position'].toLowerCase());
+    }
+
+    // Fuel type
+    const fuelType = data['Fuel Type - Primary'] || data['Fuel Type'];
+    if (fuelType) {
+        const fuel = fuelType.toLowerCase();
         if (fuel.includes('diesel')) {
             components.push('diesel');
-        } else if (fuel.includes('petrol') || fuel.includes('gasoline')) {
-            components.push('petrol');
+        } else if (fuel.includes('gasoline') || fuel.includes('petrol')) {
+            components.push('gasoline');
         } else if (fuel.includes('electric')) {
             components.push('electric');
         } else if (fuel.includes('hybrid')) {
@@ -211,12 +315,15 @@ function buildEngineDescription(data) {
         }
     }
 
-    if (data.cylinders) {
-        components.push(`${data.cylinders}-cylinder`);
+    // Turbocharged
+    if (data['Engine Turbine'] && data['Engine Turbine'].toLowerCase().includes('turbo')) {
+        components.push('turbo');
     }
 
-    if (data.turbo === true || (typeof data.turbo === 'string' && data.turbo.toLowerCase() === 'yes')) {
-        components.push('turbo');
+    // Power rating
+    const power = parseFloat(data['Engine Power (HP)']);
+    if (power > 0) {
+        components.push(`${Math.round(power)}hp`);
     }
 
     return components.length > 0 ? components.join(' ') : null;
@@ -266,6 +373,35 @@ function determineOrigin(make) {
     }
 
     return 'Unknown';
+}
+
+/**
+ * Safely parse year from various formats
+ * @param {any} yearValue - Year value from API
+ * @returns {number|null} Parsed year
+ */
+function parseYear(yearValue) {
+    if (!yearValue) return null;
+    
+    // Handle date strings (e.g., "2008-01-21")
+    if (typeof yearValue === 'string' && yearValue.includes('-')) {
+        const year = parseInt(yearValue.split('-')[0]);
+        return (year >= 1900 && year <= 2030) ? year : null;
+    }
+    
+    const year = parseInt(yearValue);
+    return (year >= 1900 && year <= 2030) ? year : null;
+}
+
+/**
+ * Safely parse integer values
+ * @param {any} value - Value to parse
+ * @returns {number|null} Parsed integer or null
+ */
+function parseInteger(value) {
+    if (!value) return null;
+    const parsed = parseInt(value);
+    return isNaN(parsed) ? null : parsed;
 }
 
 /**
