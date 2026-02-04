@@ -30,7 +30,7 @@ const VINCARIO_API_BASE = 'https://api.vincario.com/3.2';
 function generateControlSum(vin, apiKey, secretKey, operationId = 'decode') {
     const vinUppercase = vin.toUpperCase();
     const dataString = `${vinUppercase}|${operationId}|${apiKey}|${secretKey}`;
-    
+
     const hash = crypto.createHash('sha1').update(dataString).digest('hex');
     return hash.substring(0, 10);
 }
@@ -63,10 +63,10 @@ export async function decodeVIN(vin) {
     try {
         // Generate control sum for authentication
         const controlSum = generateControlSum(vin, apiKey, secretKey, 'decode');
-        
+
         // Build API URL with authentication parameters
         const apiUrl = `${VINCARIO_API_BASE}/${apiKey}/${controlSum}/decode/${vin.toUpperCase()}.json`;
-        
+
         console.log(`🔍 Vincario API: Decoding VIN ${vin}`);
         console.log(`📍 API URL: ${VINCARIO_API_BASE}/${apiKey}/${controlSum}/decode/{VIN}.json`);
 
@@ -95,7 +95,7 @@ export async function decodeVIN(vin) {
         // Handle specific HTTP error responses
         if (error.response) {
             const { status, data } = error.response;
-            
+
             if (status === 400) {
                 throw new VINDecodeError(
                     'Invalid VIN format or parameters for Vincario API',
@@ -103,7 +103,7 @@ export async function decodeVIN(vin) {
                     400
                 );
             }
-            
+
             if (status === 401 || status === 403) {
                 throw new VINDecodeError(
                     'Vincario API authentication failed - check your API key and secret key',
@@ -111,7 +111,7 @@ export async function decodeVIN(vin) {
                     status
                 );
             }
-            
+
             if (status === 404) {
                 throw new VINDecodeError(
                     'VIN not found in Vincario database',
@@ -119,7 +119,7 @@ export async function decodeVIN(vin) {
                     404
                 );
             }
-            
+
             if (status === 429) {
                 throw new VINDecodeError(
                     'Vincario API rate limit exceeded',
@@ -135,7 +135,7 @@ export async function decodeVIN(vin) {
                     402
                 );
             }
-            
+
             throw new VINDecodeError(
                 data?.error || data?.message || `Vincario API returned status ${status}`,
                 'API_ERROR',
@@ -177,7 +177,7 @@ export async function decodeVIN(vin) {
 export function parseVehicleData(vincarioResponse, originalVin = null) {
     // Vincario v3.2 returns data as an array under 'decode' key
     const decodeArray = vincarioResponse.decode || [];
-    
+
     // Convert array format to object for easier access
     const data = {};
     decodeArray.forEach(item => {
@@ -197,7 +197,7 @@ export function parseVehicleData(vincarioResponse, originalVin = null) {
 
     // Use original VIN if provided, otherwise extract from response
     const vinToUse = originalVin || data['VIN'] || '';
-    
+
     // Determine VIN validity
     const vinValid = !vincarioResponse.error && data['VIN'] && data['VIN'].length === 17;
 
@@ -382,13 +382,13 @@ function determineOrigin(make) {
  */
 function parseYear(yearValue) {
     if (!yearValue) return null;
-    
+
     // Handle date strings (e.g., "2008-01-21")
     if (typeof yearValue === 'string' && yearValue.includes('-')) {
         const year = parseInt(yearValue.split('-')[0]);
         return (year >= 1900 && year <= 2030) ? year : null;
     }
-    
+
     const year = parseInt(yearValue);
     return (year >= 1900 && year <= 2030) ? year : null;
 }
