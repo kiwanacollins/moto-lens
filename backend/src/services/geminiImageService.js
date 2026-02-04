@@ -54,11 +54,16 @@ export async function generateVehicleImages(vehicleData) {
     const cacheKey = `${year}_${make}_${model}_${trim || 'standard'}`.toLowerCase().replace(/\s+/g, '_');
 
     // Check cache first
+    // TEMPORARILY DISABLED: Force fresh image generation
+    const cached = null; // imageCache.get(cacheKey);
+
+    /* Original cache logic (re-enable later)
     const cached = imageCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
         console.log(`Cache hit for ${cacheKey}`);
         return cached.data;
     }
+    */
 
     try {
         console.log(`Generating images for: ${year} ${make} ${model} ${trim || ''}`);

@@ -177,6 +177,10 @@ class VehicleEnrichmentService {
      * @returns {Object|null} - Cached data or null
      */
     getCachedEnrichment(cacheKey) {
+        // TEMPORARILY DISABLED: Force fresh enrichment calls
+        return null;
+        
+        /* Original cache logic (re-enable later)
         const cached = this.enrichmentCache.get(cacheKey);
         if (!cached) return null;
 
@@ -187,6 +191,7 @@ class VehicleEnrichmentService {
         }
 
         return cached.data;
+        */
     }
 
     /**

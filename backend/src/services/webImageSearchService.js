@@ -26,11 +26,16 @@ export async function searchVehicleImages(vehicleData) {
     const cacheKey = `vehicle_${year}_${make}_${model}`.toLowerCase().replace(/\s+/g, '_');
 
     // Check cache first (instant response if cached)
+    // TEMPORARILY DISABLED: Force fresh image searches
+    const cached = null; // searchCache.get(cacheKey);
+    
+    /* Original cache logic (re-enable later)
     const cached = searchCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
         console.log(`⚡ Cache hit: ${cacheKey}`);
         return cached.data;
     }
+    */
 
     const serpApiKey = process.env.SERPAPI_KEY;
 
