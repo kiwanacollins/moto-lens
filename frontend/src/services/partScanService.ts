@@ -15,7 +15,6 @@ export interface VehicleContext {
   make?: string;
   model?: string;
   year?: number;
-  engine?: string;
   mileage?: number;
 }
 

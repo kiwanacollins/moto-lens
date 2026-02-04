@@ -62,7 +62,6 @@ export const PartScannerPage = () => {
                     make: vehicle.make,
                     model: vehicle.model,
                     year: vehicle.year,
-                    engine: vehicle.engine,
                 });
             } catch (err) {
                 console.warn('Failed to parse saved vehicle:', err);

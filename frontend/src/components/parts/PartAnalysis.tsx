@@ -273,7 +273,6 @@ export const PartAnalysis: React.FC<PartAnalysisProps> = ({
                 <Text size="sm" c="dark.7" ff="JetBrains Mono" fw={500}>
                   Vehicle Context: {vehicleContext.year} {vehicleContext.make}{' '}
                   {vehicleContext.model}
-                  {vehicleContext.engine && ` • ${vehicleContext.engine}`}
                 </Text>
                 <Text size="xs" c="dark.6" ff="Inter" style={{ fontStyle: 'italic' }}>
                   Note: Analysis is based purely on the image, not influenced by vehicle context
