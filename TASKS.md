@@ -1054,42 +1054,36 @@ The MVP is complete when:
 
 > ✅ **Complete**: Full JWT authentication system with token management, RBAC, session validation, and security logging
 
-### 14.3 Password Security & Validation
-- [ ] Create `backend/src/utils/password.js`:
-  ```javascript
-  const bcrypt = require('bcryptjs');
-  
-  class PasswordUtil {
-    static async hash(password) {
-      const saltRounds = 12;
-      return await bcrypt.hash(password, saltRounds);
-    }
-    
-    static async verify(password, hash) {
-      return await bcrypt.compare(password, hash);
-    }
-    
-    static validateStrength(password) {
-      const requirements = {
-        minLength: password.length >= 8,
-        hasUppercase: /[A-Z]/.test(password),
-        hasLowercase: /[a-z]/.test(password),
-        hasNumbers: /\d/.test(password),
-        hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-      };
-      
-      const score = Object.values(requirements).filter(Boolean).length;
-      return { requirements, score, isValid: score >= 4 };
-    }
-    
-    static generateSecureToken() {
-      return crypto.randomBytes(32).toString('hex');
-    }
-  }
-  ```
-- [ ] Add password history checking (prevent reuse of last 5)
-- [ ] Implement account lockout after failed attempts
-- [ ] Add password expiry warnings (optional)
+### 14.3 Password Security & Validation ✅ **COMPLETED**
+- [x] Create `backend/src/utils/password.js`:
+  - [x] `hash(password)` - bcrypt password hashing with 12 rounds
+  - [x] `verify(password, hash)` - Password verification
+  - [x] `validateStrength(password)` - Comprehensive strength validation
+    * Configurable requirements (min length, uppercase, lowercase, numbers, special chars)
+    * 8-point scoring system
+    * Strength levels: weak, medium, strong
+    * Detailed feedback messages
+    * Common password detection
+  - [x] `generateSecureToken(length)` - Cryptographically secure tokens (32 bytes)
+  - [x] `hashToken(token)` - SHA256 token hashing for storage
+  - [x] `isCommonPassword(password)` - Check against common passwords list
+- [x] Add password history checking (prevent reuse of last 5):
+  - [x] `isPasswordInHistory(userId, newPassword, historyLimit)` - Check password reuse
+  - [x] `updatePasswordWithHistory(userId, newPassword)` - Update with history tracking
+  - [x] Added `passwordHistory` field to User model (array of last 5 hashes)
+  - [x] Added `passwordChangedAt` timestamp tracking
+- [x] Implement account lockout after failed attempts:
+  - [x] `checkAccountLockout(userId)` - Check lockout status
+  - [x] `recordFailedLogin(userId)` - Track failed attempts and lock account
+  - [x] `resetFailedLoginAttempts(userId)` - Reset on successful login
+  - [x] Added `failedLoginAttempts` field to User model
+  - [x] Added `accountLockedUntil` field to User model
+  - [x] Default: 5 failed attempts = 30 minute lockout
+  - [x] Security event logging for failed logins and lockouts
+- [x] Database migration: Added password security fields to User model
+- [x] Placeholder methods for future 2FA/TOTP implementation
+
+> ✅ **Complete**: Full password security system with bcrypt hashing, strength validation, password history, account lockout, and secure token generation
 
 ### 14.4 Email Service Integration
 - [ ] Set up email service (SendGrid or Nodemailer):

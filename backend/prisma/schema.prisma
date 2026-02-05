@@ -21,6 +21,11 @@ model User {
   // Password authentication
   passwordHash String
   passwordChangedAt DateTime?
+  passwordHistory String[] @default([]) // Store last 5 password hashes
+
+  // Account security
+  failedLoginAttempts Int @default(0)
+  accountLockedUntil DateTime?
 
   // Personal information
   firstName String
