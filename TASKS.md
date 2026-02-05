@@ -11,8 +11,6 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
 **Timeline:** MVP in 4-6 weeks  
 **Target Users:** 1-2 daily users (mechanics)
 
-**Note:** PWA (React web app) development is **DEPRIORITIZED**. Focus is exclusively on Flutter mobile app with production backend.
-
 ---
 
 ## 🚀 **PRIORITY: FLUTTER MOBILE APP DEVELOPMENT**
@@ -25,132 +23,9 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
 - ⏳ Phase 16: Flutter Mobile Vehicle Features (VIN, Parts, 360° Viewer)
 - ⏳ Phase 17: Integration Testing & Deployment
 
-**Deprioritized (React PWA):**
-- Phase 1-2: PWA Setup & Basic Auth → **SKIP** (Focus on mobile)
-- Phase 4-8: PWA Frontend Features → **SKIP** (Focus on mobile)
-- Phase 16 (PWA Migration section) → **SKIP** (Focus on mobile)
-
 ---
 
 ## 🎯 Phase 3: Backend API Setup (SHARED - Required for Mobile)
-
-### 1.1 Initialize Project Structure
-- [x] Create Vite + React + TypeScript project
-- [x] Configure Mantine UI
-  - [x] Install @mantine/core, @mantine/hooks
-  - [x] Set up custom theme with brand colors:
-    - [x] Carbon Black (primary background)
-    - [x] Gunmetal Gray (secondary elements)
-    - [x] Electric Blue (accents/CTAs)
-  - [x] Configure mobile-first responsive breakpoints
-- [x] Install custom fonts
-  - [x] Inter (primary font) - Google Fonts or local
-  - [x] JetBrains Mono (VINs/technical data) - Google Fonts or local
-- [x] Install and configure vite-plugin-pwa
-  - [x] Set up manifest.json
-  - [x] Configure service worker for shell caching
-  - [x] Add app icons (512x512, 192x192)
-- [x] Set up project folder structure:
-  ```
-  src/
-  ├── components/
-  │   ├── auth/
-  │   ├── vehicle/
-  │   └── parts/
-  ├── pages/
-  │   ├── LoginPage.tsx
-  │   ├── VinInputPage.tsx
-  │   └── VehicleViewPage.tsx
-  ├── services/
-  ├── hooks/
-  ├── types/
-  ├── utils/
-  ├── contexts/
-  │   └── AuthContext.tsx
-  └── styles/
-      └── theme.ts
-  ```
-
-### 1.2 Environment Configuration
-- [x] Create `.env` file structure
-- [x] Set up environment variables:
-  - [x] `VITE_API_BASE_URL`
-  - [x] `VITE_AUTODEV_API_KEY`
-  - [x] `VITE_GEMINI_API_KEY`
-- [x] Add `.env.example` template
-- [x] Update `.gitignore` for secrets
-
-### 1.3 Development Tools
-- [x] Configure ESLint for React + TypeScript
-- [x] Set up Prettier
-- [x] Add basic npm scripts (dev, build, preview)
-- [x] Test PWA installability in Chrome DevTools
-
-### 1.4 Design System Implementation
-- [x] Create theme configuration file (`src/styles/theme.ts`)
-- [x] Define color palette:
-  ```typescript
-  colors: {
-    electricBlue: '#0ea5e9',  // sky-500 - Primary
-    carbonBlack: '#0a0a0a',   // zinc-900 - Main text
-    gunmetalGray: '#52525b',  // zinc-600 - Secondary text
-    // + full zinc scale + semantic colors
-  }
-  ```
-- [x] Configure Mantine theme with brand colors
-- [x] Set up font loading (Inter + JetBrains Mono)
-- [x] Create reusable style constants
-- [x] Test colors in different lighting conditions
-
-**Estimated Time:** 3-4 hours
-
----
-
-## 🎯 Phase 2: Authentication & Routing
-
-### 2.1 Dummy Authentication System
-- [x] Create `AuthContext.tsx` with React Context
-- [x] Implement dummy auth logic:
-  - [x] Hardcoded credentials (admin/admin)
-  - [x] Login function
-  - [x] Logout function
-  - [x] isAuthenticated state
-- [x] Store auth state in localStorage
-- [x] Create `useAuth` custom hook
-
-### 2.2 Login Page
-- [x] Create `LoginPage.tsx` component
-- [x] Design mobile-first login form:
-  - [x] Username input (Mantine TextInput)
-  - [x] Password input (Mantine PasswordInput)
-  - [x] Login button (Electric Blue, large tap target)
-  - [x] Error message display
-- [x] Apply brand styling:
-  - [x] Carbon Black background
-  - [x] Gunmetal Gray input fields
-  - [x] Electric Blue accents
-  - [x] Inter font for labels
-  - [x] JetBrains Mono for input (optional)
-- [x] Implement validation
-- [x] Add smooth transitions
-- [x] Test on mobile devices
-
-### 2.3 Protected Routes
-- [x] Install react-router-dom
-- [x] Set up routing structure:
-  - [x] `/login` - LoginPage
-  - [x] `/` - VinInputPage (protected)
-  - [x] `/vehicle/:vin` - VehicleViewPage (protected)
-- [x] Create `ProtectedRoute` component
-- [x] Implement route guards
-- [x] Redirect to login if not authenticated
-- [x] Redirect to home if already authenticated
-
-**Estimated Time:** 2-3 hours
-
----
-
-## 🎯 Phase 3: Backend API Setup
 
 ### 2.1 Node.js Backend Initialization
 - [x] Create `/backend` directory
@@ -212,525 +87,6 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
 
 ---
 
-## 🎯 Phase 4: Frontend - VIN Input & Vehicle Display
-
-### 4.1 VIN Input Page
-- [x] Create `VinInputPage` component
-- [x] Design mobile-first layout with brand styling:
-  - [x] Light mode background (zinc-50)
-  - [x] White card container
-  - [x] Electric Blue accents
-- [x] Add Mantine TextInput for VIN
-  - [x] Style with JetBrains Mono font
-  - [x] 17-character validation
-  - [x] Uppercase transformation
-  - [x] Clear visual feedback
-- [x] Add submit button (Electric Blue, large, glove-friendly)
-- [x] Implement loading state with brand colors
-- [x] Handle API errors gracefully
-- [x] Add sample VIN button for testing
-- [x] Add logout button in header
-
-### 4.2 Vehicle Service Layer
-- [x] Create `vehicleService.ts`
-- [x] Implement `decodeVIN(vin: string)` function
-- [x] Implement `getVehicleImages(vehicleData)` function
-- [x] Implement `getVehicleSummary(vehicleData)` function
-- [x] Add TypeScript interfaces for all responses
-- [x] Add error handling and retries
-
-### 4.3 Vehicle Display Page
-- [x] Create `VehicleViewPage` component
-- [x] Display vehicle metadata with brand styling:
-  - [x] Make, Model, Year (Inter font, large)
-  - [x] Engine, Body Type (Inter font, medium)
-  - [x] Trim (if available)
-  - [x] VIN display (JetBrains Mono, Electric Blue)
-- [x] Add AI-generated vehicle summary (5 bullets)
-- [x] Style with brand colors:
-  - [x] Carbon Black background
-  - [x] Gunmetal Gray cards
-  - [x] Electric Blue highlights
-- [x] Add back button to re-enter VIN
-- [x] Add logout option
-- [x] Implement smooth page transitions
-
-**Estimated Time:** 3-4 hours
-
----
-
-## 🎯 Phase 5: 360° Car Viewer Implementation
-
-### 4.1 Install and Configure react-360-view
-- [x] Install `react-360-view` package
-- [x] Test with sample images
-- [x] Configure for mobile touch/swipe
-- [x] Set up drag sensitivity
-- [x] Add loading spinner while images load
-
-### 4.2 Integrate Web Image Search (UPDATED - No More AI Generation)
-- [x] Load 8 angle images from backend
-- [x] Display in 360° viewer
-- [x] Add image preloading
-- [x] Replace Gemini with SerpApi/Bing web image search
-- [x] Implement WebImageSearchService class
-- [ ] Add Google Custom Search Engine as backup
-- [x] Create parts image search endpoint
-- [x] Test with German vehicles (BMW, Audi, VW, Mercedes, Porsche)
-- [x] Update frontend to handle web search results
-- [x] Remove AI generation code completely
-
-### 4.3 Viewer UI Polish
-- [x] Add rotation instructions (swipe hint) - Electric Blue text
-- [x] Remove angle indicator text (front, rear, left, etc.)
-- [x] Smooth loading transitions with brand styling
-- [x] Test performance on mid-range phones
-- [ ] Add pinch-to-zoom (optional)
-
-**Estimated Time:** 3-4 hours
-
----
-
-## 🎯 Phase 6: Parts Interaction System
-
-### 5.1 SVG Hotspot System (Diagram-Style Arrows)
-- [x] Research SVG overlay technique
-- [x] Create `PartsOverlay` component with professional diagram styling
-- [x] Define hotspot data structure:
-  ```typescript
-  interface Hotspot {
-    id: string;
-    partName: string;
-    angle: string;
-    coordinates: { x: number; y: number };
-    radius: number;
-  }
-  ```
-- [x] Implement diagram-style hotspot rendering:
-  - [x] Red dots marking part locations on vehicle
-  - [x] Red connecting lines from parts to labels
-  - [x] White label boxes positioned outside vehicle boundary
-  - [x] Smart label positioning (left/right based on part location)
-  - [x] Toggle button to show/hide entire overlay
-- [x] Add tap/click detection on dots and labels
-- [x] Visual feedback: Electric Blue highlights, pulse animations
-- [x] Persistent state across angle changes (no reset on rotation)
-- [x] Mobile-optimized: 44px+ tap targets, glove-friendly
-- [x] Professional styling: No AI slop patterns, clean diagram aesthetic
-
-### 5.2 Part Detail Modal (Arrow System Integration)
-- [x] Create `PartDetailModal` component matching arrow aesthetic
-- [x] Style with brand colors and diagram consistency:
-  - [x] Carbon Black background with white content area
-  - [x] Electric Blue header matching hotspot accent color
-  - [x] Inter font for descriptions, JetBrains Mono for part numbers
-  - [x] Red accent line connecting to clicked part (visual continuity)
-  - [x] Clean, technical diagram styling (not generic modal)
-- [x] Fetch part info from backend `/api/parts/identify` endpoint
-- [x] Display with professional mechanic focus:
-  - [x] Part name (large, clear heading)
-  - [x] Function description (technical but accessible)
-  - [x] Common failure symptoms (practical mechanic insights)
-  - [x] Related spare parts with part numbers (max 5)
-  - [x] Visual part location reference (angle + coordinates)
-- [x] Professional interactions:
-  - [x] Large close button with Electric Blue styling
-  - [x] Smooth slide-up animations (mobile-first)
-  - [x] One-hand operation optimized for garage use
-  - [x] Tap outside to close, swipe down gesture support
-
-### 5.3 Hotspot Data & Spare Parts Integration
-- [x] Create comprehensive JSON file with 29 common parts:
-  - [x] Engine components: Hood, radiator grille, headlights
-  - [x] Body panels: Bumpers, fenders, doors, quarter panels
-  - [x] Wheels & suspension: Tires, wheels, rocker panels
-  - [x] Electrical: Tail lights, mirrors, windows
-  - [x] Mapped across 8 viewing angles (front, rear, left, right, etc.)
-- [x] Expand part data for spare parts workflow:
-  - [x] Add OEM part numbers to hotspots.json
-  - [x] Include common aftermarket alternatives
-  - [x] Add failure frequency data for priority ranking
-  - [x] Link to supplier catalogs (BMW, Audi, Mercedes, VW, Porsche)
-- [x] Create spare parts display components using arrow aesthetic:
-  - [x] `SparePartsList` with red dot indicators
-  - [x] `PartAvailability` status with connecting lines
-  - [x] `PriceComparison` maintaining diagram styling
-  - [x] `InstallationGuide` with step-by-step arrows
-- [x] Test tap accuracy on mobile
-
-**Estimated Time:** 4-5 hours
-
----
-
-## 🎯 Phase 7: Spare Parts Components (Arrow/Diagram Aesthetic)
-
-### 6.1 Spare Parts List Display
-- [x] Create `SparePartsList` component with arrow styling
-- [x] Design consistent with vehicle hotspot system:
-  - [x] Red dots for part indicators
-  - [x] Connecting lines to part information
-  - [x] White/light backgrounds for readability
-  - [x] Electric Blue accents for actions
-  - [x] Professional technical diagram appearance
-- [x] Display spare parts with mechanic-focused data:
-  - [x] OEM part numbers (JetBrains Mono)
-  - [x] Aftermarket alternatives with quality ratings
-  - [x] Price comparison (OEM vs aftermarket)
-  - [x] Availability status (in stock, 2-day delivery, etc.)
-  - [x] Installation difficulty (easy, moderate, expert)
-- [x] Integrate with existing hotspot data
-- [x] Filter by vehicle system (engine, electrical, body, etc.)
-
-### 6.2 Part Detail Pages with Arrow Continuity
-- [x] Create detailed part pages maintaining visual consistency (via PartDetailModal + components)
-- [x] Visual connection to vehicle hotspot system:
-  - [x] Show part location on mini vehicle diagram (in PartDetailModal)
-  - [x] Use same red dot + connecting line aesthetic
-  - [x] Breadcrumb navigation with arrow indicators (integrated in components)
-- [x] Comprehensive part information:
-  - [x] Technical specifications (in PartDetailModal)
-  - [x] Compatible vehicle years/models (via enhanced hotspot data)
-  - [x] Installation guides with step arrows (InstallationGuide component)
-  - [x] Common failure modes (in hotspot failure frequency data)
-  - [x] Maintenance intervals (via avgLifespanYears in data)
-- [x] Shopping integration:
-  - [x] Multiple supplier pricing (PriceComparison component)
-  - [x] Quality ratings and reviews (in aftermarket alternatives)
-  - [x] Shipping options and times (PartAvailability component)
-  - [x] Return policies (integrated in supplier data)
-
-### 6.3 Visual Consistency System
-- [x] Create design tokens for arrow/diagram components:
-  - [x] Red dot specifications (#ef4444, sizes, shadows)
-  - [x] Connecting line styles (width, color, animations)
-  - [x] Label box styling (padding, borders, backgrounds)
-  - [x] Electric Blue interaction states
-- [x] Standardize animation patterns:
-  - [x] Pulse animations for active elements
-  - [x] Smooth line drawing animations (via Mantine transitions)
-  - [x] Hover/tap feedback consistency
-- [x] Mobile optimization for garage use:
-  - [x] High contrast for bright environments
-  - [x] Large tap targets (44px+) throughout
-  - [x] One-handed navigation patterns
-  - [x] Glove-friendly interface elements
-
-**Estimated Time:** 3-4 hours
-
----
-
-## 🎯 Phase 8: PWA Features & Polish
-
-### 7.1 PWA Manifest & Icons
-- [ ] Create app icons (512x512, 192x192, maskable) with brand colors
-  - [ ] Carbon Black background
-  - [ ] Electric Blue logo/accent
-- [ ] Configure `manifest.json`:
-  - [ ] App name: "MOTO LENS"
-  - [ ] Short name: "MotoLens"
-  - [ ] Theme color: Electric Blue (#00D9FF)
-  - [ ] Background color: Carbon Black
-  - [ ] Display: "standalone"
-  - [ ] Orientation: "portrait"
-- [ ] Test install prompt on Android/iOS
-
-### 7.2 Service Worker Configuration
-- [ ] Configure workbox via vite-plugin-pwa
-- [ ] Cache app shell (HTML, CSS, JS)
-- [ ] Add offline fallback page
-- [ ] Test offline behavior
-- [ ] Add update notification when new version available
-
-### 7.3 Mobile Optimizations
-- [ ] Test on real devices (Android + iOS)
-- [ ] Ensure tap targets are ≥44px
-- [ ] Test with gloves (if possible)
-- [ ] Optimize for slow 3G connections
-- [ ] Add loading skeletons for better perceived performance
-- [ ] Test in bright sunlight (contrast check)
-
-### 7.4 Brand Consistency Check
-- [ ] Review all pages for consistent color usage
-- [ ] Verify Inter font is used for all UI text
-- [ ] Verify JetBrains Mono for VINs and technical data
-- [ ] Check Electric Blue accents are prominent but not overwhelming
-- [ ] Test contrast ratios for accessibility
-- [ ] Ensure Carbon Black/Gunmetal Gray backgrounds throughout
-
-**Estimated Time:** 3-4 hours
-
----
-
-## 🎯 Phase 9: Testing & Refinement
-
-### 8.1 Functionality Testing
-- [ ] Test full login → VIN → parts flow
-- [ ] Test dummy authentication (admin/admin)
-- [ ] Test logout functionality
-- [ ] Test with multiple German vehicle VINs:
-  - [ ] BMW (e.g., WBA series)
-  - [ ] Audi (e.g., WAU series)
-  - [ ] Mercedes-Benz (e.g., WDD series)
-  - [ ] Volkswagen (e.g., WVW series)
-  - [ ] Porsche (e.g., WP0 series)
-- [ ] Test error handling (invalid VIN, API failures, wrong login)
-- [ ] Test offline behavior
-- [ ] Test PWA install and launch
-
-### 8.2 Performance Testing
-- [ ] Measure page load times
-- [ ] Check image loading performance
-- [ ] Test on 3G connection
-- [ ] Optimize bundle size if needed
-- [ ] Run Lighthouse audit (PWA, Performance, Accessibility)
-
-### 8.3 UX Testing
-- [ ] Test one-handed usage
-- [ ] Verify tap target sizes (≥44px)
-- [ ] Check text readability with brand colors
-- [ ] Test brand color visibility in different lighting
-- [ ] Verify Electric Blue accents are visible in sunlight
-- [ ] Test login flow smoothness
-- [ ] Test with actual mechanic if possible
-- [ ] Gather feedback and iterate
-
-### 8.4 Bug Fixes & Polish
-- [ ] Fix any identified bugs
-- [ ] Smooth out animations
-- [ ] Add loading states where missing
-- [ ] Improve error messages
-- [ ] Final design polish
-
-**Estimated Time:** 3-4 hours
-
----
-
-## 🎯 Phase 10: Deployment
-
-### 9.1 Backend Deployment
-- [ ] Choose hosting platform:
-  - Option A: Vercel Serverless Functions (recommended for budget)
-  - Option B: Railway
-  - Option C: Render free tier
-- [ ] Set up environment variables in hosting platform
-- [ ] Deploy backend
-- [ ] Test deployed endpoints
-- [ ] Set up domain/subdomain if needed
-
-### 9.2 Frontend Deployment
-- [ ] Build production bundle (`npm run build`)
-- [ ] Test production build locally
-- [ ] Deploy to:
-  - Option A: Vercel (recommended)
-  - Option B: Netlify
-  - Option C: Cloudflare Pages
-- [ ] Configure custom domain (optional)
-- [ ] Test PWA install from live URL
-- [ ] Verify HTTPS is working
-
-### 9.3 API Keys & Monitoring
-- [ ] Verify all API keys are working in production
-- [ ] Set up basic usage monitoring:
-  - [ ] VINLink API usage
-  - [ ] Gemini API usage
-- [ ] Set up budget alerts if platform supports it
-- [ ] Document API costs per request
-
-### 9.4 Documentation
-- [ ] Update README.md with:
-  - [ ] Project description
-  - [ ] Setup instructions
-  - [ ] Environment variables needed
-  - [ ] Deployment steps
-- [ ] Create user guide (optional)
-- [ ] Document API endpoints (for future reference)
-
-**Estimated Time:** 2-3 hours
-
----
-
-## 🎯 Phase 11: Post-Launch (Optional)
-
-### 10.1 Monitoring & Feedback
-- [ ] Monitor API costs daily
-- [ ] Gather user feedback
-- [ ] Track any errors/crashes
-- [ ] Monitor performance metrics
-
-### 10.2 Quick Wins
-- [ ] Add VIN history (localStorage)
-- [ ] Cache previously decoded VINs
-- [ ] Add more hotspot parts
-- [ ] Improve AI prompts based on output quality
-
----
-
-## 📊 Time Estimate Summary
-
-| Phase | Task | Estimated Time |
-|-------|------|----------------|
-| 1 | Project Setup & Design System | 3-4 hours |
-| 2 | Authentication & Routing | 2-3 hours |
-| 3 | Backend API | 4-6 hours |
-| 4 | VIN Input & Display | 3-4 hours |
-| 5 | 360° Viewer | 3-4 hours |
-| 6 | Parts Interaction (Arrow System) | 4-5 hours |
-| 7 | Spare Parts Components (Arrow Aesthetic) | 3-4 hours |
-| 8 | PWA Features | 3-4 hours |
-| 9 | Testing | 3-4 hours |
-| 10 | Deployment | 2-3 hours |
-| **Total** | | **30-41 hours** |
-
-**Realistic Timeline:** 4-5 working days for a focused developer
-
----
-
-## 🚨 Critical Path Items
-
-These must work for MVP to be viable:
-
-1. ✅ Dummy login (admin/admin) works and persists session
-2. ✅ Brand design system (Carbon Black, Gunmetal Gray, Electric Blue) consistently applied
-3. ✅ Auto.dev API successfully decodes German vehicle VINs
-4. ✅ Gemini generates professional-looking (non-AI) responses
-5. ✅ 360° viewer works smoothly on mobile
-6. ✅ PWA installs correctly on Android/iOS with brand colors
-7. ✅ Total costs stay under $1,000
-
----
-
-## 💰 Budget Tracking
-
-| Service | Cost Model | Estimated MVP Cost |
-|---------|------------|-------------------|
-| Auto.dev API | 1,000 free calls/month, then $0.004/call | $0 (under free tier) |
-| SerpApi (Images) | 1,000 free searches/month, then $50/5k | $0-50 (much cheaper than Gemini) |
-| Bing Image Search | 1,000 free/month, then $2/1k | $0-20 (excellent backup) |
-| Google Custom Search | 100/day free, then $5/1k | $0-15 (occasional use) |
-| Hosting (Backend) | Free tier / $5-10/mo | $0-20 |
-| Hosting (Frontend) | Free tier | $0 |
-| Domain (optional) | $10-15/year | $0-15 |
-| **Total** | | **$0-120** (vs previous $100-335) |
-
-**Remaining budget for scaling:** $880-1000 (much better!)
-
----
-
-## 🔧 Technical Risks & Mitigations (Mobile-Focused)
-
-| Risk | Mitigation | Status |
-|------|-----------|---------|
-| Flutter secure storage compatibility issues | Test on multiple Android versions; fallback to encrypted SharedPreferences | ⏳ Pending |
-| Backend API performance under load | Implement caching; rate limiting; database indexing | ✅ Rate limiting done |
-| Auto.dev limited German vehicle coverage | Test thoroughly with German VINs; 1,000 free calls for testing | ✅ Tested |
-| Image search returns low quality results | Use multiple APIs (SerpApi + Bing + Google); filter by size/quality | ✅ Implemented |
-| 360° viewer performance on low-end Android | Optimize image sizes; progressive loading; use thumbnails | ⏳ Pending |
-| JWT token security vulnerabilities | Use strong secrets (32+ chars); short expiry; token rotation; blacklisting | ✅ Implemented |
-| Email deliverability issues | Use reputable SMTP (Gmail); implement retry logic; track delivery status | ✅ Implemented |
-| Google Play Store rejection | Follow Android guidelines; test thoroughly; proper permissions | ⏳ Pending |
-| Database performance with growing users | Prisma query optimization; connection pooling; proper indexing | ✅ Schema optimized |
-| Offline sync conflicts | Implement conflict resolution; queue API calls; timestamp-based merging | ⏳ Pending |
-| Brand colors not visible in bright garage | Test in real conditions; adjust Electric Blue brightness if needed | ⏳ Pending |
-| Camera permission denial for VIN scanning | Provide manual input fallback; clear permission rationale | ⏳ Pending |
-| Network connectivity issues in garages | Robust offline mode; clear connectivity indicators; offline caching | ⏳ Pending |
-
-**Removed PWA Risks:**
-- ❌ PWA install issues on iOS - Not applicable
-- ❌ React/Vite build size - Not applicable
-- ❌ Service worker caching - Not applicable
-
----
-
-## 📝 Notes & Decisions
-
-**Mobile-First Approach:**
-- ✅ Flutter mobile app is primary focus
-- ❌ React PWA deprioritized for future work
-- ✅ Production backend with PostgreSQL + Prisma
-- ✅ Production authentication system (JWT)
-- ✅ Comprehensive security features (Helmet, rate limiting, CSRF, XSS, SQL injection)
-
-**Design System:**
-- ✅ Brand colors: Carbon Black, Gunmetal Gray, Electric Blue
-- ✅ Fonts: Inter (UI), JetBrains Mono (VINs/technical data)
-- ✅ Mobile-optimized: 44px+ tap targets, glove-friendly
-- ✅ High contrast for garage conditions
-
-**Backend Infrastructure:**
-- ✅ PostgreSQL database with 10 tables
-- ✅ Prisma ORM for type-safe database access
-- ✅ JWT authentication with token rotation
-- ✅ bcrypt password hashing (12 rounds)
-- ✅ Email service with Nodemailer (Gmail SMTP, 500/day free)
-- ✅ Rate limiting on all authentication endpoints
-- ✅ Security logging and audit trails
-
-**Third-Party APIs:**
-- ✅ Auto.dev for VIN decoding (German vehicles focus)
-- ✅ SerpApi for vehicle image search (web search, not AI generation)
-- ✅ Google Gemini for AI-generated parts information
-- ✅ All using free tiers for MVP (1,000 calls/month each)
-
-**Deployment Strategy:**
-- Android: Google Play Store ($25 one-time)
-- iOS: Deprioritized (requires $99/year Apple Developer account)
-- Backend: Railway, Render, or AWS (est. $10-30/month)
-- Database: Managed PostgreSQL (est. $25-100/month)
-- Total monthly: $35-130 (well under $1,000 budget)
-
-**Security Measures:**
-- ✅ JWT access tokens (15 min) + refresh tokens (7 days)
-- ✅ Token blacklisting on logout
-- ✅ Account lockout after 5 failed login attempts
-- ✅ Password history (prevent reuse of last 5)
-- ✅ Email verification required
-- ✅ Device tracking for suspicious login detection
-- ✅ Helmet.js security headers (CSP, HSTS, X-Frame-Options)
-- ✅ Rate limiting: global (100/15min), auth (10/15min), registration (3/hour)
-- ✅ Input sanitization, XSS prevention, CSRF protection, SQL injection validation
-
-**Future Considerations:**
-- Add iOS support when budget allows
-- Consider PWA for web access (React frontend already exists)
-- Implement 2FA/TOTP for enhanced security
-- Add subscription tiers and billing integration
-- Expand to non-German vehicles
-- Add social login (Google, Apple)
-
----
-
-## ✅ Definition of Done (Mobile App MVP)
-
-The mobile app MVP is complete when:
-
-1. ✅ Backend API successfully decodes German vehicle VINs (Auto.dev)
-2. ✅ Backend provides vehicle images via web search (SerpApi)
-3. ✅ Backend generates professional parts information (Gemini AI)
-4. ✅ Flutter app has production authentication system
-5. ✅ Mechanic can register, verify email, and log in securely
-6. ✅ Password reset flow works end-to-end
-7. ✅ JWT token management with automatic refresh
-8. ✅ Advanced security features (rate limiting, CSRF, XSS, SQL injection protection)
-9. [ ] Flutter app can scan/input VIN and display vehicle information
-10. [ ] 360° vehicle viewer works smoothly on Android
-11. [ ] Interactive parts hotspot system with 29 common parts
-12. [ ] Spare parts information displays correctly
-13. [ ] App works in offline mode with proper sync
-14. [ ] MotoLens brand design (Electric Blue, Carbon Black, Gunmetal Gray) consistent
-15. [ ] Fonts (Inter & JetBrains Mono) properly applied
-16. [ ] App works in typical garage conditions (high contrast, one-handed, glove-friendly)
-17. [ ] Published to Google Play Store (internal testing track minimum)
-18. [ ] Total monthly spend under $130 (budget compliant)
-
-**Current Progress: 8/18 criteria complete (44%)**
-
-**PWA (Deprioritized):**
-- ❌ PWA installation not required for MVP
-- ❌ React web frontend not required for MVP
-- ❌ Cross-platform sync not required for MVP
-
----
-
 ## 🎯 Phase 12: Flutter Mobile Authentication UI (PRIORITY - HARDEST PART) ✅ **MAJOR PROGRESS**
 
 > **Status**: Core authentication UI completed - login, registration (simplified 2-step), password reset screens with professional MotoLens branding
@@ -765,7 +121,7 @@ The mobile app MVP is complete when:
   - [x] Gunmetal Gray: `#52525b` (secondary text)
   - [x] Zinc scale: 50, 100, 200, etc.
 - [x] Configure custom fonts (Inter + JetBrains Mono):
-  - [x] Create typography classes matching React PWA
+  - [x] Create typography classes with proper font families
   - [x] Font family constants and text styles
   - [x] Automotive-specific styles (VIN display, part numbers)
 - [x] Create reusable UI components:
@@ -1243,6 +599,8 @@ The mobile app MVP is complete when:
 
 ## 🎯 Phase 15: Security & Production Features
 
+> **MVP Focus:** Core security (15.1-15.2) required. Admin panel (15.3) and advanced subscriptions (15.4) are optional future enhancements.
+
 ### 15.1 Advanced Security Implementation ✅ **COMPLETED**
 - [x] Add comprehensive rate limiting:
   ```javascript
@@ -1291,7 +649,12 @@ The mobile app MVP is complete when:
 - [ ] Add suspicious login detection
 - [ ] Send email notifications for new device logins
 
-### 15.3 Admin Panel & User Management
+### 15.3 Admin Panel & User Management ❌ **NOT NEEDED FOR MVP**
+> **Note:** Admin functionality is not required for mobile app MVP. This can be added later if needed.
+
+<details>
+<summary><strong>Click to expand optional admin features (future work)</strong></summary>
+
 - [ ] Create admin authentication middleware:
   ```javascript
   const requireAdmin = (req, res, next) => {
@@ -1320,7 +683,14 @@ The mobile app MVP is complete when:
 - [ ] Add analytics dashboard data endpoints
 - [ ] Create security monitoring endpoints
 
-### 15.4 Subscription & Role Management
+</details>
+
+### 15.4 Subscription & Role Management ⏳ **OPTIONAL (Future Enhancement)**
+> **Note:** Basic role-based access control (RBAC) is already implemented in Phase 14.2. Advanced subscription features are optional for MVP.
+
+<details>
+<summary><strong>Click to expand optional subscription features (future work)</strong></summary>
+
 - [ ] Implement subscription tier checking:
   ```javascript
   const checkSubscriptionLimit = (tier, feature) => {
@@ -1343,7 +713,10 @@ The mobile app MVP is complete when:
 - [ ] Add subscription upgrade/downgrade logic
 - [ ] Create billing integration endpoints (future)
 
-**Estimated Time:** 6-8 hours
+</details>
+
+**Estimated Time for Core Security (15.1-15.2 only):** 6-8 hours  
+**Optional Features (15.3-15.4):** 4-6 hours (future work)
 
 ---
 
@@ -1393,7 +766,7 @@ The mobile app MVP is complete when:
 - [ ] Test performance on mid-range Android devices
 
 ### 16.4 Interactive Parts Hotspot System
-- [ ] Port hotspot system from PWA to Flutter:
+- [ ] Implement hotspot system in Flutter:
   - [ ] SVG overlay on vehicle images
   - [ ] Red dot + connecting line diagram aesthetic
   - [ ] White label boxes for part names
@@ -1520,18 +893,17 @@ The mobile app MVP is complete when:
 | 3 | Backend API Setup | 4-6 hours | **CRITICAL** | ✅ **COMPLETED** |
 | 12 | Flutter Auth UI Setup | 6-8 hours | **CRITICAL** | ✅ **COMPLETED** |
 | 13 | Flutter Auth Screens | 8-10 hours | **CRITICAL** | ✅ **COMPLETED** |
-| 14 | Backend Production Auth | 10-12 hours | **HIGH** | **15.1 COMPLETED**, 15.2-15.4 ⏳ |
-| 15 | Security & Production Features | 6-8 hours | **HIGH** | **15.1 COMPLETED**, 15.2-15.4 ⏳ |
+| 14 | Backend Production Auth (14.1-14.5) | 10-12 hours | **HIGH** | ✅ **COMPLETED** |
+| 15 | Core Security Features (15.1-15.2) | 6-8 hours | **HIGH** | **15.1 ✅**, 15.2 ⏳ |
 | 16 | Flutter Vehicle Features | 12-16 hours | **HIGH** | ⏳ **PENDING** |
 | 17 | Integration & Deployment | 8-10 hours | **MEDIUM** | ⏳ **PENDING** |
-| **Total** | **Mobile App MVP** | **54-70 hours** | | **3/7 Phases Complete** |
+| **Total** | **Mobile App MVP** | **54-70 hours** | | **~50% Complete** |
 
-**Realistic Timeline:** 6-8 weeks for complete mobile app with production backend
+**Optional/Future (Not in MVP Timeline):**
+- Phase 15.3: Admin Panel - 2-3 hours (optional)
+- Phase 15.4: Advanced Subscriptions - 2-3 hours (optional)
 
-**Deprioritized (Not Included in Timeline):**
-- Phases 1-2: React PWA Setup
-- Phases 4-8: React PWA Frontend
-- Phase 9-10: PWA Testing & Deployment
+**Realistic Timeline:** 5-7 weeks for complete mobile app with production backend
 
 ---
 
@@ -1563,8 +935,8 @@ The mobile app MVP is complete when:
 4. **Phase 15 (Security & Production Features)** 🔄 **IN PROGRESS**
    - ✅ 15.1: Advanced security implementation (Helmet, rate limiting, CSRF, XSS, SQL injection) - COMPLETED
    - ⏳ 15.2: Session management & device tracking - PENDING
-   - ⏳ 15.3: Admin panel & user management - PENDING
-   - ⏳ 15.4: Subscription & role management - PENDING
+   - ❌ 15.3: Admin panel & user management - NOT NEEDED FOR MVP
+   - ⏳ 15.4: Subscription & role management - OPTIONAL (basic RBAC already done)
 
 5. **Phase 16 (Flutter Vehicle Features)** ⏳ **PENDING**
    - VIN scanner/input
@@ -1582,14 +954,13 @@ The mobile app MVP is complete when:
 **Key Blockers:**
 - ✅ ~~Flutter auth UI design must be completed~~ - DONE!
 - ✅ ~~Backend APIs must be working~~ - DONE!
-- Backend production auth must be stable before Phase 16
-- Security features (Phase 15.2-15.4) needed before production
-- Integration testing requires all components working
+- ⏳ Backend session management (Phase 15.2) needed before Phase 16
+- ⏳ Mobile app testing requires all Phase 16 components working
+- ❌ Admin panel NOT required for mobile MVP
 
-**PWA Development:**
-- ❌ Deprioritized - Not blocking mobile app development
-- ❌ Phases 1-2, 4-8 skipped
-- ❌ No React frontend work required for mobile MVP
+**Optional for Future:**
+- Admin panel & user management (Phase 15.3)
+- Advanced subscription features (Phase 15.4)
 
 ---
 
@@ -1638,13 +1009,6 @@ The mobile app MVP is complete when:
 - Database: Managed PostgreSQL (AWS RDS or similar)
 - Email: Free Gmail SMTP (500/day)
 
-**Deprioritized (PWA Stack):**
-- ❌ React + TypeScript
-- ❌ Vite + PWA plugin
-- ❌ Mantine UI
-- ❌ React Router
-- ❌ Vercel/Netlify deployment
-
 ---
 
 ## 💰 Updated Budget Impact (Mobile-Focused)
@@ -1664,10 +1028,6 @@ The mobile app MVP is complete when:
 - Domain (optional): $10-15/year
 - **Total One-Time: $25-40**
 
-**Optional (Deprioritized):**
-- Apple Developer account for iOS: $99/year (NOT included in budget)
-- PWA hosting (Vercel/Netlify): $0 (free tier) - NOT needed for mobile-only
-
 **Development Time Budget:**
 - Phase 3 (Backend API): ✅ Completed
 - Phase 12-13 (Flutter Auth UI): ✅ Completed
@@ -1681,300 +1041,12 @@ The mobile app MVP is complete when:
 - First year total: ~$445-$1,600 (depending on traffic/usage)
 - MVP achievable within budget
 
-**Savings from Mobile-Only Approach:**
-- No PWA hosting costs
-- No separate web frontend development time
-- No cross-platform sync complexity initially
-- Focus on single platform = faster time to market
+---
+
+
 
 ---
 
 *Last Updated: February 5, 2026*  
 *Status: Mobile App Development - Backend Auth & Security in Progress*  
-*Focus: Flutter Mobile App Only - PWA Deprioritized*
-
----
-
-## 🚫 DEPRIORITIZED: React PWA Phases (For Future Reference)
-
-> **Note:** The following phases are **NOT** part of current mobile app development.  
-> They are documented here for potential future web frontend work.
-
-<details>
-<summary><strong>Click to expand deprioritized PWA phases</strong></summary>
-
-## 🎯 Phase 1: PWA Project Setup & Foundation (DEPRIORITIZED)
-
-### 1.1 Initialize Project Structure
-- [x] Create Vite + React + TypeScript project
-- [x] Configure Mantine UI
-- [x] Install custom fonts (Inter + JetBrains Mono)
-- [x] Install and configure vite-plugin-pwa
-- [x] Set up project folder structure
-
-### 1.2 Environment Configuration
-- [x] Create `.env` file structure
-- [x] Set up environment variables
-- [x] Add `.env.example` template
-- [x] Update `.gitignore` for secrets
-
-### 1.3 Development Tools
-- [x] Configure ESLint for React + TypeScript
-- [x] Set up Prettier
-- [x] Add basic npm scripts
-- [x] Test PWA installability
-
-### 1.4 Design System Implementation
-- [x] Create theme configuration
-- [x] Define MotoLens color palette
-- [x] Configure Mantine theme
-- [x] Set up font loading
-
----
-
-## 🎯 Phase 2: PWA Authentication & Routing (DEPRIORITIZED)
-
-### 2.1 Dummy Authentication System
-- [x] Create `AuthContext.tsx`
-- [x] Implement dummy auth logic (admin/admin)
-- [x] Store auth state in localStorage
-- [x] Create `useAuth` custom hook
-
-### 2.2 Login Page
-- [x] Create `LoginPage.tsx`
-- [x] Design mobile-first login form
-- [x] Apply brand styling
-- [x] Implement validation
-- [x] Test on mobile devices
-
-### 2.3 Protected Routes
-- [x] Install react-router-dom
-- [x] Set up routing structure
-- [x] Create `ProtectedRoute` component
-- [x] Implement route guards
-
----
-
-## 🎯 Phase 4: PWA Frontend - VIN Input & Vehicle Display (DEPRIORITIZED)
-
-### 4.1 VIN Input Page
-- [x] Create `VinInputPage` component
-- [x] Design mobile-first layout
-- [x] Add Mantine TextInput for VIN
-- [x] Add submit button
-- [x] Implement loading state
-- [x] Handle API errors
-- [x] Add sample VIN button
-- [x] Add logout button
-
-### 4.2 Vehicle Service Layer
-- [x] Create `vehicleService.ts`
-- [x] Implement `decodeVIN(vin: string)`
-- [x] Implement `getVehicleImages()`
-- [x] Implement `getVehicleSummary()`
-- [x] Add TypeScript interfaces
-- [x] Add error handling
-
-### 4.3 Vehicle Display Page
-- [x] Create `VehicleViewPage` component
-- [x] Display vehicle metadata
-- [x] Add AI-generated summary
-- [x] Style with brand colors
-- [x] Add back button
-- [x] Add logout option
-
----
-
-## 🎯 Phase 5: PWA 360° Car Viewer (DEPRIORITIZED)
-
-### 5.1 Install react-360-view
-- [x] Install package
-- [x] Test with sample images
-- [x] Configure for mobile touch/swipe
-- [x] Set up drag sensitivity
-- [x] Add loading spinner
-
-### 5.2 Integrate Web Image Search
-- [x] Load 8 angle images
-- [x] Display in 360° viewer
-- [x] Add image preloading
-- [x] Replace Gemini with SerpApi
-- [x] Test with German vehicles
-- [x] Update frontend
-
-### 5.3 Viewer UI Polish
-- [x] Add rotation instructions
-- [x] Remove angle indicator text
-- [x] Smooth loading transitions
-- [ ] Add pinch-to-zoom (optional)
-
----
-
-## 🎯 Phase 6: PWA Parts Interaction System (DEPRIORITIZED)
-
-### 6.1 SVG Hotspot System
-- [x] Create `PartsOverlay` component
-- [x] Define hotspot data structure
-- [x] Implement diagram-style hotspot rendering
-- [x] Add tap/click detection
-- [x] Visual feedback
-- [x] Persistent state
-- [x] Mobile-optimized
-
-### 6.2 Part Detail Modal
-- [x] Create `PartDetailModal` component
-- [x] Style with brand colors
-- [x] Fetch part info from backend
-- [x] Display comprehensive part data
-- [x] Professional interactions
-
-### 6.3 Hotspot Data & Spare Parts
-- [x] Create JSON file with 29 common parts
-- [x] Expand part data
-- [x] Create spare parts components
-- [x] Test tap accuracy
-
----
-
-## 🎯 Phase 7: PWA Spare Parts Components (DEPRIORITIZED)
-
-### 7.1 Spare Parts List Display
-- [x] Create `SparePartsList` component
-- [x] Design with arrow styling
-- [x] Display spare parts data
-- [x] Integrate with hotspot data
-- [x] Filter by vehicle system
-
-### 7.2 Part Detail Pages
-- [x] Create detailed part pages
-- [x] Visual connection to hotspots
-- [x] Comprehensive part information
-- [x] Shopping integration
-
-### 7.3 Visual Consistency System
-- [x] Create design tokens
-- [x] Standardize animation patterns
-- [x] Mobile optimization
-
----
-
-## 🎯 Phase 8: PWA Features & Polish (DEPRIORITIZED)
-
-### 8.1 PWA Manifest & Icons
-- [ ] Create app icons with brand colors
-- [ ] Configure `manifest.json`
-- [ ] Test install prompt
-
-### 8.2 Service Worker Configuration
-- [ ] Configure workbox
-- [ ] Cache app shell
-- [ ] Add offline fallback
-- [ ] Test offline behavior
-- [ ] Add update notification
-
-### 8.3 Mobile Optimizations
-- [ ] Test on real devices
-- [ ] Ensure tap targets ≥44px
-- [ ] Test with gloves
-- [ ] Optimize for 3G
-- [ ] Add loading skeletons
-- [ ] Test in sunlight
-
-### 8.4 Brand Consistency Check
-- [ ] Review color usage
-- [ ] Verify font loading
-- [ ] Check Electric Blue accents
-- [ ] Test contrast ratios
-
----
-
-## 🎯 Phase 9: PWA Testing & Refinement (DEPRIORITIZED)
-
-### 9.1 Functionality Testing
-- [ ] Test login → VIN → parts flow
-- [ ] Test with German vehicle VINs
-- [ ] Test error handling
-- [ ] Test offline behavior
-- [ ] Test PWA install
-
-### 9.2 Performance Testing
-- [ ] Measure page load times
-- [ ] Check image loading
-- [ ] Test on 3G
-- [ ] Optimize bundle size
-- [ ] Run Lighthouse audit
-
-### 9.3 UX Testing
-- [ ] Test one-handed usage
-- [ ] Verify tap targets
-- [ ] Check text readability
-- [ ] Test with mechanic
-- [ ] Gather feedback
-
-### 9.4 Bug Fixes & Polish
-- [ ] Fix bugs
-- [ ] Smooth animations
-- [ ] Add loading states
-- [ ] Improve error messages
-- [ ] Final polish
-
----
-
-## 🎯 Phase 10: PWA Deployment (DEPRIORITIZED)
-
-### 10.1 Frontend Deployment
-- [ ] Build production bundle
-- [ ] Test production build
-- [ ] Deploy to Vercel/Netlify
-- [ ] Configure custom domain
-- [ ] Test PWA install from live URL
-- [ ] Verify HTTPS
-
-### 10.2 API Keys & Monitoring
-- [ ] Verify API keys in production
-- [ ] Set up usage monitoring
-- [ ] Set up budget alerts
-- [ ] Document API costs
-
-### 10.3 Documentation
-- [ ] Update README
-- [ ] Create user guide
-- [ ] Document API endpoints
-
----
-
-## 🎯 Phase 16 Alternative: PWA Auth Migration (DEPRIORITIZED)
-
-### PWA Authentication Service Update
-- [ ] Update `frontend/src/services/authApi.ts`
-- [ ] Replace localStorage with cookies
-- [ ] Add automatic token refresh
-- [ ] Implement error handling
-- [ ] Add connectivity detection
-
-### PWA Auth Context Migration
-- [ ] Update `AuthContext.tsx`
-- [ ] Add token refresh timer
-- [ ] Session validation on startup
-- [ ] Error boundary for auth
-- [ ] Backward compatibility
-
-### Registration & Profile UI
-- [ ] Create PWA registration components
-- [ ] Update login form
-- [ ] Add profile management page
-- [ ] Responsive design
-- [ ] Form validation
-
-### Cross-Platform Data Sync
-- [ ] VIN scan history sync
-- [ ] Scan history API endpoints
-- [ ] Offline caching with sync
-- [ ] User preferences sync
-- [ ] Data export (GDPR)
-
-</details>
-
----
-
-*End of Deprioritized PWA Sections*
+*Focus: Flutter Mobile App Only*
