@@ -1026,50 +1026,33 @@ The MVP is complete when:
 
 > ✅ **Complete**: Database operational with 10 tables, Prisma Client generated, JWT secrets configured
 
-### 14.2 JWT Utilities & Security
-- [ ] Create `backend/src/utils/jwt.js`:
-  ```javascript
-  const jwt = require('jsonwebtoken');
-  
-  class JWTUtil {
-    static generateAccessToken(user) {
-      return jwt.sign(
-        {
-          sub: user.id,
-          email: user.email,
-          role: user.role,
-          type: 'access'
-        },
-        process.env.JWT_SECRET,
-        { 
-          expiresIn: '15m',
-          issuer: 'motolens-api',
-          audience: 'motolens-app'
-        }
-      );
-    }
-    
-    static generateRefreshToken(user) {
-      return jwt.sign(
-        {
-          sub: user.id,
-          type: 'refresh'
-        },
-        process.env.JWT_REFRESH_SECRET,
-        { expiresIn: '7d' }
-      );
-    }
-    
-    static verifyAccessToken(token);
-    static verifyRefreshToken(token); 
-    static blacklistToken(token);
-    static isTokenBlacklisted(token);
-  }
-  ```
-- [ ] Implement token blacklisting system
-- [ ] Add token rotation on refresh
-- [ ] Create secure token storage helpers
-- [ ] Add JWT middleware for protected routes
+### 14.2 JWT Utilities & Security ✅ **COMPLETED**
+- [x] Create `backend/src/utils/jwt.js`:
+  - [x] `generateAccessToken(user)` - Generate 15-minute access tokens
+  - [x] `generateRefreshToken(user)` - Generate 7-day refresh tokens
+  - [x] `verifyAccessToken(token)` - Verify access tokens with blacklist check
+  - [x] `verifyRefreshToken(token)` - Verify refresh tokens with blacklist check
+  - [x] `blacklistToken(token, reason)` - Revoke tokens (logout/security)
+  - [x] `isTokenBlacklisted(token)` - Check token blacklist status
+  - [x] `rotateTokens(oldRefreshToken, user)` - Token rotation on refresh
+  - [x] `generateTokenPair(user)` - Generate both tokens at once
+  - [x] `extractTokenFromHeader(authHeader)` - Parse Bearer tokens
+  - [x] `decodeToken(token)` - Decode without verification (debugging)
+  - [x] `getTokenExpiration(token)` - Get token expiry date
+  - [x] `isTokenExpired(token)` - Check if token is expired
+- [x] Implement token blacklisting system using UserSession table
+- [x] Add token rotation on refresh with old token revocation
+- [x] Create secure token storage and extraction helpers
+- [x] Add JWT middleware for protected routes (`src/middleware/auth.js`):
+  - [x] `authenticate` - Verify JWT and attach user to request
+  - [x] `requireRole(...roles)` - Role-based access control (RBAC)
+  - [x] `requireEmailVerified` - Require verified email
+  - [x] `requireSubscription(...tiers)` - Subscription tier gating
+  - [x] `validateSession` - Active session validation with timeout
+  - [x] `optionalAuth` - Optional authentication (public routes)
+  - [x] `logSecurityEvent(type, severity)` - Security event logging
+
+> ✅ **Complete**: Full JWT authentication system with token management, RBAC, session validation, and security logging
 
 ### 14.3 Password Security & Validation
 - [ ] Create `backend/src/utils/password.js`:
