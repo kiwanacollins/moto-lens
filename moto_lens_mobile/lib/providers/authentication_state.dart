@@ -1,21 +1,16 @@
 import '../models/auth/user.dart';
 
 /// Authentication state enumeration
-/// 
+///
 /// Represents different states of the authentication process:
 /// - initial: App starting up, checking stored tokens
 /// - authenticated: User is logged in with valid tokens
 /// - unauthenticated: User is not logged in or tokens expired
 /// - loading: Authentication operation in progress
-enum AuthenticationStatus {
-  initial,
-  authenticated,
-  unauthenticated,
-  loading,
-}
+enum AuthenticationStatus { initial, authenticated, unauthenticated, loading }
 
 /// Authentication state class for the authentication provider
-/// 
+///
 /// Contains the current authentication status, user data, and any errors
 /// that occurred during authentication operations.
 class AuthenticationState {
@@ -34,7 +29,8 @@ class AuthenticationState {
   final DateTime? lastLoginAt;
 
   /// Check if user is authenticated
-  bool get isAuthenticated => status == AuthenticationStatus.authenticated && user != null;
+  bool get isAuthenticated =>
+      status == AuthenticationStatus.authenticated && user != null;
 
   /// Check if user is not authenticated
   bool get isUnauthenticated => status == AuthenticationStatus.unauthenticated;
@@ -104,7 +100,10 @@ class AuthenticationState {
   }
 
   /// Create error state
-  static AuthenticationState withError(String errorMessage, {AuthenticationStatus? status}) {
+  static AuthenticationState withError(
+    String errorMessage, {
+    AuthenticationStatus? status,
+  }) {
     return AuthenticationState(
       status: status ?? AuthenticationStatus.unauthenticated,
       isLoading: false,
@@ -143,13 +142,7 @@ class AuthenticationState {
           lastLoginAt == other.lastLoginAt;
 
   @override
-  int get hashCode => Object.hash(
-    status,
-    user,
-    isLoading,
-    error,
-    lastLoginAt,
-  );
+  int get hashCode => Object.hash(status, user, isLoading, error, lastLoginAt);
 
   @override
   String toString() {

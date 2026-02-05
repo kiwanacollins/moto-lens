@@ -5,15 +5,17 @@ import 'authentication_state.dart';
 import '../models/auth/user.dart';
 
 /// Extension on BuildContext for easy access to authentication
-/// 
+///
 /// Provides convenient methods to access authentication state and
 /// operations without having to call Provider.of manually.
 extension AuthenticationContext on BuildContext {
   /// Get the authentication provider
-  AuthenticationProvider get auth => Provider.of<AuthenticationProvider>(this, listen: false);
-  
+  AuthenticationProvider get auth =>
+      Provider.of<AuthenticationProvider>(this, listen: false);
+
   /// Watch authentication provider for changes
-  AuthenticationProvider get authWatch => Provider.of<AuthenticationProvider>(this, listen: true);
+  AuthenticationProvider get authWatch =>
+      Provider.of<AuthenticationProvider>(this, listen: true);
 
   /// Get current authentication state
   AuthenticationState get authState => authWatch.state;
@@ -37,18 +39,14 @@ extension AuthenticationContext on BuildContext {
   bool get isProfessionalUser => authState.isProfessionalUser;
 
   /// Authentication operations
-  
+
   /// Login with email and password
   Future<bool> login({
     required String email,
     required String password,
     bool rememberMe = false,
   }) {
-    return auth.login(
-      email: email,
-      password: password,
-      rememberMe: rememberMe,
-    );
+    return auth.login(email: email, password: password, rememberMe: rememberMe);
   }
 
   /// Register new user
@@ -82,10 +80,12 @@ extension AuthenticationContext on BuildContext {
   Future<void> logout() => auth.logout();
 
   /// Request password reset
-  Future<bool> requestPasswordReset(String email) => auth.requestPasswordReset(email);
+  Future<bool> requestPasswordReset(String email) =>
+      auth.requestPasswordReset(email);
 
   /// Update user profile
-  Future<bool> updateProfile(Map<String, dynamic> profileData) => auth.updateProfile(profileData);
+  Future<bool> updateProfile(Map<String, dynamic> profileData) =>
+      auth.updateProfile(profileData);
 
   /// Clear authentication error
   void clearAuthError() => auth.clearError();
@@ -95,7 +95,7 @@ extension AuthenticationContext on BuildContext {
 }
 
 /// Mixin for widgets that need authentication state
-/// 
+///
 /// Provides common authentication-related functionality that can be
 /// mixed into StatefulWidget State classes.
 mixin AuthenticationMixin<T extends StatefulWidget> on State<T> {
@@ -141,18 +141,12 @@ mixin AuthenticationMixin<T extends StatefulWidget> on State<T> {
 
   /// Navigate to login screen
   void navigateToLogin() {
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      '/login',
-      (route) => false,
-    );
+    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
   }
 
   /// Navigate to home screen
   void navigateToHome() {
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      '/home',
-      (route) => false,
-    );
+    Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
   }
 
   /// Handle authentication state changes

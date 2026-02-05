@@ -323,10 +323,10 @@ class SecureStorageService {
       'storageType': Platform.isAndroid
           ? 'Android Keystore'
           : Platform.isIOS
-              ? 'iOS Keychain'
-              : kIsWeb
-                  ? 'Web IndexedDB'
-                  : 'Platform Keystore',
+          ? 'iOS Keychain'
+          : kIsWeb
+          ? 'Web IndexedDB'
+          : 'Platform Keystore',
       'encryptionEnabled': Platform.isAndroid || Platform.isLinux,
     };
   }
