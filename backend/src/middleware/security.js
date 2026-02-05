@@ -283,15 +283,15 @@ function sanitizeValue(value) {
     let sanitized = value
         .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
         .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, ''); // Remove inline event handlers
+        .replace(/on\w+\s*=\s*["'][^"']*["']/gi, ''); // Remove inline event handlers
 
-  // Only remove javascript: protocol if it exists
-  if (sanitized.toLowerCase().includes('javascript:')) {
-    sanitized = sanitized.replace(/javascript:/gi, '');
-  }
+    // Only remove javascript: protocol if it exists
+    if (sanitized.toLowerCase().includes('javascript:')) {
+        sanitized = sanitized.replace(/javascript:/gi, '');
+    }
 
-  // Remove null bytes and other dangerous control characters
-  sanitized = sanitized.replace(/\x00/g, '');
+    // Remove null bytes and other dangerous control characters
+    sanitized = sanitized.replace(/\x00/g, '');
 
     // Set X-Frame-Options header
     res.setHeader('X-Frame-Options', 'DENY');
