@@ -974,11 +974,11 @@ The MVP is complete when:
   - [x] Success message with next steps
   - [x] Return to login navigation
   
-- [ ] Create `lib/screens/auth/reset_password_screen.dart`:
-  - [ ] New password field with strength indicator
-  - [ ] Confirm password field
-  - [ ] Professional submit button
-  - [ ] Success message and auto-navigation to login
+- [x] Create `lib/screens/auth/reset_password_screen.dart`:
+  - [x] New password field with strength indicator
+  - [x] Confirm password field
+  - [x] Professional submit button
+  - [x] Success message and auto-navigation to login
   
 - [ ] Create `lib/screens/profile/change_password_screen.dart`:
   - [ ] Current password field
