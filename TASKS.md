@@ -750,9 +750,9 @@ The MVP is complete when:
 - [x] Add automatic JWT token attachment to headers
 - [x] Implement automatic token refresh on 401 errors
 - [x] Add request/response interceptors for logging
-- [ ] Add network error handling and user-friendly messages
-- [ ] Add timeout configuration (30 seconds)
-- [ ] Implement retry logic for failed requests
+- [x] Add network error handling and user-friendly messages
+- [x] Add timeout configuration (30 seconds)
+- [x] Implement retry logic for failed requests
 
 ### 12.6 Authentication Service
 - [ ] Create `lib/services/auth_service.dart`
