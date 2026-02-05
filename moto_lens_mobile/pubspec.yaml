@@ -1,8 +1,8 @@
 name: moto_lens_mobile
-description: "A new Flutter project."
+description: "MotoLens Mobile - Professional VIN decoding and automotive parts identification for German vehicles"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -35,6 +35,18 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # Authentication & Security Dependencies
+  flutter_secure_storage: ^10.0.0 # Secure token storage
+  http: ^1.1.0 # API calls
+  provider: ^6.1.1 # State management
+  shared_preferences: ^2.2.2 # User preferences
+  form_builder_validators: ^11.3.0 # Form validation
+  flutter_form_builder: ^10.3.0+1 # Form widgets
+
+  # Additional utilities
+  json_annotation: ^4.8.1 # JSON serialization
+  crypto: ^3.0.3 # Cryptographic operations
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -46,12 +58,15 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+  # Code generation dependencies
+  json_serializable: ^6.7.1 # JSON code generation
+  build_runner: ^2.4.7 # Code generation runner
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

@@ -647,19 +647,19 @@ The MVP is complete when:
 ## 🎯 Phase 12: Flutter Mobile Authentication UI (PRIORITY - HARDEST PART)
 
 ### 12.1 Flutter Project Setup & Dependencies
-- [ ] Initialize Flutter project structure in `moto_lens_mobile/`
-- [ ] Add authentication dependencies to `pubspec.yaml`:
-  - [ ] `flutter_secure_storage: ^9.0.0` (secure token storage)
-  - [ ] `http: ^1.1.0` (API calls)
-  - [ ] `provider: ^6.1.1` (state management)
-  - [ ] `shared_preferences: ^2.2.2` (user preferences)
-  - [ ] `form_builder_validators: ^9.1.0` (form validation)
-  - [ ] `flutter_form_builder: ^9.1.0` (form widgets)
-- [ ] Configure Android permissions in `android/app/src/main/AndroidManifest.xml`:
-  - [ ] Internet permission
-  - [ ] Network state permission
-- [ ] Configure iOS permissions in `ios/Runner/Info.plist`
-- [ ] Test dependency installation and basic app launch
+- [x] Initialize Flutter project structure in `moto_lens_mobile/`
+- [x] Add authentication dependencies to `pubspec.yaml`:
+  - [x] `flutter_secure_storage: ^10.0.0` (secure token storage - upgraded)
+  - [x] `http: ^1.1.0` (API calls)
+  - [x] `provider: ^6.1.1` (state management)
+  - [x] `shared_preferences: ^2.2.2` (user preferences)
+  - [x] `form_builder_validators: ^11.3.0` (form validation - upgraded)
+  - [x] `flutter_form_builder: ^10.3.0+1` (form widgets - upgraded)
+- [x] Configure Android permissions in `android/app/src/main/AndroidManifest.xml`:
+  - [x] Internet permission
+  - [x] Network state permission
+- [x] Configure iOS permissions in `ios/Runner/Info.plist`
+- [x] Test dependency installation and basic app launch
 
 ### 12.2 Design System & Brand Implementation
 - [ ] Create `lib/styles/` directory structure:
