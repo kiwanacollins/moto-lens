@@ -11,6 +11,9 @@ const __dirname = dirname(__filename);
 // Load environment variables from backend root
 dotenv.config({ path: join(__dirname, '..', '.env') });
 
+// Routes
+import authRoutes from './routes/auth.js';
+
 // Services
 import multiProviderVinService from './services/multiProviderVinService.js';
 import vinUtils from './utils/vinValidator.js';
@@ -72,6 +75,17 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' })); // Increase limit for image uploads
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// ========================================
+// AUTHENTICATION ROUTES
+// ========================================
+
+// Mount authentication routes
+app.use('/api/auth', authRoutes);
+
+// ========================================
+// API ROUTES  
+// ========================================
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
