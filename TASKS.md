@@ -690,8 +690,8 @@ The MVP is complete when:
 - [x] Integrate theme with main app
 
 ### 12.3 Authentication Models & Data Classes
-- [ ] Create `lib/models/auth/` directory
-- [ ] Implement `User` model:
+- [x] Create `lib/models/auth/` directory
+- [x] Implement `User` model:
   ```dart
   class User {
     final String id;
@@ -705,12 +705,12 @@ The MVP is complete when:
     final bool emailVerified;
   }
   ```
-- [ ] Implement `AuthResponse` model for API responses
-- [ ] Implement `LoginRequest` and `RegisterRequest` models
-- [ ] Create `UserProfile` model for extended user data
-- [ ] Add JSON serialization/deserialization methods
-- [ ] Create validation methods for email, password, etc.
-- [ ] Add `copyWith` methods for immutable updates
+- [x] Implement `AuthResponse` model for API responses
+- [x] Implement `LoginRequest` and `RegisterRequest` models
+- [x] Create `UserProfile` model for extended user data
+- [x] Add JSON serialization/deserialization methods
+- [x] Create validation methods for email, password, etc.
+- [x] Add `copyWith` methods for immutable updates
 
 ### 12.4 Secure Storage Service
 - [ ] Create `lib/services/secure_storage_service.dart`
