@@ -1,0 +1,576 @@
+import 'package:flutter/material.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import '../styles/styles.dart';
+import '../widgets/widgets.dart';
+import '../providers/providers.dart';
+
+/// Professional Registration Screen for MotoLens
+///
+/// Features:
+/// - 2-step registration process for mechanics
+/// - Comprehensive form validation
+/// - Password strength requirements
+/// - Terms and conditions acceptance
+/// - Professional MotoLens branding
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen>
+    with AuthenticationMixin {
+  final _pageController = PageController();
+  final _formKeys = [
+    GlobalKey<FormState>(), // Step 1: Personal Info & Garage Details
+    GlobalKey<FormState>(), // Step 2: Password & Terms
+  ];
+
+  // Form Controllers
+  final _emailController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _garageNameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  // Form State
+  int _currentStep = 0;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _acceptTerms = false;
+  bool _acceptMarketing = false;
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
+    _garageNameController.dispose();
+    _phoneNumberController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  /// Handle registration submission
+  Future<void> _handleRegister() async {
+    if (!(_formKeys[1].currentState?.validate() ?? false) || !_acceptTerms) {
+      if (!_acceptTerms) {
+        _showErrorSnackBar(
+          'Please accept the Terms and Conditions to continue',
+        );
+      }
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final success = await context.register(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        confirmPassword: _confirmPasswordController.text,
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        username: _usernameController.text.trim().isEmpty
+            ? null
+            : _usernameController.text.trim(),
+        garageName: _garageNameController.text.trim(),
+        phoneNumber: _phoneNumberController.text.trim().isEmpty
+            ? null
+            : _phoneNumberController.text.trim(),
+        acceptTerms: _acceptTerms,
+        acceptMarketing: _acceptMarketing,
+      );
+
+      if (!success && mounted) {
+        _showErrorSnackBar(
+          context.authError ?? 'Registration failed. Please try again.',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('Registration failed: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  /// Show error message
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+        ),
+      ),
+    );
+  }
+
+  /// Navigate to next step
+  void _nextStep() {
+    if (_currentStep < 1) {
+      if (_formKeys[_currentStep].currentState?.validate() ?? false) {
+        setState(() => _currentStep++);
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
+
+  /// Navigate to previous step
+  void _previousStep() {
+    if (_currentStep > 0) {
+      setState(() => _currentStep--);
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  /// Navigate to login screen
+  void _navigateToLogin() {
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header with progress indicator
+            _buildHeader(),
+
+            // Main content
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [_buildPersonalInfoStep(), _buildPasswordStep()],
+              ),
+            ),
+
+            // Bottom navigation
+            _buildBottomNavigation(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build header with logo and progress
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        children: [
+          // Logo
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppColors.electricBlue,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+            ),
+            child: const Icon(
+              Icons.directions_car,
+              size: 40,
+              color: Colors.white,
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.lg),
+
+          Text(
+            'Create Account',
+            style: AppTypography.h2.copyWith(fontWeight: FontWeight.bold),
+          ),
+
+          const SizedBox(height: AppSpacing.md),
+
+          // Progress Indicator
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(3, (index) {
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: 24,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: index <= _currentStep
+                      ? AppColors.electricBlue
+                      : AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Step 1: Account Type & Email
+
+  /// Step 2: Personal Information
+  Widget _buildPersonalInfoStep() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Form(
+        key: _formKeys[1],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Personal Information', style: AppTypography.h3),
+
+            const SizedBox(height: AppSpacing.md),
+
+            Text(
+              'Tell us about yourself',
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+
+            const SizedBox(height: AppSpacing.xl),
+
+            // First Name
+            CustomTextField(
+              controller: _firstNameController,
+              label: 'First Name',
+              hintText: 'Enter your first name',
+              prefixIcon: Icons.person_outlined,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                  errorText: 'First name is required',
+                ),
+                FormBuilderValidators.minLength(
+                  2,
+                  errorText: 'Name must be at least 2 characters',
+                ),
+              ]),
+            ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            // Last Name
+            CustomTextField(
+              controller: _lastNameController,
+              label: 'Last Name',
+              hintText: 'Enter your last name',
+              prefixIcon: Icons.person_outlined,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                  errorText: 'Last name is required',
+                ),
+                FormBuilderValidators.minLength(
+                  2,
+                  errorText: 'Name must be at least 2 characters',
+                ),
+              ]),
+            ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            // Username (Optional)
+            CustomTextField(
+              controller: _usernameController,
+              label: 'Username (Optional)',
+              hintText: 'Choose a username',
+              prefixIcon: Icons.alternate_email,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.minLength(
+                  3,
+                  errorText: 'Username must be at least 3 characters',
+                ),
+              ]),
+            ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            // Garage Name (required for mechanic accounts)
+            CustomTextField(
+              controller: _garageNameController,
+              label: 'Garage/Business Name',
+              hintText: 'Enter your garage or business name',
+              prefixIcon: Icons.business,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                  errorText:
+                      'Business name is required for professional accounts',
+                ),
+                FormBuilderValidators.minLength(
+                  2,
+                  errorText: 'Business name must be at least 2 characters',
+                ),
+              ]),
+            ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            // Phone Number (Optional)
+            CustomTextField(
+              controller: _phoneNumberController,
+              label: 'Phone Number (Optional)',
+              hintText: 'Enter your phone number',
+              type: CustomTextFieldType.phone,
+              prefixIcon: Icons.phone_outlined,
+              validator: (value) {
+                if (value == null || value.isEmpty) return null;
+                if (!RegExp(r'^\+?[\d\s\-\(\)]{10,}$').hasMatch(value)) {
+                  return 'Enter a valid phone number';
+                }
+                return null;
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Step 3: Password & Terms
+  Widget _buildPasswordStep() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Form(
+        key: _formKeys[2],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Security & Terms', style: AppTypography.h3),
+
+            const SizedBox(height: AppSpacing.md),
+
+            Text(
+              'Create a secure password and accept our terms',
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+
+            const SizedBox(height: AppSpacing.xl),
+
+            // Password
+            CustomTextField(
+              controller: _passwordController,
+              label: 'Password',
+              hintText: 'Create a secure password',
+              type: CustomTextFieldType.password,
+              prefixIcon: Icons.lock_outlined,
+              suffixIcon: _obscurePassword
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+              onSuffixIconPressed: () {
+                setState(() => _obscurePassword = !_obscurePassword);
+              },
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                  errorText: 'Password is required',
+                ),
+                FormBuilderValidators.minLength(
+                  8,
+                  errorText: 'Password must be at least 8 characters',
+                ),
+                (value) {
+                  if (value == null || value.isEmpty) return null;
+                  if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                    return 'Password must contain at least one uppercase letter';
+                  }
+                  if (!RegExp(r'[a-z]').hasMatch(value)) {
+                    return 'Password must contain at least one lowercase letter';
+                  }
+                  if (!RegExp(r'[0-9]').hasMatch(value)) {
+                    return 'Password must contain at least one number';
+                  }
+                  return null;
+                },
+              ]),
+            ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            // Confirm Password
+            CustomTextField(
+              controller: _confirmPasswordController,
+              label: 'Confirm Password',
+              hintText: 'Re-enter your password',
+              type: CustomTextFieldType.password,
+              prefixIcon: Icons.lock_outlined,
+              suffixIcon: _obscureConfirmPassword
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+              onSuffixIconPressed: () {
+                setState(
+                  () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                );
+              },
+              validator: (value) {
+                if (value != _passwordController.text) {
+                  return 'Passwords do not match';
+                }
+                return null;
+              },
+            ),
+
+            const SizedBox(height: AppSpacing.xl),
+
+            // Terms and Conditions
+            CheckboxListTile(
+              value: _acceptTerms,
+              onChanged: (value) =>
+                  setState(() => _acceptTerms = value ?? false),
+              activeColor: AppColors.electricBlue,
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              title: RichText(
+                text: TextSpan(
+                  style: AppTypography.bodyMedium,
+                  children: [
+                    const TextSpan(text: 'I accept the '),
+                    TextSpan(
+                      text: 'Terms and Conditions',
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.electricBlue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const TextSpan(text: ' and '),
+                    TextSpan(
+                      text: 'Privacy Policy',
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.electricBlue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Marketing Emails (Optional)
+            CheckboxListTile(
+              value: _acceptMarketing,
+              onChanged: (value) =>
+                  setState(() => _acceptMarketing = value ?? false),
+              activeColor: AppColors.electricBlue,
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              title: Text(
+                'I would like to receive product updates and marketing emails',
+                style: AppTypography.bodyMedium,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build bottom navigation buttons
+  Widget _buildBottomNavigation() {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Main Action Button
+          if (_currentStep < 2)
+            CustomButton(
+              text: 'Continue',
+              onPressed: _nextStep,
+              variant: CustomButtonVariant.primary,
+              size: CustomButtonSize.large,
+              isFullWidth: true,
+              prefixIcon: Icons.arrow_forward,
+            )
+          else
+            CustomButton(
+              text: _isLoading ? 'Creating Account...' : 'Create Account',
+              onPressed: _isLoading ? null : _handleRegister,
+              variant: CustomButtonVariant.primary,
+              size: CustomButtonSize.large,
+              isFullWidth: true,
+              isLoading: _isLoading,
+              prefixIcon: _isLoading ? null : Icons.check,
+            ),
+
+          const SizedBox(height: AppSpacing.md),
+
+          // Bottom Actions
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Back Button
+              if (_currentStep > 0)
+                TextButton(
+                  onPressed: _previousStep,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.arrow_back, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Back',
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              if (_currentStep == 0) ...[
+                // Login Link
+                Row(
+                  children: [
+                    Text(
+                      'Already have an account? ',
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _navigateToLogin,
+                      child: Text(
+                        'Sign In',
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: AppColors.electricBlue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+
+              if (_currentStep > 0 && _currentStep < 2) const Spacer(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

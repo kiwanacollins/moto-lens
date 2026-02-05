@@ -1,5 +1,5 @@
 /// Subscription tier enumeration for MotoLens application
-/// 
+///
 /// Defines subscription levels with different feature access:
 /// - free: Basic VIN decoding (limited lookups per day)
 /// - professional: Unlimited lookups + parts database access
@@ -10,7 +10,7 @@ enum SubscriptionTier {
   enterprise('enterprise');
 
   const SubscriptionTier(this.value);
-  
+
   final String value;
 
   /// Create SubscriptionTier from string value
@@ -68,7 +68,8 @@ enum SubscriptionTier {
 
   /// Check if tier has parts database access
   bool get hasPartsAccess {
-    return this == SubscriptionTier.professional || this == SubscriptionTier.enterprise;
+    return this == SubscriptionTier.professional ||
+        this == SubscriptionTier.enterprise;
   }
 
   /// Check if tier has API access

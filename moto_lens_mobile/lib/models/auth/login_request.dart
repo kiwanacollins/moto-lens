@@ -1,7 +1,7 @@
 import '../auth/user.dart';
 
 /// Login request model for authentication API
-/// 
+///
 /// Contains credentials for user login with validation.
 class LoginRequest {
   const LoginRequest({
@@ -53,11 +53,7 @@ class LoginRequest {
   }
 
   /// Create copy with updated fields
-  LoginRequest copyWith({
-    String? email,
-    String? password,
-    bool? rememberMe,
-  }) {
+  LoginRequest copyWith({String? email, String? password, bool? rememberMe}) {
     return LoginRequest(
       email: email ?? this.email,
       password: password ?? this.password,

@@ -713,8 +713,8 @@ The MVP is complete when:
 - [x] Add `copyWith` methods for immutable updates
 
 ### 12.4 Secure Storage Service
-- [ ] Create `lib/services/secure_storage_service.dart`
-- [ ] Implement secure token storage:
+- [x] Create `lib/services/secure_storage_service.dart`
+- [x] Implement secure token storage:
   ```dart
   class SecureStorageService {
     final FlutterSecureStorage _storage;
@@ -726,15 +726,15 @@ The MVP is complete when:
     Future<bool> hasValidTokens();
   }
   ```
-- [ ] Add encryption for sensitive data on Android
-- [ ] Configure iOS Keychain settings
-- [ ] Implement token expiry checking
-- [ ] Add error handling for storage failures
-- [ ] Test storage persistence across app restarts
+- [x] Add encryption for sensitive data on Android
+- [x] Configure iOS Keychain settings
+- [x] Implement token expiry checking
+- [x] Add error handling for storage failures
+- [x] Test storage persistence across app restarts
 
 ### 12.5 HTTP API Service Layer
-- [ ] Create `lib/services/api_service.dart`
-- [ ] Implement base HTTP client:
+- [x] Create `lib/services/api_service.dart`
+- [x] Implement base HTTP client:
   ```dart
   class ApiService {
     final String baseUrl = 'https://api.motolens.com';
@@ -745,9 +745,9 @@ The MVP is complete when:
     Future<http.Response> delete(String endpoint);
   }
   ```
-- [ ] Add automatic JWT token attachment to headers
-- [ ] Implement automatic token refresh on 401 errors
-- [ ] Add request/response interceptors for logging
+- [x] Add automatic JWT token attachment to headers
+- [x] Implement automatic token refresh on 401 errors
+- [x] Add request/response interceptors for logging
 - [ ] Add network error handling and user-friendly messages
 - [ ] Add timeout configuration (30 seconds)
 - [ ] Implement retry logic for failed requests
