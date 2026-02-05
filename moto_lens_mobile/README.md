@@ -1,0 +1,1 @@
+flutter emulators --launch Pixel_Fold_API_35

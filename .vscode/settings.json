@@ -1,8 +1,29 @@
 {
+    // Global Editor Settings
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": "explicit"
     },
+    // File & Search Exclusions (reduce noise)
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "**/.dart_tool": true,
+        "**/build": false,
+        "frontend/node_modules": false,
+        "backend/node_modules": false
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/build": true,
+        "**/.dart_tool": true,
+        "**/ios/Pods": true,
+        "**/android/.gradle": true,
+        "**/android/.idea": true,
+        "**/*.freezed.dart": true,
+        "**/*.g.dart": true
+    },
+    // TypeScript/JavaScript (Frontend & Backend)
     "[typescript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
     },
@@ -14,5 +35,29 @@
     },
     "[json]": {
         "editor.defaultFormatter": "vscode.json-language-features"
-    }
+    },
+    // Dart/Flutter (Mobile App)
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "editor.rulers": [
+            80
+        ],
+        "editor.selectionHighlight": false,
+        "editor.suggest.snippetsPreventQuickSuggestions": false,
+        "editor.suggestSelection": "first",
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "off",
+        "editor.defaultFormatter": "Dart-Code.dart-code"
+    },
+    // Flutter SDK Path (update if your Flutter is elsewhere)
+    "dart.flutterSdkPath": "/Users/kiwana/development/flutter",
+    // Dart Analysis
+    "dart.lineLength": 80,
+    "dart.showTodos": true,
+    // Comments for AI Agents
+    // Mobile app is in: mobile/
+    // Backend API is in: backend/
+    // When adding mobile features, check if backend endpoints exist first
+    // Backend URL config: mobile/lib/config/environment.dart
 }
