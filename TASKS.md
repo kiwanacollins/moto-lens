@@ -644,5 +644,909 @@ The MVP is complete when:
 
 ---
 
-*Last Updated: January 23, 2026*  
-*Status: Ready to Begin Development*
+## 🎯 Phase 12: Flutter Mobile Authentication UI (PRIORITY - HARDEST PART)
+
+### 12.1 Flutter Project Setup & Dependencies
+- [ ] Initialize Flutter project structure in `moto_lens_mobile/`
+- [ ] Add authentication dependencies to `pubspec.yaml`:
+  - [ ] `flutter_secure_storage: ^9.0.0` (secure token storage)
+  - [ ] `http: ^1.1.0` (API calls)
+  - [ ] `provider: ^6.1.1` (state management)
+  - [ ] `shared_preferences: ^2.2.2` (user preferences)
+  - [ ] `form_builder_validators: ^9.1.0` (form validation)
+  - [ ] `flutter_form_builder: ^9.1.0` (form widgets)
+- [ ] Configure Android permissions in `android/app/src/main/AndroidManifest.xml`:
+  - [ ] Internet permission
+  - [ ] Network state permission
+- [ ] Configure iOS permissions in `ios/Runner/Info.plist`
+- [ ] Test dependency installation and basic app launch
+
+### 12.2 Design System & Brand Implementation
+- [ ] Create `lib/styles/` directory structure:
+  ```
+  lib/styles/
+  ├── app_colors.dart      # MotoLens brand colors
+  ├── app_typography.dart  # Inter + JetBrains Mono
+  ├── app_spacing.dart     # Consistent spacing
+  └── app_theme.dart       # Complete theme
+  ```
+- [ ] Implement MotoLens brand colors:
+  - [ ] Electric Blue: `#0ea5e9` (primary)
+  - [ ] Carbon Black: `#0a0a0a` (text/backgrounds)
+  - [ ] Gunmetal Gray: `#52525b` (secondary text)
+  - [ ] Zinc scale: 50, 100, 200, etc.
+- [ ] Configure custom fonts (Inter + JetBrains Mono):
+  - [ ] Download and add to `assets/fonts/`
+  - [ ] Update `pubspec.yaml` with font declarations
+  - [ ] Create typography classes matching React PWA
+- [ ] Create reusable UI components:
+  - [ ] `CustomButton` (Electric Blue primary, proper tap targets)
+  - [ ] `CustomTextField` (brand styling, high contrast)
+  - [ ] `LoadingSpinner` (Electric Blue accent)
+  - [ ] `ErrorMessage` (red semantic color)
+  - [ ] `BrandCard` (white background, subtle shadows)
+
+### 12.3 Authentication Models & Data Classes
+- [ ] Create `lib/models/auth/` directory
+- [ ] Implement `User` model:
+  ```dart
+  class User {
+    final String id;
+    final String email;
+    final String? username;
+    final String firstName;
+    final String lastName;
+    final String? garageName;
+    final UserRole role;
+    final SubscriptionTier subscriptionTier;
+    final bool emailVerified;
+  }
+  ```
+- [ ] Implement `AuthResponse` model for API responses
+- [ ] Implement `LoginRequest` and `RegisterRequest` models
+- [ ] Create `UserProfile` model for extended user data
+- [ ] Add JSON serialization/deserialization methods
+- [ ] Create validation methods for email, password, etc.
+- [ ] Add `copyWith` methods for immutable updates
+
+### 12.4 Secure Storage Service
+- [ ] Create `lib/services/secure_storage_service.dart`
+- [ ] Implement secure token storage:
+  ```dart
+  class SecureStorageService {
+    final FlutterSecureStorage _storage;
+    
+    Future<void> saveTokens(String accessToken, String refreshToken);
+    Future<String?> getAccessToken();
+    Future<String?> getRefreshToken();
+    Future<void> deleteTokens();
+    Future<bool> hasValidTokens();
+  }
+  ```
+- [ ] Add encryption for sensitive data on Android
+- [ ] Configure iOS Keychain settings
+- [ ] Implement token expiry checking
+- [ ] Add error handling for storage failures
+- [ ] Test storage persistence across app restarts
+
+### 12.5 HTTP API Service Layer
+- [ ] Create `lib/services/api_service.dart`
+- [ ] Implement base HTTP client:
+  ```dart
+  class ApiService {
+    final String baseUrl = 'https://api.motolens.com';
+    
+    Future<http.Response> get(String endpoint, {Map<String, String>? headers});
+    Future<http.Response> post(String endpoint, {Map<String, dynamic>? body});
+    Future<http.Response> put(String endpoint, {Map<String, dynamic>? body});
+    Future<http.Response> delete(String endpoint);
+  }
+  ```
+- [ ] Add automatic JWT token attachment to headers
+- [ ] Implement automatic token refresh on 401 errors
+- [ ] Add request/response interceptors for logging
+- [ ] Add network error handling and user-friendly messages
+- [ ] Add timeout configuration (30 seconds)
+- [ ] Implement retry logic for failed requests
+
+### 12.6 Authentication Service
+- [ ] Create `lib/services/auth_service.dart`
+- [ ] Implement core authentication methods:
+  ```dart
+  class AuthService {
+    Future<AuthResponse> login(String email, String password);
+    Future<AuthResponse> register(RegisterRequest request);
+    Future<void> logout();
+    Future<bool> refreshToken();
+    Future<User?> getCurrentUser();
+    Future<void> logoutFromAllDevices();
+    
+    // Password management
+    Future<void> forgotPassword(String email);
+    Future<bool> resetPassword(String token, String newPassword);
+    Future<bool> changePassword(String currentPassword, String newPassword);
+    
+    // Email verification
+    Future<void> verifyEmail(String token);
+    Future<void> resendVerification();
+  }
+  ```
+- [ ] Add comprehensive error handling with custom exceptions
+- [ ] Implement device fingerprinting (model, OS version)
+- [ ] Add login attempt tracking and security measures
+- [ ] Test all methods with mock backend responses
+
+**Estimated Time:** 6-8 hours
+
+---
+
+## 🎯 Phase 13: Flutter Authentication UI Screens
+
+### 13.1 Splash Screen & Auto-Login
+- [ ] Create `lib/screens/auth/splash_screen.dart`
+- [ ] Design branded splash screen:
+  - [ ] MotoLens logo (Electric Blue on Carbon Black)
+  - [ ] Professional loading indicator
+  - [ ] Brand typography for tagline
+- [ ] Implement automatic authentication check:
+  ```dart
+  class SplashScreen extends StatefulWidget {
+    @override
+    _SplashScreenState createState() => _SplashScreenState();
+  }
+  
+  class _SplashScreenState extends State<SplashScreen> {
+    @override
+    void initState() {
+      super.initState();
+      _checkAuthStatus();
+    }
+    
+    Future<void> _checkAuthStatus() async {
+      await Future.delayed(Duration(seconds: 2)); // Branding display
+      
+      final hasValidToken = await SecureStorageService().hasValidTokens();
+      if (hasValidToken) {
+        final user = await AuthService().getCurrentUser();
+        if (user != null) {
+          Navigator.pushReplacementNamed(context, '/dashboard');
+          return;
+        }
+      }
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
+  ```
+- [ ] Add smooth transitions to next screen
+- [ ] Handle network connectivity issues gracefully
+- [ ] Add error handling for corrupt token data
+
+### 13.2 Login Screen (Professional Design)
+- [ ] Create `lib/screens/auth/login_screen.dart`
+- [ ] Design mobile-first login form with MotoLens branding:
+  - [ ] Carbon Black background with white content cards
+  - [ ] MotoLens logo at top (appropriate size)
+  - [ ] Email field (professional styling, auto-focus)
+  - [ ] Password field (secure, show/hide toggle)
+  - [ ] Electric Blue login button (large, 48px+ height)
+  - [ ] Professional error messages (red semantic color)
+  - [ ] "Forgot Password?" link (Gunmetal Gray)
+  - [ ] "Create Account" navigation (Electric Blue accent)
+- [ ] Implement form validation:
+  ```dart
+  class LoginForm extends StatefulWidget {
+    @override
+    _LoginFormState createState() => _LoginFormState();
+  }
+  
+  class _LoginFormState extends State<LoginForm> {
+    final _formKey = GlobalKey<FormState>();
+    final _emailController = TextEditingController();
+    final _passwordController = TextEditingController();
+    bool _isLoading = false;
+    String? _error;
+    
+    Future<void> _handleLogin() async {
+      if (_formKey.currentState!.validate()) {
+        setState(() {
+          _isLoading = true;
+          _error = null;
+        });
+        
+        try {
+          await context.read<AuthProvider>().login(
+            _emailController.text.trim(),
+            _passwordController.text,
+          );
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        } catch (e) {
+          setState(() {
+            _error = e.toString();
+          });
+        } finally {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    }
+  }
+  ```
+- [ ] Add keyboard-friendly design (proper focus management)
+- [ ] Add "Remember Me" functionality (optional)
+- [ ] Implement smooth loading states with brand styling
+- [ ] Add accessibility labels for screen readers
+- [ ] Test with various email formats and edge cases
+
+### 13.3 Registration Screen (Multi-Step)
+- [ ] Create `lib/screens/auth/register_screen.dart`
+- [ ] Design professional multi-step registration:
+  
+  **Step 1: Basic Info**
+  - [ ] Email field (with validation)
+  - [ ] Password field (strength indicator)
+  - [ ] Confirm password field
+  - [ ] Progress indicator (1/3)
+  
+  **Step 2: Profile Info**
+  - [ ] First Name field
+  - [ ] Last Name field  
+  - [ ] Phone Number field (optional)
+  - [ ] Progress indicator (2/3)
+  
+  **Step 3: Professional Info**
+  - [ ] Garage/Shop Name field
+  - [ ] Role selection (Mechanic, Shop Owner, Inspector)
+  - [ ] Years of Experience slider
+  - [ ] Specializations (German cars, electrical, etc.)
+  - [ ] Progress indicator (3/3)
+  
+- [ ] Implement form state management:
+  ```dart
+  class RegistrationState {
+    final String email;
+    final String password;
+    final String firstName;
+    final String lastName;
+    final String? phoneNumber;
+    final String? garageName;
+    final UserRole role;
+    final int yearsExperience;
+    final List<String> specializations;
+    
+    RegistrationState copyWith({...});
+  }
+  ```
+- [ ] Add real-time validation for each field
+- [ ] Implement password strength checking
+- [ ] Add email format validation with domain checking  
+- [ ] Create smooth step transitions (slide animations)
+- [ ] Add back button functionality without losing data
+- [ ] Test complete registration flow end-to-end
+
+### 13.4 Authentication State Management
+- [ ] Create `lib/providers/auth_provider.dart`
+- [ ] Implement comprehensive auth state:
+  ```dart
+  class AuthProvider extends ChangeNotifier {
+    User? _user;
+    bool _isAuthenticated = false;
+    bool _isLoading = false;
+    String? _error;
+    
+    // Getters
+    User? get user => _user;
+    bool get isAuthenticated => _isAuthenticated;
+    bool get isLoading => _isLoading;
+    String? get error => _error;
+    
+    // Core methods
+    Future<void> login(String email, String password);
+    Future<void> register(RegisterRequest request);
+    Future<void> logout();
+    Future<void> logoutFromAllDevices();
+    
+    // Profile management
+    Future<void> updateProfile(UserProfile profile);
+    Future<void> changePassword(String current, String new);
+    
+    // Session management
+    Future<void> refreshSession();
+    void clearError();
+    
+    // Auto token refresh
+    void startTokenRefreshTimer();
+    void stopTokenRefreshTimer();
+  }
+  ```
+- [ ] Add automatic token refresh every 14 minutes
+- [ ] Implement logout on token expiry
+- [ ] Add session monitoring and cleanup
+- [ ] Handle network connectivity changes
+- [ ] Add comprehensive error state management
+
+### 13.5 Password Management Screens
+- [ ] Create `lib/screens/auth/forgot_password_screen.dart`:
+  - [ ] Email input with validation
+  - [ ] Professional "Send Reset Link" button
+  - [ ] Success message with next steps
+  - [ ] Return to login navigation
+  
+- [ ] Create `lib/screens/auth/reset_password_screen.dart`:
+  - [ ] New password field with strength indicator
+  - [ ] Confirm password field
+  - [ ] Professional submit button
+  - [ ] Success message and auto-navigation to login
+  
+- [ ] Create `lib/screens/profile/change_password_screen.dart`:
+  - [ ] Current password field
+  - [ ] New password field (strength checking)
+  - [ ] Confirm new password field
+  - [ ] Professional save button
+  - [ ] Success feedback
+
+**Estimated Time:** 8-10 hours
+
+---
+
+## 🎯 Phase 14: Backend Production Authentication System
+
+### 14.1 Database Setup & Schema
+- [ ] Install and configure PostgreSQL dependencies:
+  - [ ] `npm install prisma @prisma/client`
+  - [ ] `npm install jsonwebtoken bcryptjs`
+  - [ ] `npm install express-rate-limit helmet express-validator`
+  - [ ] `npm install nodemailer uuid`
+- [ ] Create `backend/prisma/schema.prisma`:
+  ```prisma
+  model User {
+    id String @id @default(uuid())
+    email String @unique
+    username String?
+    passwordHash String
+    firstName String
+    lastName String
+    phoneNumber String?
+    garageName String?
+    role UserRole @default(MECHANIC)
+    emailVerified Boolean @default(false)
+    subscriptionTier SubscriptionTier @default(FREE)
+    isActive Boolean @default(true)
+    lastLoginAt DateTime?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    sessions UserSession[]
+    profile UserProfile?
+    scanHistory VinScanHistory[]
+    passwordResets PasswordResetToken[]
+    emailVerifications EmailVerificationToken[]
+  }
+  ```
+- [ ] Add remaining models (UserSession, UserProfile, etc.)
+- [ ] Run initial migration: `npx prisma migrate dev`
+- [ ] Generate Prisma client: `npx prisma generate`
+- [ ] Set up database connection with connection pooling
+
+### 14.2 JWT Utilities & Security
+- [ ] Create `backend/src/utils/jwt.js`:
+  ```javascript
+  const jwt = require('jsonwebtoken');
+  
+  class JWTUtil {
+    static generateAccessToken(user) {
+      return jwt.sign(
+        {
+          sub: user.id,
+          email: user.email,
+          role: user.role,
+          type: 'access'
+        },
+        process.env.JWT_SECRET,
+        { 
+          expiresIn: '15m',
+          issuer: 'motolens-api',
+          audience: 'motolens-app'
+        }
+      );
+    }
+    
+    static generateRefreshToken(user) {
+      return jwt.sign(
+        {
+          sub: user.id,
+          type: 'refresh'
+        },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: '7d' }
+      );
+    }
+    
+    static verifyAccessToken(token);
+    static verifyRefreshToken(token); 
+    static blacklistToken(token);
+    static isTokenBlacklisted(token);
+  }
+  ```
+- [ ] Implement token blacklisting system
+- [ ] Add token rotation on refresh
+- [ ] Create secure token storage helpers
+- [ ] Add JWT middleware for protected routes
+
+### 14.3 Password Security & Validation
+- [ ] Create `backend/src/utils/password.js`:
+  ```javascript
+  const bcrypt = require('bcryptjs');
+  
+  class PasswordUtil {
+    static async hash(password) {
+      const saltRounds = 12;
+      return await bcrypt.hash(password, saltRounds);
+    }
+    
+    static async verify(password, hash) {
+      return await bcrypt.compare(password, hash);
+    }
+    
+    static validateStrength(password) {
+      const requirements = {
+        minLength: password.length >= 8,
+        hasUppercase: /[A-Z]/.test(password),
+        hasLowercase: /[a-z]/.test(password),
+        hasNumbers: /\d/.test(password),
+        hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+      };
+      
+      const score = Object.values(requirements).filter(Boolean).length;
+      return { requirements, score, isValid: score >= 4 };
+    }
+    
+    static generateSecureToken() {
+      return crypto.randomBytes(32).toString('hex');
+    }
+  }
+  ```
+- [ ] Add password history checking (prevent reuse of last 5)
+- [ ] Implement account lockout after failed attempts
+- [ ] Add password expiry warnings (optional)
+
+### 14.4 Email Service Integration
+- [ ] Set up email service (SendGrid or Nodemailer):
+  ```javascript
+  class EmailService {
+    static async sendVerificationEmail(user, token);
+    static async sendPasswordResetEmail(user, token);
+    static async sendPasswordChangeNotification(user);
+    static async sendLoginNotification(user, deviceInfo);
+    
+    static generateEmailTemplate(type, data);
+    static validateEmailDelivery(messageId);
+  }
+  ```
+- [ ] Create professional email templates with MotoLens branding
+- [ ] Add email delivery tracking
+- [ ] Implement email queue for high volume
+- [ ] Add unsubscribe functionality
+
+### 14.5 Authentication Routes Implementation  
+- [ ] Create `backend/src/routes/auth.js`:
+  ```javascript
+  // Registration & Login
+  POST /api/auth/register
+  POST /api/auth/login
+  POST /api/auth/logout
+  POST /api/auth/logout-all
+  POST /api/auth/refresh-token
+  GET /api/auth/me
+  
+  // Profile Management
+  PUT /api/auth/profile
+  PUT /api/auth/change-password
+  POST /api/auth/upload-avatar
+  
+  // Password Recovery
+  POST /api/auth/forgot-password
+  POST /api/auth/reset-password
+  
+  // Email Verification
+  POST /api/auth/verify-email
+  POST /api/auth/resend-verification
+  
+  // Session Management
+  GET /api/auth/sessions
+  DELETE /api/auth/sessions/:sessionId
+  DELETE /api/auth/sessions
+  ```
+- [ ] Add comprehensive input validation for all endpoints
+- [ ] Implement rate limiting (10 login attempts per 15 minutes)
+- [ ] Add audit logging for security events
+- [ ] Test all endpoints with Postman/Thunder Client
+
+**Estimated Time:** 10-12 hours
+
+---
+
+## 🎯 Phase 15: Security & Production Features
+
+### 15.1 Advanced Security Implementation
+- [ ] Add comprehensive rate limiting:
+  ```javascript
+  const rateLimits = {
+    login: rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 10, // 10 attempts per IP
+      message: 'Too many login attempts'
+    }),
+    register: rateLimit({
+      windowMs: 60 * 60 * 1000, // 1 hour
+      max: 3, // 3 registrations per IP
+      message: 'Too many registration attempts'
+    }),
+    passwordReset: rateLimit({
+      windowMs: 60 * 60 * 1000, // 1 hour
+      max: 3, // 3 reset attempts per email
+      message: 'Too many password reset attempts'
+    })
+  };
+  ```
+- [ ] Implement CORS security for production
+- [ ] Add helmet.js for security headers
+- [ ] Implement input sanitization and validation
+- [ ] Add SQL injection protection (Prisma handles this)
+- [ ] Implement XSS prevention
+- [ ] Add CSRF protection for web routes
+
+### 15.2 Session Management & Device Tracking
+- [ ] Implement comprehensive session tracking:
+  ```javascript
+  class SessionManager {
+    static async createSession(userId, deviceInfo, ipAddress);
+    static async validateSession(sessionToken);
+    static async revokeSession(sessionId);
+    static async revokeAllUserSessions(userId);
+    static async cleanExpiredSessions();
+    
+    static async getUserActiveSessions(userId);
+    static async detectSuspiciousActivity(userId);
+    static async sendLoginAlerts(userId, deviceInfo);
+  }
+  ```
+- [ ] Add device fingerprinting (OS, browser, etc.)
+- [ ] Implement session limits per user (max 5 devices)
+- [ ] Add suspicious login detection
+- [ ] Send email notifications for new device logins
+
+### 15.3 Admin Panel & User Management
+- [ ] Create admin authentication middleware:
+  ```javascript
+  const requireAdmin = (req, res, next) => {
+    if (req.user.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    next();
+  };
+  ```
+- [ ] Implement admin routes:
+  ```javascript
+  // User Management
+  GET /api/admin/users
+  GET /api/admin/users/:id
+  PUT /api/admin/users/:id
+  DELETE /api/admin/users/:id
+  
+  // Analytics & Monitoring
+  GET /api/admin/analytics/users
+  GET /api/admin/analytics/logins
+  GET /api/admin/security/events
+  GET /api/admin/sessions/active
+  ```
+- [ ] Add user search and filtering capabilities
+- [ ] Implement bulk user operations
+- [ ] Add analytics dashboard data endpoints
+- [ ] Create security monitoring endpoints
+
+### 15.4 Subscription & Role Management
+- [ ] Implement subscription tier checking:
+  ```javascript
+  const checkSubscriptionLimit = (tier, feature) => {
+    return async (req, res, next) => {
+      const user = await User.findById(req.user.id);
+      const limits = SUBSCRIPTION_LIMITS[tier][feature];
+      
+      if (await hasExceededLimit(user, feature, limits)) {
+        return res.status(429).json({ 
+          error: 'Subscription limit exceeded',
+          upgrade: true 
+        });
+      }
+      next();
+    };
+  };
+  ```
+- [ ] Add feature flags for subscription tiers
+- [ ] Implement usage tracking (VIN scans, API calls)
+- [ ] Add subscription upgrade/downgrade logic
+- [ ] Create billing integration endpoints (future)
+
+**Estimated Time:** 6-8 hours
+
+---
+
+## 🎯 Phase 16: React PWA Auth Migration & Integration
+
+### 16.1 PWA Authentication Service Update
+- [ ] Update `frontend/src/services/authApi.ts`:
+  ```typescript
+  export class AuthAPI {
+    private static baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+    
+    static async login(email: string, password: string): Promise<AuthResponse> {
+      const response = await fetch(`${this.baseURL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies for refresh tokens
+        body: JSON.stringify({ 
+          email, 
+          password,
+          deviceType: 'web',
+          deviceName: navigator.userAgent 
+        })
+      });
+      
+      if (!response.ok) {
+        throw new AuthError(await response.json());
+      }
+      
+      return await response.json();
+    }
+    
+    static async refreshToken(): Promise<AuthResponse>;
+    static async register(data: RegisterRequest): Promise<AuthResponse>;
+    static async logout(): Promise<void>;
+    static async getCurrentUser(): Promise<User>;
+  }
+  ```
+- [ ] Replace localStorage with secure cookie-based refresh tokens
+- [ ] Add automatic token refresh timing (14-minute intervals)
+- [ ] Implement comprehensive error handling
+- [ ] Add network connectivity detection
+
+### 16.2 PWA Auth Context Migration
+- [ ] Update `frontend/src/contexts/AuthContext.tsx`:
+  ```typescript
+  export function AuthProvider({ children }: { children: ReactNode }) {
+    const [user, setUser] = useState<User | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    
+    // Auto token refresh
+    useEffect(() => {
+      let refreshTimer: NodeJS.Timeout;
+      
+      if (isAuthenticated) {
+        refreshTimer = setInterval(async () => {
+          try {
+            await AuthAPI.refreshToken();
+          } catch (error) {
+            console.error('Token refresh failed:', error);
+            handleLogout();
+          }
+        }, 14 * 60 * 1000); // 14 minutes
+      }
+      
+      return () => clearInterval(refreshTimer);
+    }, [isAuthenticated]);
+  }
+  ```
+- [ ] Add comprehensive authentication state management
+- [ ] Implement session validation on app startup  
+- [ ] Add error boundary for auth failures
+- [ ] Test backward compatibility with existing routes
+
+### 16.3 Registration & Profile Management UI
+- [ ] Create new PWA registration components:
+  - [ ] `RegistrationForm.tsx` (professional multi-step design)
+  - [ ] `EmailVerificationScreen.tsx`
+  - [ ] `ProfileSetupForm.tsx`
+  - [ ] `ForgotPasswordForm.tsx`
+  - [ ] `ResetPasswordForm.tsx`
+- [ ] Update login form to match new backend API
+- [ ] Add user profile management page:
+  - [ ] Profile information editing
+  - [ ] Password change functionality
+  - [ ] Session management (view/revoke active sessions)
+  - [ ] Account deletion option
+- [ ] Implement responsive design for all new screens
+- [ ] Test form validation and error handling
+
+### 16.4 Cross-Platform Data Sync
+- [ ] Update VIN scan history to sync with backend:
+  ```typescript
+  interface VinScanRecord {
+    id: string;
+    userId: string;
+    vinNumber: string;
+    vehicleMake: string;
+    vehicleModel: string;
+    vehicleYear: number;
+    partsIdentified: PartInfo[];
+    scanSource: 'mobile' | 'web';
+    scannedAt: Date;
+  }
+  ```
+- [ ] Add scan history API endpoints to backend
+- [ ] Implement offline scan caching with sync when online
+- [ ] Add user preferences sync (theme, language, etc.)
+- [ ] Create data export functionality (GDPR compliance)
+
+**Estimated Time:** 6-8 hours
+
+---
+
+## 🎯 Phase 17: Integration Testing & Deployment
+
+### 17.1 End-to-End Testing
+- [ ] Test complete Flutter authentication flow:
+  - [ ] Registration → Email verification → Login → Profile setup
+  - [ ] Password reset flow
+  - [ ] Session management (logout from all devices)
+  - [ ] Token refresh and expiry handling
+  - [ ] Offline behavior and sync
+- [ ] Test React PWA auth migration:
+  - [ ] Migration from dummy auth to real auth
+  - [ ] Cross-platform session consistency
+  - [ ] Data sync between mobile and web
+  - [ ] Backward compatibility
+- [ ] Test backend security:
+  - [ ] Rate limiting effectiveness
+  - [ ] SQL injection prevention 
+  - [ ] XSS protection
+  - [ ] CORS security
+  - [ ] Token blacklisting
+- [ ] Performance testing:
+  - [ ] Database query optimization
+  - [ ] API response times
+  - [ ] Mobile app startup time
+  - [ ] Token refresh performance
+
+### 17.2 Security Audit & Penetration Testing
+- [ ] Conduct comprehensive security review:
+  - [ ] Password security (hashing, strength requirements)
+  - [ ] JWT token security (secret strength, expiry, rotation)
+  - [ ] Session management security
+  - [ ] API endpoint security
+  - [ ] Input validation coverage
+- [ ] Test common attack vectors:
+  - [ ] Brute force login attempts
+  - [ ] SQL injection attempts
+  - [ ] XSS attempts
+  - [ ] CSRF attempts
+  - [ ] Session hijacking
+- [ ] Review and fix any security vulnerabilities
+- [ ] Document security measures for compliance
+
+### 17.3 Database Migration & Production Deployment
+- [ ] Set up production PostgreSQL database:
+  - [ ] Configure AWS RDS or managed PostgreSQL service
+  - [ ] Set up automated backups
+  - [ ] Configure connection pooling
+  - [ ] Add database monitoring
+- [ ] Deploy backend to production:
+  - [ ] Choose hosting platform (Vercel, Railway, or AWS)
+  - [ ] Configure environment variables
+  - [ ] Set up SSL/TLS certificates
+  - [ ] Configure domain and DNS
+  - [ ] Test production API endpoints
+- [ ] Deploy PWA updates:
+  - [ ] Update API URLs to production
+  - [ ] Test PWA functionality with production backend
+  - [ ] Verify CORS configuration
+- [ ] Set up monitoring and alerting:
+  - [ ] Application monitoring (Sentry or similar)
+  - [ ] Database monitoring
+  - [ ] API usage tracking
+  - [ ] Security event monitoring
+
+### 17.4 Migration Strategy & Rollback Plan
+- [ ] Create migration strategy for existing users:
+  - [ ] Data export from current dummy auth system
+  - [ ] User notification about auth system upgrade
+  - [ ] Graceful transition period
+  - [ ] Support for users who need help migrating
+- [ ] Implement feature flags:
+  - [ ] Toggle between old and new auth systems
+  - [ ] Gradual rollout capability
+  - [ ] A/B testing support
+- [ ] Create rollback procedures:
+  - [ ] Database rollback scripts
+  - [ ] Frontend rollback deployment
+  - [ ] Backend rollback deployment
+  - [ ] User communication plan for rollbacks
+
+**Estimated Time:** 8-10 hours
+
+---
+
+## 📊 Updated Time Estimate Summary
+
+| Phase | Task | Estimated Time | Priority |
+|-------|------|----------------|----------|
+| 12 | Flutter Auth UI Setup | 6-8 hours | **HIGHEST** |
+| 13 | Flutter Auth Screens | 8-10 hours | **HIGHEST** |
+| 14 | Backend Auth System | 10-12 hours | **HIGH** |
+| 15 | Security & Production Features | 6-8 hours | **HIGH** |
+| 16 | PWA Auth Migration | 6-8 hours | **MEDIUM** |
+| 17 | Integration & Deployment | 8-10 hours | **MEDIUM** |
+| **Total** | **Full Production Auth** | **44-56 hours** | |
+
+**Realistic Timeline:** 6-7 weeks for complete production authentication system
+
+---
+
+## 🚨 Critical Dependencies & Order
+
+**Phase Order (Must Follow Sequence):**
+
+1. **Phase 12 & 13 (Flutter Mobile Auth UI)** - START HERE (HARDEST PART)
+2. **Phase 14 (Backend Auth System)** - Required for Flutter testing
+3. **Phase 15 (Security Features)** - Builds on backend
+4. **Phase 16 (PWA Migration)** - After backend is stable
+5. **Phase 17 (Integration & Deployment)** - Final phase
+
+**Key Blockers:**
+- Flutter UI design must be completed before backend auth APIs
+- Backend APIs must be working before PWA migration
+- Security features need complete backend before implementation
+- Integration testing requires all components working
+
+---
+
+## 🔧 Technology Stack Summary
+
+**Flutter Mobile:**
+- `flutter_secure_storage` - Secure token storage
+- `provider` - State management
+- `http` - API communication
+- `form_builder_validators` - Form validation
+
+**Backend (Node.js):**
+- `prisma` - Database ORM and migrations
+- `jsonwebtoken` - JWT token handling
+- `bcryptjs` - Password hashing
+- `express-rate-limit` - Brute force protection
+- `helmet` - Security headers
+- `nodemailer` - Email services
+
+**Database:**
+- PostgreSQL - Production database
+- Prisma migrations - Schema management
+
+**Security:**
+- JWT access tokens (15 min expiry)
+- Refresh tokens (7 day expiry) 
+- bcrypt password hashing (12 rounds)
+- Rate limiting on auth endpoints
+- Session tracking and management
+
+---
+
+## 💰 Updated Budget Impact
+
+**New Costs for Production Auth:**
+- PostgreSQL hosting: $25-100/month
+- Email service (SendGrid): $15-50/month
+- Additional backend hosting resources: $10-30/month
+- SSL certificates: $0 (Let's Encrypt)
+- **Total Additional Monthly: $50-180**
+
+**One-time Development:**
+- Additional development time: 44-56 hours
+- Third-party integrations setup: Included
+- Security audit (optional): $500-1000
+- **Development Budget Impact: Time only (no additional service costs)**
+
+---
+
+*Last Updated: February 5, 2026*  
+*Status: Ready to Begin Authentication Implementation*
