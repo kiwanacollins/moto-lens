@@ -14,6 +14,18 @@ dotenv.config({ path: join(__dirname, '..', '.env') });
 // Routes
 import authRoutes from './routes/auth.js';
 
+// Security Middleware
+import {
+  securityHeaders,
+  productionCorsOptions,
+  globalRateLimit,
+  vinDecodeRateLimit,
+  sanitizeInput,
+  preventXSS,
+  validateSqlInput,
+  securityLogger,
+} from './middleware/security.js';
+
 // Services
 import multiProviderVinService from './services/multiProviderVinService.js';
 import vinUtils from './utils/vinValidator.js';
@@ -38,13 +50,43 @@ const imageService = {
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// ========================================
+// SECURITY MIDDLEWARE (Applied First)
+// ========================================
+
+// Helmet security headers (production-grade security)
+app.use(securityHeaders);
+
+// Security logging for sensitive operations
+app.use(securityLogger);
+
+// Input sanitization (XSS prevention)
+app.use(sanitizeInput);
+
+// SQL injection validation
+app.use(validateSqlInput);
+
+// XSS prevention headers
+app.use(preventXSS);
+
+// Global rate limiting (all routes)
+if (process.env.NODE_ENV === 'production') {
+  app.use(globalRateLimit);
+}
+
+// ========================================
+// CORS CONFIGURATION
+// ========================================
+
 // Parse allowed origins from environment (comma-separated)
 const allowedOrigins = process.env.FRONTEND_URL
     ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
     : ['http://localhost:5173'];
 
 // CORS configuration for frontend (supports multiple origins for Vercel previews)
-const corsOptions = {
+const corsOptions = process.env.NODE_ENV === 'production'
+  ? productionCorsOptions
+  : {
     origin: (origin, callback) => {
         // Allow requests with no origin (mobile apps, curl, etc.)
         if (!origin) return callback(null, true);
@@ -84,8 +126,12 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/api/auth', authRoutes);
 
 // ========================================
-// API ROUTES  
+// API ROUTES (with VIN rate limiting)
 // ========================================
+
+// Apply VIN decode rate limiting to VIN endpoints
+app.use('/api/vin', vinDecodeRateLimit);
+app.use('/api/vehicle', vinDecodeRateLimit);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
