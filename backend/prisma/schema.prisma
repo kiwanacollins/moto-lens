@@ -1,0 +1,337 @@
+// This is your Prisma schema file for MotoLens
+// Documentation: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// ==================== USER MANAGEMENT ====================
+
+/// User account model - Core authentication and profile data
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String?  @unique
+
+  // Password authentication
+  passwordHash String
+  passwordChangedAt DateTime?
+
+  // Personal information
+  firstName String
+  lastName  String
+  phoneNumber String?
+
+  // Professional details (mechanics)
+  garageName String?
+  yearsExperience Int?
+  specializations String[] @default([])
+
+  // Account settings
+  role UserRole @default(MECHANIC)
+  subscriptionTier SubscriptionTier @default(FREE)
+
+  // Account status
+  isActive Boolean @default(true)
+  emailVerified Boolean @default(false)
+  emailVerifiedAt DateTime?
+
+  // Metadata
+  lastLoginAt DateTime?
+  lastLoginIp String?
+  lastLoginDevice String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sessions UserSession[]
+  profile UserProfile?
+  scanHistory VinScanHistory[]
+  passwordResets PasswordResetToken[]
+  emailVerifications EmailVerificationToken[]
+  loginHistory LoginHistory[]
+
+  @@index([email])
+  @@index([username])
+  @@index([isActive])
+  @@index([emailVerified])
+  @@map("users")
+}
+
+/// User role enumeration
+enum UserRole {
+  MECHANIC      // Primary role - garage mechanics
+  SHOP_OWNER    // Garage/shop owners
+  ADMIN         // System administrators
+  SUPPORT       // Customer support team
+}
+
+/// Subscription tier enumeration
+enum SubscriptionTier {
+  FREE          // Free tier - limited scans
+  BASIC         // Basic paid tier
+  PRO           // Professional tier
+  ENTERPRISE    // Enterprise tier
+}
+
+/// Extended user profile information
+model UserProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Additional profile fields
+  bio String?
+  avatarUrl String?
+  language String @default("en")
+  timezone String @default("UTC")
+
+  // Preferences
+  emailNotifications Boolean @default(true)
+  marketingEmails Boolean @default(false)
+  smsNotifications Boolean @default(false)
+
+  // Business information
+  businessAddress String?
+  businessCity String?
+  businessState String?
+  businessZip String?
+  businessCountry String @default("DE")
+
+  taxId String? // For business accounts
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_profiles")
+}
+
+/// ==================== SESSION MANAGEMENT ====================
+
+/// Active user sessions for token tracking
+model UserSession {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Session tokens
+  refreshToken String @unique
+  refreshTokenHash String // Hashed version for security
+
+  // Device information
+  deviceType String? // mobile, web, tablet
+  deviceName String?
+  deviceOs String?
+  ipAddress String?
+  userAgent String?
+
+  // Session lifecycle
+  isActive Boolean @default(true)
+  expiresAt DateTime
+  lastActivityAt DateTime @default(now())
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([refreshToken])
+  @@index([expiresAt])
+  @@index([isActive])
+  @@map("user_sessions")
+}
+
+/// Login history for security auditing
+model LoginHistory {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Login attempt details
+  success Boolean
+  ipAddress String?
+  deviceType String?
+  deviceName String?
+  userAgent String?
+  location String? // Approximate location from IP
+
+  // Failure details
+  failureReason String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([success])
+  @@map("login_history")
+}
+
+/// ==================== PASSWORD MANAGEMENT ====================
+
+/// Password reset tokens
+model PasswordResetToken {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Token information
+  token String @unique
+  tokenHash String // Hashed version
+
+  // Token lifecycle
+  used Boolean @default(false)
+  usedAt DateTime?
+  expiresAt DateTime
+
+  // Request metadata
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+/// Email verification tokens
+model EmailVerificationToken {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  email String // Email being verified
+
+  // Token information
+  token String @unique
+  tokenHash String
+
+  // Token lifecycle
+  used Boolean @default(false)
+  usedAt DateTime?
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("email_verification_tokens")
+}
+
+/// ==================== VIN SCANNING & HISTORY ====================
+
+/// User's VIN scan history
+model VinScanHistory {
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // VIN information
+  vinNumber String
+
+  // Vehicle information
+  vehicleMake String
+  vehicleModel String
+  vehicleYear Int
+  vehicleTrim String?
+  vehicleEngine String?
+  vehicleBodyType String?
+
+  // Scan metadata
+  scanSource String @default("web") // mobile, web, api
+  deviceType String?
+
+  // Parts identified
+  partsIdentifiedCount Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([vinNumber])
+  @@index([createdAt])
+  @@map("vin_scan_history")
+}
+
+/// ==================== API USAGE TRACKING ====================
+
+/// API usage tracking for rate limiting and billing
+model ApiUsage {
+  id String @id @default(uuid())
+  userId String
+
+  // API endpoint information
+  endpoint String
+  method String
+
+  // Request details
+  statusCode Int
+  responseTime Int // milliseconds
+
+  // Usage metadata
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([endpoint])
+  @@index([createdAt])
+  @@map("api_usage")
+}
+
+/// ==================== SECURITY EVENTS ====================
+
+/// Security event logging
+model SecurityEvent {
+  id String @id @default(uuid())
+  userId String?
+
+  // Event details
+  eventType SecurityEventType
+  severity SecurityEventSeverity
+  description String
+
+  // Event metadata
+  ipAddress String?
+  userAgent String?
+  deviceType String?
+
+  // Additional context
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([severity])
+  @@index([createdAt])
+  @@map("security_events")
+}
+
+enum SecurityEventType {
+  LOGIN_SUCCESS
+  LOGIN_FAILURE
+  PASSWORD_RESET_REQUEST
+  PASSWORD_RESET_SUCCESS
+  PASSWORD_CHANGED
+  EMAIL_VERIFIED
+  ACCOUNT_LOCKED
+  ACCOUNT_UNLOCKED
+  SUSPICIOUS_ACTIVITY
+  TOKEN_REFRESH
+  LOGOUT
+  LOGOUT_ALL_DEVICES
+}
+
+enum SecurityEventSeverity {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
