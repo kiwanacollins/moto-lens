@@ -2,6 +2,7 @@
 ///
 /// This barrel file exports all provider classes and state management
 /// utilities for easy importing throughout the application.
+library;
 
 // Authentication state and provider
 export 'authentication_state.dart';

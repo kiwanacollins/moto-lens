@@ -386,11 +386,7 @@ class ApiService {
     try {
       final response = await post(
         '/vehicle/parts/search',
-        body: {
-          'vin': vin,
-          if (partName != null) 'partName': partName,
-          if (partNumber != null) 'partNumber': partNumber,
-        },
+        body: {'vin': vin, 'partName': ?partName, 'partNumber': ?partNumber},
       );
       return json.decode(response.body);
     } catch (e) {

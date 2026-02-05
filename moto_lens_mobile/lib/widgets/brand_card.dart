@@ -50,7 +50,7 @@ class BrandCard extends StatelessWidget {
   final bool isLoading;
 
   const BrandCard({
-    Key? key,
+    super.key,
     this.title,
     this.subtitle,
     this.child,
@@ -65,7 +65,7 @@ class BrandCard extends StatelessWidget {
     this.isSelected = false,
     this.isDisabled = false,
     this.isLoading = false,
-  }) : super(key: key);
+  });
 
   /// Vehicle information card constructor
   const BrandCard.vehicleInfo({
@@ -356,7 +356,7 @@ class ExpandableBrandCard extends StatefulWidget {
   final void Function(bool isExpanded)? onExpansionChanged;
 
   const ExpandableBrandCard({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     this.leading,
@@ -364,7 +364,7 @@ class ExpandableBrandCard extends StatefulWidget {
     required this.expandedContent,
     this.initiallyExpanded = false,
     this.onExpansionChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<ExpandableBrandCard> createState() => _ExpandableBrandCardState();

@@ -29,7 +29,7 @@ class ErrorMessage extends StatelessWidget {
   final String? description;
 
   const ErrorMessage({
-    Key? key,
+    super.key,
     required this.message,
     this.type = ErrorMessageType.general,
     this.onRetry,
@@ -37,7 +37,7 @@ class ErrorMessage extends StatelessWidget {
     this.showAsCard = false,
     this.customIcon,
     this.description,
-  }) : super(key: key);
+  });
 
   /// Network error constructor
   const ErrorMessage.network({
@@ -248,11 +248,11 @@ class InlineErrorMessage extends StatelessWidget {
   final bool showBackground;
 
   const InlineErrorMessage({
-    Key? key,
+    super.key,
     required this.message,
     this.icon,
     this.showBackground = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -317,14 +317,14 @@ class EmptyStateMessage extends StatelessWidget {
   final Widget? illustration;
 
   const EmptyStateMessage({
-    Key? key,
+    super.key,
     required this.title,
     this.description,
     this.actionText,
     this.onAction,
     this.icon,
     this.illustration,
-  }) : super(key: key);
+  });
 
   /// No VIN results constructor
   const EmptyStateMessage.noVinResults({

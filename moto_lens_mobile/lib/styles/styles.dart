@@ -2,6 +2,7 @@
 ///
 /// Complete design system export for consistent UI across the app
 /// Professional automotive themes, colors, typography, and spacing
+library;
 
 // Color system
 export 'app_colors.dart';

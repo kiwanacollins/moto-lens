@@ -2,6 +2,7 @@
 ///
 /// This barrel file exports all screen widgets for easy importing
 /// throughout the application.
+library;
 
 // Authentication screens
 export 'login_screen.dart';

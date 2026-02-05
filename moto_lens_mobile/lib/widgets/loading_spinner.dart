@@ -23,13 +23,13 @@ class LoadingSpinner extends StatelessWidget {
   final bool centered;
 
   const LoadingSpinner({
-    Key? key,
+    super.key,
     this.size = LoadingSpinnerSize.medium,
     this.color,
     this.strokeWidth,
     this.message,
     this.centered = false,
-  }) : super(key: key);
+  });
 
   /// Small spinner constructor
   const LoadingSpinner.small({Key? key, Color? color, bool centered = false})
@@ -150,10 +150,10 @@ class PageLoadingOverlay extends StatelessWidget {
   final double backgroundOpacity;
 
   const PageLoadingOverlay({
-    Key? key,
+    super.key,
     this.message = 'Loading...',
     this.backgroundOpacity = 0.7,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -175,8 +175,7 @@ class InlineLoading extends StatelessWidget {
   /// Text style
   final TextStyle? textStyle;
 
-  const InlineLoading({Key? key, this.text = 'Loading...', this.textStyle})
-    : super(key: key);
+  const InlineLoading({super.key, this.text = 'Loading...', this.textStyle});
 
   @override
   Widget build(BuildContext context) {
@@ -207,8 +206,7 @@ class AutomotiveLoading extends StatefulWidget {
   /// Loading message
   final String? message;
 
-  const AutomotiveLoading({Key? key, this.size = 60.0, this.message})
-    : super(key: key);
+  const AutomotiveLoading({super.key, this.size = 60.0, this.message});
 
   @override
   State<AutomotiveLoading> createState() => _AutomotiveLoadingState();
@@ -316,8 +314,7 @@ class ShimmerLoading extends StatefulWidget {
   /// Whether shimmer is enabled
   final bool enabled;
 
-  const ShimmerLoading({Key? key, required this.child, this.enabled = true})
-    : super(key: key);
+  const ShimmerLoading({super.key, required this.child, this.enabled = true});
 
   @override
   State<ShimmerLoading> createState() => _ShimmerLoadingState();

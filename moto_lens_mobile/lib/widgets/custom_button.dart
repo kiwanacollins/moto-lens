@@ -32,7 +32,7 @@ class CustomButton extends StatelessWidget {
   final IconData? suffixIcon;
 
   const CustomButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.variant = CustomButtonVariant.primary,
@@ -41,7 +41,7 @@ class CustomButton extends StatelessWidget {
     this.isLoading = false,
     this.prefixIcon,
     this.suffixIcon,
-  }) : super(key: key);
+  });
 
   /// Primary button constructor
   const CustomButton.primary({

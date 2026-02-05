@@ -2,6 +2,7 @@
 ///
 /// This barrel file exports all authentication-related models
 /// for easy importing throughout the application.
+library;
 
 // Core user models
 export 'user.dart';

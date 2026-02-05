@@ -222,7 +222,7 @@ class AppTheme {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusLarge)),
     ),
-    margin: const EdgeInsets.all(4.0),
+    margin: EdgeInsets.all(4.0),
   );
 
   /// ==================== CHIP THEME ====================

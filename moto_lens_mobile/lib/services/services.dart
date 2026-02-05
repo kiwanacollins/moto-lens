@@ -2,6 +2,7 @@
 ///
 /// This barrel file exports all service layer classes
 /// for easy importing throughout the application.
+library;
 
 // Authentication and storage services
 export 'secure_storage_service.dart';

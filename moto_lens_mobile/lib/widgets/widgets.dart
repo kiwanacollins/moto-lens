@@ -2,6 +2,7 @@
 ///
 /// Professional UI components for automotive applications
 /// Consistent design system with Electric Blue branding
+library;
 
 // Core UI components
 export 'custom_button.dart';

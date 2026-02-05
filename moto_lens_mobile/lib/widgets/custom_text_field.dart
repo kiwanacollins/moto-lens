@@ -69,7 +69,7 @@ class CustomTextField extends StatefulWidget {
   final FocusNode? focusNode;
 
   const CustomTextField({
-    Key? key,
+    super.key,
     this.label,
     this.hintText,
     this.initialValue,
@@ -90,7 +90,7 @@ class CustomTextField extends StatefulWidget {
     this.maxLength,
     this.inputFormatters,
     this.focusNode,
-  }) : super(key: key);
+  });
 
   /// Email input constructor
   const CustomTextField.email({
