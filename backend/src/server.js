@@ -16,14 +16,14 @@ import authRoutes from './routes/auth.js';
 
 // Security Middleware
 import {
-  securityHeaders,
-  productionCorsOptions,
-  globalRateLimit,
-  vinDecodeRateLimit,
-  sanitizeInput,
-  preventXSS,
-  validateSqlInput,
-  securityLogger,
+    securityHeaders,
+    productionCorsOptions,
+    globalRateLimit,
+    vinDecodeRateLimit,
+    sanitizeInput,
+    preventXSS,
+    validateSqlInput,
+    securityLogger,
 } from './middleware/security.js';
 
 // Services
@@ -71,7 +71,7 @@ app.use(preventXSS);
 
 // Global rate limiting (all routes)
 if (process.env.NODE_ENV === 'production') {
-  app.use(globalRateLimit);
+    app.use(globalRateLimit);
 }
 
 // ========================================
@@ -85,33 +85,33 @@ const allowedOrigins = process.env.FRONTEND_URL
 
 // CORS configuration for frontend (supports multiple origins for Vercel previews)
 const corsOptions = process.env.NODE_ENV === 'production'
-  ? productionCorsOptions
-  : {
-    origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, etc.)
-        if (!origin) return callback(null, true);
+    ? productionCorsOptions
+    : {
+        origin: (origin, callback) => {
+            // Allow requests with no origin (mobile apps, curl, etc.)
+            if (!origin) return callback(null, true);
 
-        // Check if origin matches allowed list or Vercel preview URLs
-        const isAllowed = allowedOrigins.some(allowed => {
-            if (allowed.includes('*')) {
-                // Handle wildcard patterns like *.vercel.app
-                const pattern = new RegExp('^' + allowed.replace(/\*/g, '.*') + '$');
-                return pattern.test(origin);
+            // Check if origin matches allowed list or Vercel preview URLs
+            const isAllowed = allowedOrigins.some(allowed => {
+                if (allowed.includes('*')) {
+                    // Handle wildcard patterns like *.vercel.app
+                    const pattern = new RegExp('^' + allowed.replace(/\*/g, '.*') + '$');
+                    return pattern.test(origin);
+                }
+                return allowed === origin;
+            });
+
+            if (isAllowed) {
+                callback(null, true);
+            } else {
+                console.warn(`CORS blocked origin: ${origin}`);
+                callback(null, true); // Allow in dev, change to callback(new Error('CORS')) in strict mode
             }
-            return allowed === origin;
-        });
-
-        if (isAllowed) {
-            callback(null, true);
-        } else {
-            console.warn(`CORS blocked origin: ${origin}`);
-            callback(null, true); // Allow in dev, change to callback(new Error('CORS')) in strict mode
-        }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-};
+        },
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
+    };
 
 // Middleware
 app.use(cors(corsOptions));

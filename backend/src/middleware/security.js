@@ -283,25 +283,15 @@ function sanitizeValue(value) {
     let sanitized = value
         .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
         .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-        .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '') // Remove inline event handlers
-        .replace(/javascript:/gi, ''); // Remove javascript: protocol
+    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, ''); // Remove inline event handlers
 
-    // Remove control characters except newline and tab
-    sanitized = sanitized.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
+  // Only remove javascript: protocol if it exists
+  if (sanitized.toLowerCase().includes('javascript:')) {
+    sanitized = sanitized.replace(/javascript:/gi, '');
+  }
 
-    return sanitized;
-}
-
-/**
- * XSS Prevention Middleware
- * Additional layer of XSS protection beyond sanitization
- */
-export const preventXSS = (req, res, next) => {
-    // Set X-XSS-Protection header (legacy)
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-
-    // Set X-Content-Type-Options header
-    res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Remove null bytes and other dangerous control characters
+  sanitized = sanitized.replace(/\x00/g, '');
 
     // Set X-Frame-Options header
     res.setHeader('X-Frame-Options', 'DENY');
@@ -319,21 +309,21 @@ export const preventXSS = (req, res, next) => {
  * @returns {string} CSRF token
  */
 export function generateCsrfToken(sessionId) {
-  const token = crypto.randomBytes(32).toString('hex');
-  
-  // In production, store this in Redis or session store
-  // For now, we'll use a simple in-memory store
-  if (!global.csrfTokens) {
-    global.csrfTokens = new Map();
-  }
-  
-  global.csrfTokens.set(sessionId, {
-    token,
-    createdAt: Date.now(),
-    expiresAt: Date.now() + (60 * 60 * 1000), // 1 hour
-  });
-  
-  return token;
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // In production, store this in Redis or session store
+    // For now, we'll use a simple in-memory store
+    if (!global.csrfTokens) {
+        global.csrfTokens = new Map();
+    }
+
+    global.csrfTokens.set(sessionId, {
+        token,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + (60 * 60 * 1000), // 1 hour
+    });
+
+    return token;
 }
 
 /**
