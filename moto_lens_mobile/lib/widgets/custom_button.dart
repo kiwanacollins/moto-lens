@@ -9,28 +9,28 @@ import '../styles/styles.dart';
 class CustomButton extends StatelessWidget {
   /// Button text
   final String text;
-  
+
   /// Callback when button is pressed
   final VoidCallback? onPressed;
-  
+
   /// Button variant style
   final CustomButtonVariant variant;
-  
+
   /// Button size
   final CustomButtonSize size;
-  
+
   /// Full width button
   final bool isFullWidth;
-  
+
   /// Loading state - shows spinner and disables button
   final bool isLoading;
-  
+
   /// Icon to show before text
   final IconData? prefixIcon;
-  
+
   /// Icon to show after text
   final IconData? suffixIcon;
-  
+
   const CustomButton({
     Key? key,
     required this.text,
@@ -54,16 +54,16 @@ class CustomButton extends StatelessWidget {
     IconData? prefixIcon,
     IconData? suffixIcon,
   }) : this(
-          key: key,
-          text: text,
-          onPressed: onPressed,
-          variant: CustomButtonVariant.primary,
-          size: size,
-          isFullWidth: isFullWidth,
-          isLoading: isLoading,
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
-        );
+         key: key,
+         text: text,
+         onPressed: onPressed,
+         variant: CustomButtonVariant.primary,
+         size: size,
+         isFullWidth: isFullWidth,
+         isLoading: isLoading,
+         prefixIcon: prefixIcon,
+         suffixIcon: suffixIcon,
+       );
 
   /// Secondary button constructor
   const CustomButton.secondary({
@@ -76,16 +76,16 @@ class CustomButton extends StatelessWidget {
     IconData? prefixIcon,
     IconData? suffixIcon,
   }) : this(
-          key: key,
-          text: text,
-          onPressed: onPressed,
-          variant: CustomButtonVariant.secondary,
-          size: size,
-          isFullWidth: isFullWidth,
-          isLoading: isLoading,
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
-        );
+         key: key,
+         text: text,
+         onPressed: onPressed,
+         variant: CustomButtonVariant.secondary,
+         size: size,
+         isFullWidth: isFullWidth,
+         isLoading: isLoading,
+         prefixIcon: prefixIcon,
+         suffixIcon: suffixIcon,
+       );
 
   /// Outline button constructor
   const CustomButton.outline({
@@ -98,16 +98,16 @@ class CustomButton extends StatelessWidget {
     IconData? prefixIcon,
     IconData? suffixIcon,
   }) : this(
-          key: key,
-          text: text,
-          onPressed: onPressed,
-          variant: CustomButtonVariant.outline,
-          size: size,
-          isFullWidth: isFullWidth,
-          isLoading: isLoading,
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
-        );
+         key: key,
+         text: text,
+         onPressed: onPressed,
+         variant: CustomButtonVariant.outline,
+         size: size,
+         isFullWidth: isFullWidth,
+         isLoading: isLoading,
+         prefixIcon: prefixIcon,
+         suffixIcon: suffixIcon,
+       );
 
   /// Text button constructor
   const CustomButton.text({
@@ -120,16 +120,16 @@ class CustomButton extends StatelessWidget {
     IconData? prefixIcon,
     IconData? suffixIcon,
   }) : this(
-          key: key,
-          text: text,
-          onPressed: onPressed,
-          variant: CustomButtonVariant.text,
-          size: size,
-          isFullWidth: isFullWidth,
-          isLoading: isLoading,
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
-        );
+         key: key,
+         text: text,
+         onPressed: onPressed,
+         variant: CustomButtonVariant.text,
+         size: size,
+         isFullWidth: isFullWidth,
+         isLoading: isLoading,
+         prefixIcon: prefixIcon,
+         suffixIcon: suffixIcon,
+       );
 
   /// Destructive button constructor
   const CustomButton.destructive({
@@ -142,21 +142,21 @@ class CustomButton extends StatelessWidget {
     IconData? prefixIcon,
     IconData? suffixIcon,
   }) : this(
-          key: key,
-          text: text,
-          onPressed: onPressed,
-          variant: CustomButtonVariant.destructive,
-          size: size,
-          isFullWidth: isFullWidth,
-          isLoading: isLoading,
-          prefixIcon: prefixIcon,
-          suffixIcon: suffixIcon,
-        );
+         key: key,
+         text: text,
+         onPressed: onPressed,
+         variant: CustomButtonVariant.destructive,
+         size: size,
+         isFullWidth: isFullWidth,
+         isLoading: isLoading,
+         prefixIcon: prefixIcon,
+         suffixIcon: suffixIcon,
+       );
 
   @override
   Widget build(BuildContext context) {
     final bool isDisabled = onPressed == null || isLoading;
-    
+
     // Build button content with optional icons and loading spinner
     Widget buttonContent = Row(
       mainAxisSize: MainAxisSize.min,
@@ -166,7 +166,7 @@ class CustomButton extends StatelessWidget {
           Icon(prefixIcon, size: _getIconSize()),
           const SizedBox(width: AppSpacing.xs),
         ],
-        
+
         if (isLoading) ...[
           SizedBox(
             width: _getIconSize(),
@@ -178,13 +178,9 @@ class CustomButton extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.xs),
         ],
-        
-        Text(
-          text,
-          style: _getTextStyle(),
-          textAlign: TextAlign.center,
-        ),
-        
+
+        Text(text, style: _getTextStyle(), textAlign: TextAlign.center),
+
         if (suffixIcon != null && !isLoading) ...[
           const SizedBox(width: AppSpacing.xs),
           Icon(suffixIcon, size: _getIconSize()),
@@ -194,10 +190,7 @@ class CustomButton extends StatelessWidget {
 
     // Wrap in full width if needed
     if (isFullWidth) {
-      buttonContent = SizedBox(
-        width: double.infinity,
-        child: buttonContent,
-      );
+      buttonContent = SizedBox(width: double.infinity, child: buttonContent);
     }
 
     // Build the appropriate button type
@@ -208,28 +201,28 @@ class CustomButton extends StatelessWidget {
           style: _getPrimaryButtonStyle(context),
           child: buttonContent,
         );
-        
+
       case CustomButtonVariant.secondary:
         return ElevatedButton(
           onPressed: isDisabled ? null : onPressed,
           style: _getSecondaryButtonStyle(context),
           child: buttonContent,
         );
-        
+
       case CustomButtonVariant.outline:
         return OutlinedButton(
           onPressed: isDisabled ? null : onPressed,
           style: _getOutlineButtonStyle(context),
           child: buttonContent,
         );
-        
+
       case CustomButtonVariant.text:
         return TextButton(
           onPressed: isDisabled ? null : onPressed,
           style: _getTextButtonStyle(context),
           child: buttonContent,
         );
-        
+
       case CustomButtonVariant.destructive:
         return ElevatedButton(
           onPressed: isDisabled ? null : onPressed,
@@ -338,10 +331,7 @@ class CustomButton extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
       ),
-      side: const BorderSide(
-        color: AppColors.electricBlue,
-        width: 1.5,
-      ),
+      side: const BorderSide(color: AppColors.electricBlue, width: 1.5),
     );
   }
 
@@ -377,17 +367,7 @@ class CustomButton extends StatelessWidget {
 }
 
 /// Button variant enum
-enum CustomButtonVariant {
-  primary,
-  secondary,
-  outline,
-  text,
-  destructive,
-}
+enum CustomButtonVariant { primary, secondary, outline, text, destructive }
 
 /// Button size enum
-enum CustomButtonSize {
-  small,
-  medium,
-  large,
-}
+enum CustomButtonSize { small, medium, large }

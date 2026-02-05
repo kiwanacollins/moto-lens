@@ -9,16 +9,16 @@ import '../styles/styles.dart';
 class LoadingSpinner extends StatelessWidget {
   /// Size of the spinner
   final LoadingSpinnerSize size;
-  
+
   /// Color of the spinner
   final Color? color;
-  
+
   /// Stroke width of the spinner
   final double? strokeWidth;
-  
+
   /// Loading message to display below spinner
   final String? message;
-  
+
   /// Whether to center the spinner
   final bool centered;
 
@@ -32,16 +32,13 @@ class LoadingSpinner extends StatelessWidget {
   }) : super(key: key);
 
   /// Small spinner constructor
-  const LoadingSpinner.small({
-    Key? key,
-    Color? color,
-    bool centered = false,
-  }) : this(
-          key: key,
-          size: LoadingSpinnerSize.small,
-          color: color,
-          centered: centered,
-        );
+  const LoadingSpinner.small({Key? key, Color? color, bool centered = false})
+    : this(
+        key: key,
+        size: LoadingSpinnerSize.small,
+        color: color,
+        centered: centered,
+      );
 
   /// Medium spinner constructor
   const LoadingSpinner.medium({
@@ -50,12 +47,12 @@ class LoadingSpinner extends StatelessWidget {
     String? message,
     bool centered = false,
   }) : this(
-          key: key,
-          size: LoadingSpinnerSize.medium,
-          color: color,
-          message: message,
-          centered: centered,
-        );
+         key: key,
+         size: LoadingSpinnerSize.medium,
+         color: color,
+         message: message,
+         centered: centered,
+       );
 
   /// Large spinner constructor
   const LoadingSpinner.large({
@@ -64,21 +61,21 @@ class LoadingSpinner extends StatelessWidget {
     String? message,
     bool centered = true,
   }) : this(
-          key: key,
-          size: LoadingSpinnerSize.large,
-          color: color,
-          message: message,
-          centered: centered,
-        );
+         key: key,
+         size: LoadingSpinnerSize.large,
+         color: color,
+         message: message,
+         centered: centered,
+       );
 
   @override
   Widget build(BuildContext context) {
     final spinner = _buildSpinner();
-    
+
     if (centered) {
       return Center(child: spinner);
     }
-    
+
     return spinner;
   }
 
@@ -148,7 +145,7 @@ class LoadingSpinner extends StatelessWidget {
 class PageLoadingOverlay extends StatelessWidget {
   /// Loading message
   final String? message;
-  
+
   /// Background color opacity
   final double backgroundOpacity;
 
@@ -162,10 +159,7 @@ class PageLoadingOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.carbonBlack.withOpacity(backgroundOpacity),
-      child: LoadingSpinner.large(
-        message: message,
-        color: Colors.white,
-      ),
+      child: LoadingSpinner.large(message: message, color: Colors.white),
     );
   }
 }
@@ -177,15 +171,12 @@ class PageLoadingOverlay extends StatelessWidget {
 class InlineLoading extends StatelessWidget {
   /// Loading text
   final String text;
-  
+
   /// Text style
   final TextStyle? textStyle;
 
-  const InlineLoading({
-    Key? key,
-    this.text = 'Loading...',
-    this.textStyle,
-  }) : super(key: key);
+  const InlineLoading({Key? key, this.text = 'Loading...', this.textStyle})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -196,9 +187,9 @@ class InlineLoading extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs),
         Text(
           text,
-          style: textStyle ?? AppTypography.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
-          ),
+          style:
+              textStyle ??
+              AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
         ),
       ],
     );
@@ -212,15 +203,12 @@ class InlineLoading extends StatelessWidget {
 class AutomotiveLoading extends StatefulWidget {
   /// Size of the animation
   final double size;
-  
+
   /// Loading message
   final String? message;
 
-  const AutomotiveLoading({
-    Key? key,
-    this.size = 60.0,
-    this.message,
-  }) : super(key: key);
+  const AutomotiveLoading({Key? key, this.size = 60.0, this.message})
+    : super(key: key);
 
   @override
   State<AutomotiveLoading> createState() => _AutomotiveLoadingState();
@@ -241,11 +229,8 @@ class _AutomotiveLoadingState extends State<AutomotiveLoading>
     _animation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-    
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
     _controller.repeat();
   }
 
@@ -275,13 +260,10 @@ class _AutomotiveLoadingState extends State<AutomotiveLoading>
                     height: widget.size,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.border,
-                        width: 2.0,
-                      ),
+                      border: Border.all(color: AppColors.border, width: 2.0),
                     ),
                   ),
-                  
+
                   // Animated progress arc
                   SizedBox(
                     width: widget.size,
@@ -295,7 +277,7 @@ class _AutomotiveLoadingState extends State<AutomotiveLoading>
                       backgroundColor: Colors.transparent,
                     ),
                   ),
-                  
+
                   // Car icon in center
                   Icon(
                     Icons.directions_car,
@@ -307,7 +289,7 @@ class _AutomotiveLoadingState extends State<AutomotiveLoading>
             },
           ),
         ),
-        
+
         if (widget.message != null) ...[
           const SizedBox(height: AppSpacing.md),
           Text(
@@ -330,15 +312,12 @@ class _AutomotiveLoadingState extends State<AutomotiveLoading>
 class ShimmerLoading extends StatefulWidget {
   /// Child widget to apply shimmer effect to
   final Widget child;
-  
+
   /// Whether shimmer is enabled
   final bool enabled;
 
-  const ShimmerLoading({
-    Key? key,
-    required this.child,
-    this.enabled = true,
-  }) : super(key: key);
+  const ShimmerLoading({Key? key, required this.child, this.enabled = true})
+    : super(key: key);
 
   @override
   State<ShimmerLoading> createState() => _ShimmerLoadingState();
@@ -356,14 +335,10 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    _animation = Tween<double>(
-      begin: -1.0,
-      end: 2.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOutSine,
-    ));
-    
+    _animation = Tween<double>(begin: -1.0, end: 2.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOutSine),
+    );
+
     if (widget.enabled) {
       _controller.repeat();
     }
@@ -422,9 +397,4 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
 }
 
 /// Loading spinner size enum
-enum LoadingSpinnerSize {
-  small,
-  medium,
-  large,
-  extraLarge,
-}
+enum LoadingSpinnerSize { small, medium, large, extraLarge }

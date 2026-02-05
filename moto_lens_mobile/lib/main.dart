@@ -27,12 +27,14 @@ class MyApp extends StatelessWidget {
       // App configuration
       title: 'MotoLens',
       debugShowCheckedModeBanner: false,
-      
+
       // MotoLens theme
       theme: AppTheme.lightTheme,
-      
+
       // App home page
-      home: const MyHomePage(title: 'MotoLens Mobile'), // const DesignSystemDemo(),
+      home: const MyHomePage(
+        title: 'MotoLens Mobile',
+      ), // const DesignSystemDemo(),
     );
   }
 }

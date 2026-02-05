@@ -1,5 +1,5 @@
 /// MotoLens Custom Widgets
-/// 
+///
 /// Professional UI components for automotive applications
 /// Consistent design system with Electric Blue branding
 

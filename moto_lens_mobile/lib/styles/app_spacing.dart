@@ -227,7 +227,9 @@ class AppSpacing {
   }
 
   /// Standard screen padding
-  static const EdgeInsets screenPaddingEdgeInsets = EdgeInsets.all(screenPadding);
+  static const EdgeInsets screenPaddingEdgeInsets = EdgeInsets.all(
+    screenPadding,
+  );
 
   /// Standard card padding
   static const EdgeInsets cardPaddingEdgeInsets = EdgeInsets.all(cardPadding);

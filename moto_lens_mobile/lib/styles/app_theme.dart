@@ -183,7 +183,8 @@ class AppTheme {
 
   /// ==================== INPUT DECORATION THEME ====================
 
-  static final InputDecorationTheme _inputDecorationTheme = const InputDecorationTheme(
+  static final InputDecorationTheme
+  _inputDecorationTheme = const InputDecorationTheme(
     filled: true,
     fillColor: AppColors.backgroundSecondary,
     contentPadding: AppSpacing.inputPaddingEdgeInsets,
@@ -230,10 +231,7 @@ class AppTheme {
     backgroundColor: AppColors.backgroundSecondary,
     selectedColor: AppColors.electricBlue,
     labelStyle: AppTypography.chip,
-    padding: EdgeInsets.symmetric(
-      horizontal: 12.0,
-      vertical: 8.0,
-    ),
+    padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusSmall)),
     ),
@@ -322,9 +320,7 @@ class AppTheme {
   );
 
   static const ListTileThemeData _listTileTheme = ListTileThemeData(
-    contentPadding: EdgeInsets.symmetric(
-      horizontal: 16.0,
-    ),
+    contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
     titleTextStyle: AppTypography.bodyLarge,
     subtitleTextStyle: AppTypography.bodyMedium,
     dense: false,
@@ -399,10 +395,7 @@ class AppTheme {
       borderRadius: BorderRadius.all(Radius.circular(8.0)),
     ),
     textStyle: AppTypography.bodySmall.copyWith(color: Colors.white),
-    padding: const EdgeInsets.symmetric(
-      horizontal: 12.0,
-      vertical: 4.0,
-    ),
+    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
   );
 
   /// ==================== CUSTOM WIDGET STYLES ====================

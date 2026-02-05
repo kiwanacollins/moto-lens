@@ -9,43 +9,43 @@ import '../styles/styles.dart';
 class BrandCard extends StatelessWidget {
   /// Card title
   final String? title;
-  
+
   /// Card subtitle
   final String? subtitle;
-  
+
   /// Main content widget
   final Widget? child;
-  
+
   /// Leading icon or widget
   final Widget? leading;
-  
+
   /// Trailing widget (action buttons, chips, etc.)
   final Widget? trailing;
-  
+
   /// Card background color
   final Color? backgroundColor;
-  
+
   /// Card border color
   final Color? borderColor;
-  
+
   /// Card padding
   final EdgeInsets? padding;
-  
+
   /// Card margin
   final EdgeInsets? margin;
-  
+
   /// Card elevation
   final double? elevation;
-  
+
   /// On tap callback
   final VoidCallback? onTap;
-  
+
   /// Whether card is selected/active
   final bool isSelected;
-  
+
   /// Whether card is disabled
   final bool isDisabled;
-  
+
   /// Whether to show loading state
   final bool isLoading;
 
@@ -78,18 +78,18 @@ class BrandCard extends StatelessWidget {
     VoidCallback? onTap,
     bool isSelected = false,
   }) : this(
-          key: key,
-          title: '$year $make $model',
-          subtitle: vin,
-          leading: const Icon(
-            Icons.directions_car,
-            color: AppColors.electricBlue,
-            size: 24,
-          ),
-          trailing: trailing,
-          onTap: onTap,
-          isSelected: isSelected,
-        );
+         key: key,
+         title: '$year $make $model',
+         subtitle: vin,
+         leading: const Icon(
+           Icons.directions_car,
+           color: AppColors.electricBlue,
+           size: 24,
+         ),
+         trailing: trailing,
+         onTap: onTap,
+         isSelected: isSelected,
+       );
 
   /// Part information card constructor
   BrandCard.partInfo({
@@ -101,18 +101,18 @@ class BrandCard extends StatelessWidget {
     VoidCallback? onTap,
     bool isSelected = false,
   }) : this(
-          key: key,
-          title: partName,
-          subtitle: 'Part #$partNumber',
-          leading: Icon(
-            _getPartIcon(category),
-            color: AppColors.electricBlue,
-            size: 24,
-          ),
-          trailing: trailing,
-          onTap: onTap,
-          isSelected: isSelected,
-        );
+         key: key,
+         title: partName,
+         subtitle: 'Part #$partNumber',
+         leading: Icon(
+           _getPartIcon(category),
+           color: AppColors.electricBlue,
+           size: 24,
+         ),
+         trailing: trailing,
+         onTap: onTap,
+         isSelected: isSelected,
+       );
 
   /// Service card constructor
   BrandCard.service({
@@ -124,18 +124,14 @@ class BrandCard extends StatelessWidget {
     VoidCallback? onTap,
     bool isSelected = false,
   }) : this(
-          key: key,
-          title: serviceName,
-          subtitle: description,
-          leading: Icon(
-            icon,
-            color: AppColors.electricBlue,
-            size: 24,
-          ),
-          trailing: trailing,
-          onTap: onTap,
-          isSelected: isSelected,
-        );
+         key: key,
+         title: serviceName,
+         subtitle: description,
+         leading: Icon(icon, color: AppColors.electricBlue, size: 24),
+         trailing: trailing,
+         onTap: onTap,
+         isSelected: isSelected,
+       );
 
   /// Content card constructor for custom layouts
   const BrandCard.content({
@@ -147,14 +143,14 @@ class BrandCard extends StatelessWidget {
     VoidCallback? onTap,
     bool isSelected = false,
   }) : this(
-          key: key,
-          child: child,
-          padding: padding,
-          margin: margin,
-          backgroundColor: backgroundColor,
-          onTap: onTap,
-          isSelected: isSelected,
-        );
+         key: key,
+         child: child,
+         padding: padding,
+         margin: margin,
+         backgroundColor: backgroundColor,
+         onTap: onTap,
+         isSelected: isSelected,
+       );
 
   static IconData _getPartIcon(String? category) {
     switch (category?.toLowerCase()) {
@@ -181,10 +177,12 @@ class BrandCard extends StatelessWidget {
     final effectiveBackgroundColor = _getBackgroundColor();
     final effectiveBorderColor = _getBorderColor();
     final effectivePadding = padding ?? const EdgeInsets.all(AppSpacing.md);
-    final effectiveMargin = margin ?? const EdgeInsets.symmetric(
-      horizontal: AppSpacing.sm,
-      vertical: AppSpacing.xs,
-    );
+    final effectiveMargin =
+        margin ??
+        const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xs,
+        );
 
     Widget cardContent = Container(
       width: double.infinity,
@@ -211,18 +209,12 @@ class BrandCard extends StatelessWidget {
         child: InkWell(
           onTap: isDisabled ? null : onTap,
           borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-          child: Padding(
-            padding: effectivePadding,
-            child: _buildCardContent(),
-          ),
+          child: Padding(padding: effectivePadding, child: _buildCardContent()),
         ),
       ),
     );
 
-    return Container(
-      margin: effectiveMargin,
-      child: cardContent,
-    );
+    return Container(margin: effectiveMargin, child: cardContent);
   }
 
   Widget _buildCardContent() {
@@ -252,24 +244,24 @@ class BrandCard extends StatelessWidget {
                 Text(
                   title!,
                   style: AppTypography.h6.copyWith(
-                    color: isDisabled 
-                        ? AppColors.textDisabled 
+                    color: isDisabled
+                        ? AppColors.textDisabled
                         : AppColors.textPrimary,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-              
+
               if (subtitle != null) ...[
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
                   subtitle!,
                   style: AppTypography.bodySmall.copyWith(
-                    color: isDisabled 
-                        ? AppColors.textDisabled 
+                    color: isDisabled
+                        ? AppColors.textDisabled
                         : AppColors.textSecondary,
-                    fontFamily: _isCodeText(subtitle!) 
-                        ? AppTypography.monoFontFamily 
+                    fontFamily: _isCodeText(subtitle!)
+                        ? AppTypography.monoFontFamily
                         : AppTypography.primaryFontFamily,
                   ),
                   maxLines: 1,
@@ -306,11 +298,11 @@ class BrandCard extends StatelessWidget {
     if (isDisabled) {
       return AppColors.zinc100;
     }
-    
+
     if (isSelected) {
       return AppColors.electricBlue.withOpacity(0.1);
     }
-    
+
     return backgroundColor ?? AppColors.surface;
   }
 
@@ -318,11 +310,11 @@ class BrandCard extends StatelessWidget {
     if (isDisabled) {
       return AppColors.zinc200;
     }
-    
+
     if (isSelected) {
       return AppColors.electricBlue;
     }
-    
+
     return borderColor ?? AppColors.border;
   }
 
@@ -332,7 +324,7 @@ class BrandCard extends StatelessWidget {
     final hasNumbers = text.contains(RegExp(r'\d'));
     final hasUppercase = text.contains(RegExp(r'[A-Z]'));
     final isShort = text.length <= 20;
-    
+
     return hasNumbers && hasUppercase && isShort;
   }
 }
@@ -344,22 +336,22 @@ class BrandCard extends StatelessWidget {
 class ExpandableBrandCard extends StatefulWidget {
   /// Card title
   final String title;
-  
+
   /// Card subtitle
   final String? subtitle;
-  
+
   /// Leading widget
   final Widget? leading;
-  
+
   /// Collapsed content (shown when collapsed)
   final Widget? collapsedContent;
-  
+
   /// Expanded content (shown when expanded)
   final Widget expandedContent;
-  
+
   /// Initially expanded state
   final bool initiallyExpanded;
-  
+
   /// On expansion changed callback
   final void Function(bool isExpanded)? onExpansionChanged;
 
@@ -396,7 +388,7 @@ class _ExpandableBrandCardState extends State<ExpandableBrandCard>
       parent: _animationController,
       curve: Curves.easeInOut,
     );
-    
+
     if (_isExpanded) {
       _animationController.value = 1.0;
     }
@@ -434,7 +426,7 @@ class _ExpandableBrandCardState extends State<ExpandableBrandCard>
                 widget.leading!,
                 const SizedBox(width: AppSpacing.sm),
               ],
-              
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
