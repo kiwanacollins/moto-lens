@@ -94,57 +94,7 @@ class AuthenticationWrapper extends StatelessWidget {
   }
 }
 
-/// Splash screen shown during app initialization
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.electricBlue,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // MotoLens logo placeholder
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-              ),
-              child: const Icon(
-                Icons.directions_car,
-                size: 60,
-                color: AppColors.electricBlue,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              'MotoLens',
-              style: AppTypography.h1.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              'Professional VIN decoding',
-              style: AppTypography.bodyLarge.copyWith(
-                color: Colors.white.withOpacity(0.9),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// Splash screen is now imported from screens/auth/splash_screen.dart
 
 /// Loading screen for authentication operations
 class LoadingScreen extends StatelessWidget {
