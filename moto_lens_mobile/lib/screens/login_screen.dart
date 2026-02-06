@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
           ),
         ),
 
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: AppSpacing.lg),
 
         // Welcome Text
         Text(
