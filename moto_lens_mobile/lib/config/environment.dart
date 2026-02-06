@@ -30,7 +30,7 @@ class Environment {
   static String get apiVersion => 'v1';
 
   /// Get full API URL with version
-  static String get fullApiUrl => '$apiUrl/api/$apiVersion';
+  static String get fullApiUrl => '$apiUrl/api';
 
   /// Request timeout duration
   static const Duration requestTimeout = Duration(seconds: 30);
