@@ -293,8 +293,19 @@ function sanitizeValue(value) {
     // Remove null bytes and other dangerous control characters
     sanitized = sanitized.replace(/\x00/g, '');
 
+    return sanitized;
+}
+
+/**
+ * XSS Prevention Middleware
+ * Additional layer of XSS protection with response header setting
+ */
+export const preventXSS = (req, res, next) => {
     // Set X-Frame-Options header
     res.setHeader('X-Frame-Options', 'DENY');
+
+    // Set X-Content-Type-Options header
+    res.setHeader('X-Content-Type-Options', 'nosniff');
 
     next();
 };
