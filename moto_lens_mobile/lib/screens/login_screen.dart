@@ -126,11 +126,6 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
 
                 // Register & Password Reset Links
                 _buildBottomActions(),
-
-                const SizedBox(height: AppSpacing.xl),
-
-                // Social Login Section (Coming Soon)
-                _buildSocialSection(),
               ],
             ),
           ),
@@ -287,62 +282,6 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
             style: AppTypography.bodyMedium.copyWith(
               color: AppColors.electricBlue,
               fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Build social login section
-  Widget _buildSocialSection() {
-    return Column(
-      children: [
-        // Divider with "OR" text
-        Row(
-          children: [
-            const Expanded(child: Divider()),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              child: Text(
-                'OR',
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ),
-            const Expanded(child: Divider()),
-          ],
-        ),
-
-        const SizedBox(height: AppSpacing.lg),
-
-        // Social Login Buttons (Coming Soon)
-        Card(
-          elevation: 0,
-          color: AppColors.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-            side: BorderSide(color: AppColors.border, width: 1),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.construction,
-                  color: AppColors.electricBlue,
-                  size: 20,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'Social login coming soon',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
             ),
           ),
         ),
