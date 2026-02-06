@@ -9,4 +9,5 @@ export 'custom_button.dart';
 export 'custom_text_field.dart';
 export 'loading_spinner.dart';
 export 'error_message.dart';
+export 'error_alert.dart';
 export 'brand_card.dart';

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import '../styles/styles.dart';
 import '../widgets/widgets.dart';
+import '../widgets/error_alert.dart';
 import '../providers/providers.dart';
 
 /// Professional Login Screen for MotoLens
@@ -51,13 +52,15 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
       );
 
       if (!success && mounted) {
-        _showErrorSnackBar(
-          context.authError ?? 'Login failed. Please try again.',
+        ErrorSnackBar.show(
+          context,
+          context.authErrorOnce ?? 'Login failed. Please try again.',
+          onRetry: _handleLogin,
         );
       }
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar('Login failed: $e');
+        ErrorSnackBar.show(context, e, onRetry: _handleLogin);
       }
     } finally {
       if (mounted) {

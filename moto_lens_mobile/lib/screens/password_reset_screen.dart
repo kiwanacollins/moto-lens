@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import '../styles/styles.dart';
 import '../widgets/widgets.dart';
+import '../widgets/error_alert.dart';
 import '../providers/providers.dart';
 
 /// Password Reset Screen for MotoLens
@@ -47,14 +48,16 @@ class _PasswordResetScreenState extends State<PasswordResetScreen>
       if (success) {
         setState(() => _emailSent = true);
       } else if (mounted) {
-        _showErrorSnackBar(
-          context.authError ??
+        ErrorSnackBar.show(
+          context,
+          context.authErrorOnce ??
               'Password reset request failed. Please try again.',
+          onRetry: _handlePasswordReset,
         );
       }
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar('Password reset request failed: $e');
+        ErrorSnackBar.show(context, e, onRetry: _handlePasswordReset);
       }
     } finally {
       if (mounted) {

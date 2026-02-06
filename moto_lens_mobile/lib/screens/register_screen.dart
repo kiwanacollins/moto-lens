@@ -63,7 +63,8 @@ class _RegisterScreenState extends State<RegisterScreen>
   Future<void> _handleRegister() async {
     if (!(_formKeys[1].currentState?.validate() ?? false) || !_acceptTerms) {
       if (!_acceptTerms) {
-        _showErrorSnackBar(
+        ErrorSnackBar.show(
+          context,
           'Please accept the Terms and Conditions to continue',
         );
       }
@@ -91,13 +92,15 @@ class _RegisterScreenState extends State<RegisterScreen>
       );
 
       if (!success && mounted) {
-        _showErrorSnackBar(
-          context.authError ?? 'Registration failed. Please try again.',
+        ErrorSnackBar.show(
+          context,
+          context.authErrorOnce ?? 'Registration failed. Please try again.',
+          onRetry: _handleRegister,
         );
       }
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar('Registration failed: $e');
+        ErrorSnackBar.show(context, e, onRetry: _handleRegister);
       }
     } finally {
       if (mounted) {

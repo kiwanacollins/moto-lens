@@ -29,14 +29,22 @@ extension AuthenticationContext on BuildContext {
   /// Get current user (null if not authenticated)
   User? get currentUser => authWatch.currentUser;
 
-  /// Get authentication error message
+  /// Get authentication error message (reactive - use in build method)
   String? get authError => authWatch.error;
 
-  /// Convenient user information getters
+  /// Get authentication error message (non-reactive - use in event handlers)
+  String? get authErrorOnce => auth.error;
+
+  /// Convenient user information getters (reactive - use in build method)
   String get userDisplayName => authState.displayName;
   String get userEmail => authState.userEmail;
   bool get hasUnlimitedAccess => authState.hasUnlimitedAccess;
   bool get isProfessionalUser => authState.isProfessionalUser;
+
+  /// Non-reactive versions for use in event handlers
+  User? get currentUserOnce => auth.currentUser;
+  bool get isAuthenticatedOnce => auth.isAuthenticated;
+  bool get isAuthLoadingOnce => auth.isLoading;
 
   /// Authentication operations
 
@@ -116,7 +124,7 @@ mixin AuthenticationMixin<T extends StatefulWidget> on State<T> {
 
   /// Show authentication error as snackbar
   void showAuthError([String? customMessage]) {
-    final error = customMessage ?? context.authError;
+    final error = customMessage ?? context.authErrorOnce;
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/auth/auth.dart';
 import '../services/services.dart';
+import '../utils/error_handler.dart';
 import 'authentication_state.dart';
 
 /// Authentication provider for managing app-wide authentication state
@@ -54,9 +55,8 @@ class AuthenticationProvider with ChangeNotifier {
         _updateState(AuthenticationState.unauthenticated);
       }
     } catch (e) {
-      _updateState(
-        AuthenticationState.withError('Failed to check authentication: $e'),
-      );
+      final userFriendlyMessage = ErrorHandler.getUserFriendlyMessage(e);
+      _updateState(AuthenticationState.withError(userFriendlyMessage));
     }
   }
 
@@ -73,9 +73,8 @@ class AuthenticationProvider with ChangeNotifier {
         await _secureStorage.deleteTokens();
         _updateState(AuthenticationState.unauthenticated);
       } else {
-        _updateState(
-          AuthenticationState.withError('Failed to load profile: $e'),
-        );
+        final userFriendlyMessage = ErrorHandler.getUserFriendlyMessage(e);
+        _updateState(AuthenticationState.withError(userFriendlyMessage));
       }
     }
   }
@@ -108,19 +107,11 @@ class AuthenticationProvider with ChangeNotifier {
       _startTokenRefreshTimer();
       return true;
     } catch (e) {
-      String errorMessage = 'Login failed';
-
-      if (e is AuthenticationException) {
-        errorMessage = e.message;
-      } else if (e is ValidationException) {
-        errorMessage = e.message;
-      } else if (e is RateLimitException) {
-        errorMessage = e.message;
-      } else {
-        errorMessage = 'Login failed: ${e.toString()}';
-      }
-
-      _updateState(_state.copyWith(isLoading: false, error: errorMessage));
+      // Use ErrorHandler to translate technical errors to user-friendly messages
+      final userFriendlyMessage = ErrorHandler.getUserFriendlyMessage(e);
+      _updateState(
+        _state.copyWith(isLoading: false, error: userFriendlyMessage),
+      );
       return false;
     }
   }
@@ -169,19 +160,11 @@ class AuthenticationProvider with ChangeNotifier {
       _startTokenRefreshTimer();
       return true;
     } catch (e) {
-      String errorMessage = 'Registration failed';
-
-      if (e is AuthenticationException) {
-        errorMessage = e.message;
-      } else if (e is ValidationException) {
-        errorMessage = e.message;
-      } else if (e is RateLimitException) {
-        errorMessage = e.message;
-      } else {
-        errorMessage = 'Registration failed: ${e.toString()}';
-      }
-
-      _updateState(_state.copyWith(isLoading: false, error: errorMessage));
+      // Use ErrorHandler to translate technical errors to user-friendly messages
+      final userFriendlyMessage = ErrorHandler.getUserFriendlyMessage(e);
+      _updateState(
+        _state.copyWith(isLoading: false, error: userFriendlyMessage),
+      );
       return false;
     }
   }
@@ -227,17 +210,11 @@ class AuthenticationProvider with ChangeNotifier {
       _updateState(_state.copyWith(isLoading: false, error: null));
       return true;
     } catch (e) {
-      String errorMessage = 'Password reset failed';
-
-      if (e is ValidationException) {
-        errorMessage = e.message;
-      } else if (e is RateLimitException) {
-        errorMessage = e.message;
-      } else {
-        errorMessage = 'Password reset failed: ${e.toString()}';
-      }
-
-      _updateState(_state.copyWith(isLoading: false, error: errorMessage));
+      // Use ErrorHandler to translate technical errors to user-friendly messages
+      final userFriendlyMessage = ErrorHandler.getUserFriendlyMessage(e);
+      _updateState(
+        _state.copyWith(isLoading: false, error: userFriendlyMessage),
+      );
       return false;
     }
   }
@@ -268,11 +245,9 @@ class AuthenticationProvider with ChangeNotifier {
       );
       return true;
     } catch (e) {
+      final userFriendlyMessage = ErrorHandler.getUserFriendlyMessage(e);
       _updateState(
-        _state.copyWith(
-          isLoading: false,
-          error: 'Failed to update profile: $e',
-        ),
+        _state.copyWith(isLoading: false, error: userFriendlyMessage),
       );
       return false;
     }

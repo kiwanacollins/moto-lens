@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -56,8 +57,22 @@ class ApiService {
           .timeout(timeout);
 
       return await _handleResponse(response);
+    } on SocketException catch (e) {
+      throw NetworkException('Connection failed: ${e.message}');
+    } on HandshakeException catch (e) {
+      throw NetworkException('Secure connection failed: ${e.message}');
+    } on TimeoutException catch (_) {
+      throw NetworkException(
+        'Connection timeout - please check your internet connection',
+      );
+    } on HttpException catch (e) {
+      throw NetworkException('Network error: ${e.message}');
+    } on NetworkException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw ApiException('GET request failed: $e');
+      throw NetworkException('Request failed: $e');
     }
   }
 
@@ -79,8 +94,22 @@ class ApiService {
           .timeout(timeout);
 
       return await _handleResponse(response);
+    } on SocketException catch (e) {
+      throw NetworkException('Connection failed: ${e.message}');
+    } on HandshakeException catch (e) {
+      throw NetworkException('Secure connection failed: ${e.message}');
+    } on TimeoutException catch (_) {
+      throw NetworkException(
+        'Connection timeout - please check your internet connection',
+      );
+    } on HttpException catch (e) {
+      throw NetworkException('Network error: ${e.message}');
+    } on NetworkException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw ApiException('POST request failed: $e');
+      throw NetworkException('Request failed: $e');
     }
   }
 
@@ -102,8 +131,22 @@ class ApiService {
           .timeout(timeout);
 
       return await _handleResponse(response);
+    } on SocketException catch (e) {
+      throw NetworkException('Connection failed: ${e.message}');
+    } on HandshakeException catch (e) {
+      throw NetworkException('Secure connection failed: ${e.message}');
+    } on TimeoutException catch (_) {
+      throw NetworkException(
+        'Connection timeout - please check your internet connection',
+      );
+    } on HttpException catch (e) {
+      throw NetworkException('Network error: ${e.message}');
+    } on NetworkException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw ApiException('PUT request failed: $e');
+      throw NetworkException('Request failed: $e');
     }
   }
 
@@ -118,8 +161,22 @@ class ApiService {
           .timeout(timeout);
 
       return await _handleResponse(response);
+    } on SocketException catch (e) {
+      throw NetworkException('Connection failed: ${e.message}');
+    } on HandshakeException catch (e) {
+      throw NetworkException('Secure connection failed: ${e.message}');
+    } on TimeoutException catch (_) {
+      throw NetworkException(
+        'Connection timeout - please check your internet connection',
+      );
+    } on HttpException catch (e) {
+      throw NetworkException('Network error: ${e.message}');
+    } on NetworkException {
+      rethrow;
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      throw ApiException('DELETE request failed: $e');
+      throw NetworkException('Request failed: $e');
     }
   }
 
@@ -140,8 +197,18 @@ class ApiService {
           .timeout(timeout);
 
       return response;
+    } on SocketException catch (e) {
+      throw NetworkException('Connection failed: ${e.message}');
+    } on HandshakeException catch (e) {
+      throw NetworkException('Secure connection failed: ${e.message}');
+    } on TimeoutException catch (_) {
+      throw NetworkException(
+        'Connection timeout - please check your internet connection',
+      );
+    } on HttpException catch (e) {
+      throw NetworkException('Network error: ${e.message}');
     } catch (e) {
-      throw ApiException('Public POST request failed: $e');
+      throw NetworkException('Network request failed: $e');
     }
   }
 
@@ -229,9 +296,14 @@ class ApiService {
         final errorMessage = _extractErrorMessage(response);
         throw AuthenticationException('Login failed: $errorMessage');
       }
+    } on NetworkException {
+      rethrow;
+    } on AuthenticationException {
+      rethrow;
+    } on RateLimitException {
+      rethrow;
     } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Login request failed: $e');
+      throw NetworkException('Login request failed: $e');
     }
   }
 
@@ -260,9 +332,16 @@ class ApiService {
         final errorMessage = _extractErrorMessage(response);
         throw AuthenticationException('Registration failed: $errorMessage');
       }
+    } on NetworkException {
+      rethrow;
+    } on AuthenticationException {
+      rethrow;
+    } on ValidationException {
+      rethrow;
+    } on RateLimitException {
+      rethrow;
     } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Registration request failed: $e');
+      throw NetworkException('Registration request failed: $e');
     }
   }
 
