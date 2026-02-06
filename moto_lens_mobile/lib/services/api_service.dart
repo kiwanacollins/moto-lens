@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../models/auth/auth_response.dart';
 import '../models/auth/login_request.dart';
 import '../models/auth/register_request.dart';
+import '../config/environment.dart';
 import 'secure_storage_service.dart';
 
 /// HTTP API service for MotoLens backend communication
@@ -12,10 +13,6 @@ import 'secure_storage_service.dart';
 /// Handles all API requests with automatic token management,
 /// request/response serialization, and error handling.
 class ApiService {
-  static const String baseUrl = 'https://api.motolens.com';
-  static const String apiVersion = 'v1';
-  static const Duration timeout = Duration(seconds: 30);
-
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
   ApiService._internal();
@@ -23,8 +20,11 @@ class ApiService {
   final SecureStorageService _secureStorage = SecureStorageService();
   final http.Client _client = http.Client();
 
-  /// Get full API URL
-  String get apiUrl => '$baseUrl/api/$apiVersion';
+  /// Get full API URL from environment configuration
+  String get apiUrl => Environment.fullApiUrl;
+
+  /// Get timeout from environment configuration
+  Duration get timeout => Environment.requestTimeout;
 
   /// Common headers for all requests
   Map<String, String> get _baseHeaders => {
@@ -478,7 +478,7 @@ class ApiService {
   /// Check API health
   Future<bool> isApiHealthy() async {
     try {
-      final url = Uri.parse('$baseUrl/health');
+      final url = Uri.parse('${Environment.apiUrl}/health');
       final response = await _client
           .get(url, headers: _baseHeaders)
           .timeout(const Duration(seconds: 10));
@@ -492,7 +492,7 @@ class ApiService {
   /// Get API version information
   Future<Map<String, dynamic>?> getApiVersion() async {
     try {
-      final url = Uri.parse('$baseUrl/version');
+      final url = Uri.parse('${Environment.apiUrl}/version');
       final response = await _client
           .get(url, headers: _baseHeaders)
           .timeout(const Duration(seconds: 10));

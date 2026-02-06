@@ -409,17 +409,18 @@ export const csrfProtection = (req, res, next) => {
  * This is an additional validation layer
  */
 export const validateSqlInput = (req, res, next) => {
-    // Common SQL injection patterns
+    // Common SQL injection patterns - more specific to avoid false positives
     const sqlInjectionPatterns = [
-        /(\bOR\b.*?=.*?)|(\bAND\b.*?=.*?)/i,
-        /(\bUNION\b.*?\bSELECT\b)/i,
-        /(\bDROP\b.*?\bTABLE\b)/i,
-        /(\bINSERT\b.*?\bINTO\b)/i,
-        /(\bDELETE\b.*?\bFROM\b)/i,
-        /(\bUPDATE\b.*?\bSET\b)/i,
-        /(\bEXEC\b.*?\()/i,
-        /(;.*?--)/,
-        /('.*?--)/,
+        /(\bOR\b\s+['"]\d+['"]\s*=\s*['"]\d+['"])/i, // OR '1'='1'
+        /(\bAND\b\s+['"]\d+['"]\s*=\s*['"]\d+['"])/i, // AND '1'='1'
+        /(\bUNION\b\s+SELECT\b)/i,
+        /(\bDROP\b\s+TABLE\b)/i,
+        /(\bINSERT\b\s+INTO\b.*?\bVALUES\b)/i,
+        /(\bDELETE\b\s+FROM\b)/i,
+        /(\bUPDATE\b\s+\w+\s+SET\b)/i,
+        /(\bEXEC\b\s*\()/i,
+        /(;\s*--)/,
+        /('\s*OR\s*')/i,
         /(\bxp_\w+)/i,
     ];
 

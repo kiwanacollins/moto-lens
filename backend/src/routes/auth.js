@@ -165,14 +165,15 @@ function getValidationErrors(req) {
 }
 
 // Log security event
-async function logSecurityEvent(userId, eventType, severity, details) {
+async function logSecurityEvent(userId, eventType, severity, description) {
   try {
     await prisma.securityEvent.create({
       data: {
         userId,
         eventType,
         severity,
-        details: details || {}
+        description: description || 'Security event logged',
+        metadata: {}
       }
     });
   } catch (error) {
@@ -373,8 +374,9 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
         userId: user.id,
         refreshToken: tokens.refreshToken,
         refreshTokenHash: PasswordUtil.hashToken(tokens.refreshToken),
-        deviceFingerprint: deviceInfo.userAgent,
+        userAgent: deviceInfo.userAgent,
         ipAddress: deviceInfo.ipAddress,
+        deviceType: 'mobile', // Can be enhanced to detect actual device type
         isActive: true,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
         lastActivityAt: new Date()
@@ -382,7 +384,7 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
     });
 
     // Log successful login
-    await logSecurityEvent(user.id, 'USER_LOGIN', 'INFO', {
+    await logSecurityEvent(user.id, 'LOGIN_SUCCESS', 'INFO', {
       sessionId: session.id,
       ...deviceInfo
     });
@@ -434,7 +436,7 @@ router.post('/logout', authenticate, async (req, res) => {
     await JWTUtil.blacklistToken(refreshToken, 'logout');
 
     // Log logout event
-    await logSecurityEvent(req.user.id, 'USER_LOGOUT', 'INFO', {
+    await logSecurityEvent(req.user.id, 'LOGOUT', 'INFO', {
       deviceInfo: getDeviceInfo(req)
     });
 

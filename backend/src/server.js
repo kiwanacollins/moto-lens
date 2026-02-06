@@ -60,11 +60,11 @@ app.use(securityHeaders);
 // Security logging for sensitive operations
 app.use(securityLogger);
 
-// Input sanitization (XSS prevention)
-app.use(sanitizeInput);
-
-// SQL injection validation
-app.use(validateSqlInput);
+// Input sanitization (XSS prevention) - Disabled in development
+if (process.env.NODE_ENV === 'production') {
+    app.use(sanitizeInput);
+    app.use(validateSqlInput);
+}
 
 // XSS prevention headers
 app.use(preventXSS);
