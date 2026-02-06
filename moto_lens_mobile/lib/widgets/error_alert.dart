@@ -24,7 +24,9 @@ class ErrorAlert extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final errorMessage = ErrorHandler.getUserFriendlyMessage(error);
-    final suggestions = showSuggestions ? ErrorHandler.getSuggestion(error) : null;
+    final suggestions = showSuggestions
+        ? ErrorHandler.getSuggestion(error)
+        : null;
     final isNetworkError = ErrorHandler.isNetworkError(error);
     final canRetry = ErrorHandler.shouldRetry(error);
 
@@ -129,7 +131,9 @@ class ErrorAlert extends StatelessWidget {
                       horizontal: AppSpacing.md,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusSmall,
+                      ),
                     ),
                   ),
                 ),
@@ -144,7 +148,11 @@ class ErrorAlert extends StatelessWidget {
 
 /// Simple error snackbar
 class ErrorSnackBar {
-  static void show(BuildContext context, dynamic error, {VoidCallback? onRetry}) {
+  static void show(
+    BuildContext context,
+    dynamic error, {
+    VoidCallback? onRetry,
+  }) {
     final errorMessage = ErrorHandler.getUserFriendlyMessage(error);
     final canRetry = ErrorHandler.shouldRetry(error);
 
@@ -217,9 +225,7 @@ class ErrorDialog {
               Expanded(
                 child: Text(
                   title ?? (isNetworkError ? 'Connection Error' : 'Error'),
-                  style: AppTypography.h3.copyWith(
-                    color: AppColors.error,
-                  ),
+                  style: AppTypography.h3.copyWith(color: AppColors.error),
                 ),
               ),
             ],
@@ -228,10 +234,7 @@ class ErrorDialog {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                errorMessage,
-                style: AppTypography.bodyMedium,
-              ),
+              Text(errorMessage, style: AppTypography.bodyMedium),
               if (suggestions != null) ...[
                 const SizedBox(height: AppSpacing.md),
                 Container(

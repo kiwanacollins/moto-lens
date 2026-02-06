@@ -121,8 +121,8 @@ class ErrorHandler {
       return 'Secure connection error. Please check your internet connection or try again later.';
     }
 
-    if (message.contains('tlsv1') || 
-        message.contains('tls') || 
+    if (message.contains('tlsv1') ||
+        message.contains('tls') ||
         message.contains('ssl')) {
       return 'Could not establish secure connection. Please check your network settings and try again.';
     }
@@ -198,12 +198,12 @@ class ErrorHandler {
     final message = error.toLowerCase();
 
     // Network-related errors
-    if (message.contains('socketexception') || 
+    if (message.contains('socketexception') ||
         message.contains('socket exception')) {
       return 'Connection error. Please check your internet connection.';
     }
 
-    if (message.contains('handshakeexception') || 
+    if (message.contains('handshakeexception') ||
         message.contains('handshake exception') ||
         message.contains('tlsv1') ||
         message.contains('tls_record') ||
@@ -211,7 +211,7 @@ class ErrorHandler {
       return 'Could not establish secure connection. Please check your internet connection and try again.';
     }
 
-    if (message.contains('timeoutexception') || 
+    if (message.contains('timeoutexception') ||
         message.contains('timeout exception') ||
         message.contains('timed out')) {
       return 'Connection timeout. Please try again.';
@@ -232,7 +232,7 @@ class ErrorHandler {
     }
 
     // If the message looks technical, provide generic message
-    if (message.contains('exception') || 
+    if (message.contains('exception') ||
         message.contains('error:') ||
         message.contains('failed:')) {
       return 'Something went wrong. Please try again.';
@@ -244,7 +244,7 @@ class ErrorHandler {
 
   /// Get a helpful suggestion based on the error type
   static String? getSuggestion(dynamic error) {
-    if (error is SocketException || 
+    if (error is SocketException ||
         error is HandshakeException ||
         error is TimeoutException) {
       return 'Try:\n• Checking your internet connection\n• Switching between WiFi and mobile data\n• Restarting the app';
