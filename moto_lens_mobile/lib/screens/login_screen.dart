@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../styles/styles.dart';
 import '../widgets/widgets.dart';
 import '../widgets/error_alert.dart';
@@ -144,27 +145,15 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
       children: [
         // MotoLens Logo
         Container(
-          width: 120,
-          height: 120,
-          decoration: BoxDecoration(
-            color: AppColors.electricBlue,
-            borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.electricBlue.withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: const Icon(
-            Icons.directions_car,
-            size: 60,
-            color: Colors.white,
+          width: 280,
+          height: 140,
+          child: SvgPicture.asset(
+            'assets/logo.svg',
+            fit: BoxFit.contain,
           ),
         ),
 
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.sm),
 
         // Welcome Text
         Text(

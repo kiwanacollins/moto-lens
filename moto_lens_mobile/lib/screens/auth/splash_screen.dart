@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../services/services.dart';
 import '../../styles/styles.dart';
 
@@ -193,19 +194,12 @@ class _SplashScreenState extends State<SplashScreen>
   /// Build MotoLens logo
   Widget _buildLogo() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: AppColors.electricBlue.withValues(alpha: 0.1),
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.electricBlue,
-          width: 2,
-        ),
-      ),
-      child: const Icon(
-        Icons.directions_car,
-        size: 80,
-        color: AppColors.electricBlue,
+      width: 250,
+      height: 120,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: SvgPicture.asset(
+        'assets/logo.svg',
+        fit: BoxFit.contain,
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../styles/styles.dart';
 import '../widgets/widgets.dart';
 import '../providers/providers.dart';
@@ -187,16 +188,12 @@ class _RegisterScreenState extends State<RegisterScreen>
         children: [
           // Logo
           Container(
-            width: 80,
+            width: 150,
             height: 80,
-            decoration: BoxDecoration(
-              color: AppColors.electricBlue,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-            ),
-            child: const Icon(
-              Icons.directions_car,
-              size: 40,
-              color: Colors.white,
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            child: SvgPicture.asset(
+              'assets/logo.svg',
+              fit: BoxFit.contain,
             ),
           ),
 
