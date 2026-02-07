@@ -40,7 +40,9 @@ class AuthService {
   Future<AuthResponse> login(String email, String password) async {
     // Check if login is locked out
     if (_isLockedOut()) {
-      final minutesRemaining = _lockoutUntil!.difference(DateTime.now()).inMinutes;
+      final minutesRemaining = _lockoutUntil!
+          .difference(DateTime.now())
+          .inMinutes;
       throw AuthLockoutException(
         'Too many failed login attempts. Please try again in $minutesRemaining minutes.',
       );
@@ -51,10 +53,7 @@ class AuthService {
       final deviceInfo = await _getDeviceFingerprint();
 
       // Create login request
-      final loginRequest = LoginRequest(
-        email: email,
-        password: password,
-      );
+      final loginRequest = LoginRequest(email: email, password: password);
 
       // Attempt login through API service (device info sent in headers/body by API layer)
       final authResponse = await _apiService.login(loginRequest);
@@ -254,10 +253,7 @@ class AuthService {
     try {
       final response = await _apiService.postPublic(
         '/auth/reset-password',
-        body: {
-          'token': token,
-          'newPassword': newPassword,
-        },
+        body: {'token': token, 'newPassword': newPassword},
       );
 
       return response.statusCode == 200;
@@ -270,7 +266,10 @@ class AuthService {
   ///
   /// Returns true if password was successfully changed.
   /// User must be authenticated.
-  Future<bool> changePassword(String currentPassword, String newPassword) async {
+  Future<bool> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
     // Validate new password
     if (!User.isValidPassword(newPassword)) {
       throw AuthValidationException(
@@ -281,10 +280,7 @@ class AuthService {
     try {
       final response = await _apiService.put(
         '/auth/change-password',
-        body: {
-          'currentPassword': currentPassword,
-          'newPassword': newPassword,
-        },
+        body: {'currentPassword': currentPassword, 'newPassword': newPassword},
       );
 
       if (response.statusCode == 200) {
@@ -386,7 +382,8 @@ class AuthService {
       if (deviceId == null) {
         // Generate new device ID
         final timestamp = DateTime.now().millisecondsSinceEpoch;
-        final randomData = '$timestamp-${Platform.operatingSystem}-${Platform.localHostname}';
+        final randomData =
+            '$timestamp-${Platform.operatingSystem}-${Platform.localHostname}';
         final bytes = utf8.encode(randomData);
         final digest = sha256.convert(bytes);
         deviceId = digest.toString();
@@ -409,9 +406,18 @@ class AuthService {
   /// Store device fingerprint in secure storage
   Future<void> _storeDeviceFingerprint(Map<String, String> deviceInfo) async {
     try {
-      await _secureStorage.storeSecureData('device_id', deviceInfo['deviceId']!);
-      await _secureStorage.storeSecureData('device_name', deviceInfo['deviceName']!);
-      await _secureStorage.storeSecureData('device_platform', deviceInfo['platform']!);
+      await _secureStorage.storeSecureData(
+        'device_id',
+        deviceInfo['deviceId']!,
+      );
+      await _secureStorage.storeSecureData(
+        'device_name',
+        deviceInfo['deviceName']!,
+      );
+      await _secureStorage.storeSecureData(
+        'device_platform',
+        deviceInfo['platform']!,
+      );
     } catch (e) {
       // Non-critical error - log but don't throw
       debugPrint('Failed to store device fingerprint: $e');

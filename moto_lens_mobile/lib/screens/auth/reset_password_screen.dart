@@ -15,10 +15,7 @@ class ResetPasswordScreen extends StatefulWidget {
   /// Reset token from email link
   final String token;
 
-  const ResetPasswordScreen({
-    super.key,
-    required this.token,
-  });
+  const ResetPasswordScreen({super.key, required this.token});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -230,8 +227,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             borderRadius: BorderRadius.circular(AppSpacing.radiusXLarge),
             boxShadow: [
               BoxShadow(
-                color: (_resetSuccess ? AppColors.success : AppColors.electricBlue)
-                    .withValues(alpha: 0.3),
+                color:
+                    (_resetSuccess ? AppColors.success : AppColors.electricBlue)
+                        .withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -311,8 +309,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ? Icons.visibility_outlined
                 : Icons.visibility_off_outlined,
             onSuffixIconPressed: () {
-              setState(() =>
-                  _obscureConfirmPassword = !_obscureConfirmPassword);
+              setState(
+                () => _obscureConfirmPassword = !_obscureConfirmPassword,
+              );
             },
             validator: _validateConfirmPassword,
             onSubmitted: (_) => _handleResetPassword(),
@@ -388,11 +387,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Map<String, dynamic> _getStrengthConfig(PasswordStrength strength) {
     switch (strength) {
       case PasswordStrength.weak:
-        return {
-          'label': 'Weak',
-          'color': AppColors.error,
-          'progress': 0.33,
-        };
+        return {'label': 'Weak', 'color': AppColors.error, 'progress': 0.33};
       case PasswordStrength.medium:
         return {
           'label': 'Medium',
@@ -400,17 +395,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           'progress': 0.66,
         };
       case PasswordStrength.strong:
-        return {
-          'label': 'Strong',
-          'color': AppColors.success,
-          'progress': 1.0,
-        };
+        return {'label': 'Strong', 'color': AppColors.success, 'progress': 1.0};
       case PasswordStrength.none:
-        return {
-          'label': '',
-          'color': AppColors.zinc300,
-          'progress': 0.0,
-        };
+        return {'label': '', 'color': AppColors.zinc300, 'progress': 0.0};
     }
   }
 
@@ -576,9 +563,4 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 }
 
 /// Password strength enumeration
-enum PasswordStrength {
-  none,
-  weak,
-  medium,
-  strong,
-}
+enum PasswordStrength { none, weak, medium, strong }
