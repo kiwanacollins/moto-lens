@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (_) => AiChatProvider()),
       ],
       child: MaterialApp(
         // App configuration
@@ -67,15 +68,16 @@ class MyApp extends StatelessWidget {
         );
       case '/vin-scanner':
         return MaterialPageRoute(builder: (_) => const VinScannerScreen());
+      case '/ai-assistant':
+        return MaterialPageRoute(builder: (_) => const AiAssistantScreen());
       case '/vehicle-detail':
         // Extract vehicle from arguments
         final args = settings.arguments as Map<String, dynamic>?;
         final vehicle = args?['vehicle'];
         if (vehicle == null) {
           return MaterialPageRoute(
-            builder: (_) => Scaffold(
-              body: Center(child: Text('Vehicle data not found')),
-            ),
+            builder: (_) =>
+                Scaffold(body: Center(child: Text('Vehicle data not found'))),
           );
         }
         return MaterialPageRoute(
@@ -267,14 +269,7 @@ class MainApp extends StatelessWidget {
                   icon: Icons.psychology_outlined,
                   title: 'AI Assistant',
                   subtitle: 'Get intelligent vehicle diagnostics help',
-                  onTap: () {
-                    // TODO: Navigate to AI Assistant screen
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('AI Assistant - Coming soon!'),
-                      ),
-                    );
-                  },
+                  onTap: () => Navigator.pushNamed(context, '/ai-assistant'),
                 ),
                 const SizedBox(height: AppSpacing.md),
 

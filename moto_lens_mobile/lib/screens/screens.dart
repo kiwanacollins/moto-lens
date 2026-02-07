@@ -14,3 +14,6 @@ export 'password_reset_screen.dart';
 // Vehicle screens
 export 'vehicle/vin_scanner_screen.dart';
 export 'vehicle/vehicle_detail_screen.dart';
+
+// AI screens
+export 'ai/ai_assistant_screen.dart';

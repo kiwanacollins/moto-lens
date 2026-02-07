@@ -8,3 +8,6 @@ library;
 export 'authentication_state.dart';
 export 'authentication_provider.dart';
 export 'auth_context.dart';
+
+// AI chat provider
+export 'ai_chat_provider.dart';

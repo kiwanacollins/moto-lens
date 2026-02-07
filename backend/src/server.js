@@ -1020,6 +1020,62 @@ app.post('/api/parts/scan/condition', async (req, res) => {
 
 // ==================== END PART SCANNING ENDPOINTS ====================
 
+// ==================== AI CHAT ENDPOINT ====================
+
+/**
+ * POST /api/ai/chat — General AI chat for mechanics
+ * Accepts a free-form message with optional vehicle context
+ * Body: { message: string, vehicleContext?: { make, model, year, vin } }
+ */
+app.post('/api/ai/chat', async (req, res) => {
+    try {
+        const { message, vehicleContext } = req.body;
+
+        if (!message || typeof message !== 'string' || message.trim().length === 0) {
+            return res.status(400).json({
+                error: 'MISSING_MESSAGE',
+                message: 'A non-empty message is required',
+            });
+        }
+
+        if (message.trim().length > 2000) {
+            return res.status(400).json({
+                error: 'MESSAGE_TOO_LONG',
+                message: 'Message must be under 2000 characters',
+            });
+        }
+
+        // Build a prompt with optional vehicle context
+        let prompt = message.trim();
+        if (vehicleContext) {
+            const parts = [];
+            if (vehicleContext.make) parts.push(vehicleContext.make);
+            if (vehicleContext.model) parts.push(vehicleContext.model);
+            if (vehicleContext.year) parts.push(`(${vehicleContext.year})`);
+            if (vehicleContext.vin) parts.push(`VIN: ${vehicleContext.vin}`);
+            if (parts.length > 0) {
+                prompt = `Vehicle context: ${parts.join(' ')}.\n\nUser question: ${prompt}`;
+            }
+        }
+
+        const response = await geminiAiService.generateResponse(prompt);
+
+        return res.json({
+            success: true,
+            response,
+            timestamp: new Date().toISOString(),
+        });
+    } catch (err) {
+        console.error('AI chat error:', err);
+        return res.status(500).json({
+            error: 'AI_CHAT_FAILED',
+            message: err.message || 'Failed to generate AI response',
+        });
+    }
+});
+
+// ==================== END AI CHAT ENDPOINT ====================
+
 // 404 handler
 app.use((req, res) => {
     res.status(404).json({
