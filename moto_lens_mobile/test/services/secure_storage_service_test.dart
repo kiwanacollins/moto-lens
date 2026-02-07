@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:moto_lens_mobile/services/secure_storage_service.dart';
 import 'package:moto_lens_mobile/models/auth/auth_response.dart';
@@ -6,20 +7,58 @@ import 'package:moto_lens_mobile/models/auth/user_role.dart';
 import 'package:moto_lens_mobile/models/auth/subscription_tier.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Provide a mock method channel handler for flutter_secure_storage
+  // so tests can run without a real platform implementation.
+  final Map<String, String> _mockStorage = {};
+
+  setUp(() {
+    _mockStorage.clear();
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+          (MethodCall call) async {
+            switch (call.method) {
+              case 'write':
+                final args = call.arguments as Map;
+                _mockStorage[args['key'] as String] = args['value'] as String;
+                return null;
+              case 'read':
+                final args = call.arguments as Map;
+                return _mockStorage[args['key'] as String];
+              case 'readAll':
+                return _mockStorage;
+              case 'delete':
+                final args = call.arguments as Map;
+                _mockStorage.remove(args['key'] as String);
+                return null;
+              case 'deleteAll':
+                _mockStorage.clear();
+                return null;
+              case 'containsKey':
+                final args = call.arguments as Map;
+                return _mockStorage.containsKey(args['key'] as String);
+              default:
+                return null;
+            }
+          },
+        );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+          null,
+        );
+  });
   group('SecureStorageService Tests', () {
     late SecureStorageService secureStorage;
 
     setUp(() {
       secureStorage = SecureStorageService();
-    });
-
-    tearDown(() async {
-      // Clean up after each test
-      try {
-        await secureStorage.deleteAllData();
-      } catch (e) {
-        // Ignore cleanup errors in tests
-      }
     });
 
     group('Token Storage Tests', () {
