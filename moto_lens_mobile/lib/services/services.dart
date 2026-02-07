@@ -11,3 +11,8 @@ export 'auth_service.dart';
 
 // Vehicle services
 export 'vin_history_service.dart';
+
+// Offline support services
+export 'connectivity_service.dart';
+export 'offline_cache_service.dart';
+export 'sync_queue_service.dart';

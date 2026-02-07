@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/ai_chat_message.dart';
 import '../../providers/ai_chat_provider.dart';
+import '../../providers/connectivity_provider.dart';
 import '../../styles/styles.dart';
+import '../../widgets/offline_banner.dart';
 
 /// Full-screen AI Assistant chat screen.
 ///
@@ -123,6 +125,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            const OfflineBanner(),
             Expanded(child: _buildMessageList()),
             _buildInputArea(),
           ],
@@ -171,8 +174,15 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               ),
               Consumer<AiChatProvider>(
                 builder: (_, provider, __) {
+                  final isOnline = context
+                      .watch<ConnectivityProvider>()
+                      .isOnline;
                   return Text(
-                    provider.isTyping ? 'Typing…' : 'Online',
+                    provider.isTyping
+                        ? 'Typing…'
+                        : isOnline
+                        ? 'Online'
+                        : 'Offline',
                     style: AppTypography.bodySmall.copyWith(
                       color: Colors.white.withValues(alpha: 0.8),
                     ),

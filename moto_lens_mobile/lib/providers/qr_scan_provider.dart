@@ -3,13 +3,19 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/part_scan_entry.dart';
 import '../services/parts_service.dart';
+import '../services/connectivity_service.dart';
+import '../services/offline_cache_service.dart';
 
 /// State management for the QR Code Scanner feature.
 ///
 /// Tracks scan history, resolves part numbers through [PartsService],
 /// and persists entries to local storage.
+/// Offline-aware: caches successful part lookups and serves them from
+/// cache when the device is offline.
 class QrScanProvider extends ChangeNotifier {
   final PartsService _partsService = PartsService();
+  final ConnectivityService _connectivity = ConnectivityService();
+  final OfflineCacheService _offlineCache = OfflineCacheService();
 
   List<PartScanEntry> _history = [];
   PartDetails? _currentPartDetails;
@@ -41,8 +47,8 @@ class QrScanProvider extends ChangeNotifier {
 
   /// Look up a scanned value (QR data or manually-entered part number).
   ///
-  /// Creates a [PartScanEntry], resolves it via the backend, and stores
-  /// the result in [_currentPartDetails].
+  /// When online, resolves via the backend and caches the result.
+  /// When offline, attempts to serve a previously-cached result.
   Future<void> lookupPart(String scannedValue) async {
     if (scannedValue.trim().isEmpty) return;
 
@@ -51,16 +57,60 @@ class QrScanProvider extends ChangeNotifier {
     _currentPartDetails = null;
     notifyListeners();
 
+    final trimmed = scannedValue.trim();
+
     // Create a preliminary entry
     final entry = PartScanEntry(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      scannedValue: scannedValue.trim(),
+      scannedValue: trimmed,
       scannedAt: DateTime.now(),
     );
 
+    // Offline path: try cache
+    if (!_connectivity.isOnline) {
+      final cached = await _offlineCache.getStaleCachedPartDetails(trimmed);
+      if (cached != null) {
+        try {
+          final details = PartDetails.fromJson(cached);
+          _currentPartDetails = details;
+
+          final resolved = entry.copyWith(
+            partName: details.partName,
+            partNumber: details.partNumber,
+            description: details.description,
+            imageUrl: details.imageUrl,
+            isResolved: true,
+          );
+
+          _history.removeWhere((e) => e.scannedValue == resolved.scannedValue);
+          _history.insert(0, resolved);
+          if (_history.length > 50) _history = _history.sublist(0, 50);
+
+          _isLookingUp = false;
+          notifyListeners();
+          _saveHistory();
+          return;
+        } catch (_) {}
+      }
+
+      // No cache hit while offline
+      _error = 'You\'re offline. This part hasn\'t been cached yet.';
+      _history.removeWhere((e) => e.scannedValue == entry.scannedValue);
+      _history.insert(0, entry);
+
+      _isLookingUp = false;
+      notifyListeners();
+      _saveHistory();
+      return;
+    }
+
+    // Online path
     try {
-      final details = await _partsService.getPartDetails(scannedValue.trim());
+      final details = await _partsService.getPartDetails(trimmed);
       _currentPartDetails = details;
+
+      // Cache for offline use
+      await _offlineCache.cachePartDetails(trimmed, details.toJson());
 
       // Update entry with resolved data
       final resolved = entry.copyWith(
@@ -80,6 +130,32 @@ class QrScanProvider extends ChangeNotifier {
         _history = _history.sublist(0, 50);
       }
     } catch (e) {
+      // Try cache as fallback on network failure
+      final cached = await _offlineCache.getStaleCachedPartDetails(trimmed);
+      if (cached != null) {
+        try {
+          final details = PartDetails.fromJson(cached);
+          _currentPartDetails = details;
+
+          final resolved = entry.copyWith(
+            partName: details.partName,
+            partNumber: details.partNumber,
+            description: details.description,
+            imageUrl: details.imageUrl,
+            isResolved: true,
+          );
+
+          _history.removeWhere((e) => e.scannedValue == resolved.scannedValue);
+          _history.insert(0, resolved);
+          if (_history.length > 50) _history = _history.sublist(0, 50);
+
+          _isLookingUp = false;
+          notifyListeners();
+          _saveHistory();
+          return;
+        } catch (_) {}
+      }
+
       _error = e.toString().replaceFirst('PartsServiceException: ', '');
 
       // Still add to history as un-resolved

@@ -3,13 +3,17 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/ai_chat_message.dart';
 import '../services/ai_chat_service.dart';
+import '../services/connectivity_service.dart';
 
 /// State management for the AI Assistant chat.
 ///
 /// Holds the conversation, sends messages through [AiChatService],
 /// and persists chat history to local storage.
+/// Offline-aware: shows cached history while offline and gives a
+/// clear message when the user tries to send without connectivity.
 class AiChatProvider extends ChangeNotifier {
   final AiChatService _chatService = AiChatService();
+  final ConnectivityService _connectivity = ConnectivityService();
 
   List<AiChatMessage> _messages = [];
   VehicleContext? _vehicleContext;
@@ -46,6 +50,9 @@ class AiChatProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   /// Send a user message and request an AI response.
+  ///
+  /// When offline, the user message is still added (and persisted) but
+  /// the AI response is replaced with a friendly offline notice.
   Future<void> sendMessage(String content) async {
     if (content.trim().isEmpty) return;
 
@@ -54,6 +61,20 @@ class AiChatProvider extends ChangeNotifier {
     _messages.add(userMessage);
     _isTyping = true;
     notifyListeners();
+
+    // Check connectivity before hitting the network
+    if (!_connectivity.isOnline) {
+      _messages.add(
+        AiChatMessage.aiError(
+          'You\'re currently offline. Your message has been saved and you can '
+          'retry when connectivity returns.',
+        ),
+      );
+      _isTyping = false;
+      notifyListeners();
+      _saveHistory();
+      return;
+    }
 
     try {
       final responseText = await _chatService.sendMessage(

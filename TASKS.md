@@ -759,14 +759,29 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
 - [x] Flutter analyze: 0 errors (43 info-level pre-existing warnings only)
 
 ### 16.5 Offline Support & Caching
-- [ ] Implement offline VIN scan storage
-- [ ] Cache vehicle data locally using `shared_preferences`
-- [ ] Cache vehicle images using `cached_network_image`
-- [ ] Cache AI chat history locally
-- [ ] Cache QR scan history and part data
-- [ ] Add sync indicator when online
-- [ ] Queue API calls for when connectivity returns
-- [ ] Add "Offline Mode" indicator in UI
+- [x] Implement offline VIN scan storage
+- [x] Cache vehicle data locally using `shared_preferences`
+- [x] Cache vehicle images using `cached_network_image`
+- [x] Cache AI chat history locally
+- [x] Cache QR scan history and part data
+- [x] Add sync indicator when online
+- [x] Queue API calls for when connectivity returns
+- [x] Add "Offline Mode" indicator in UI
+- [x] Added `connectivity_plus` dependency (v7.0.0)
+- [x] Created `ConnectivityService` — singleton wrapping `connectivity_plus` with `isOnline` getter + `onStatusChange` stream
+- [x] Created `OfflineCacheService` — centralized SharedPreferences cache layer with TTL support
+- [x] Created `SyncQueueService` — persisted queue for failed write operations with auto-flush on reconnect
+- [x] Created `ConnectivityProvider` — ChangeNotifier exposing connectivity state + sync status to widget tree
+- [x] Created `OfflineBanner` + `OfflineBannerWrapper` widgets — animated slide-in banner for offline/syncing states
+- [x] Updated `VinHistoryService` — uses `isSynced` field, `addOfflineScan()`, `markSynced()`, dual-cache lookups
+- [x] Updated `AiChatProvider` — connectivity check before API calls, friendly offline message
+- [x] Updated `QrScanProvider` — caches part details, serves from cache when offline, fallback on network failure
+- [x] Updated `VinScannerScreen` — queues offline VIN scans for later decode
+- [x] Added offline banner to MainApp, VinScannerScreen, AiAssistantScreen
+- [x] AI assistant status text shows "Offline" when disconnected
+- [x] Registered VIN decode sync handler in `main.dart` for auto-sync on reconnect
+- [x] Updated barrel exports (services.dart, providers.dart, widgets.dart)
+- [x] Flutter analyze: 0 errors (43 info-level pre-existing warnings only)
 
 **Estimated Time:** 16-20 hours
 

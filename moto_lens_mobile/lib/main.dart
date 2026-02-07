@@ -4,8 +4,39 @@ import 'package:provider/provider.dart';
 import 'styles/styles.dart';
 import 'providers/providers.dart';
 import 'screens/screens.dart';
+import 'services/api_service.dart';
+import 'services/connectivity_service.dart';
+import 'services/sync_queue_service.dart';
+import 'services/vin_history_service.dart';
+import 'models/vehicle/vin_decode_result.dart';
+import 'widgets/offline_banner.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialise core offline services before the widget tree
+  await ConnectivityService().initialize();
+  final syncQueue = SyncQueueService();
+  await syncQueue.initialize();
+
+  // Register sync handlers for queued operations
+  final apiService = ApiService();
+  final historyService = VinHistoryService();
+
+  syncQueue.registerHandler('vin_decode', (payload) async {
+    final vin = payload['vin'] as String;
+    try {
+      final response = await apiService.decodeVin(vin);
+      final result = VinDecodeResult.fromJson(response);
+      await historyService.cacheResult(result);
+      await historyService.addDecodeResult(result);
+      await historyService.markSynced(vin);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  });
+
   runApp(const MyApp());
 }
 
@@ -31,6 +62,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AiChatProvider()),
         ChangeNotifierProvider(create: (_) => QrScanProvider()),
         ChangeNotifierProvider(create: (_) => VehicleViewerProvider()),
+        ChangeNotifierProvider(
+          create: (_) => ConnectivityProvider()..initialize(),
+        ),
       ],
       child: MaterialApp(
         // App configuration
@@ -225,82 +259,88 @@ class MainApp extends StatelessWidget {
             ],
           ),
           backgroundColor: AppColors.background,
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: AppSpacing.lg),
+          body: OfflineBannerWrapper(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: AppSpacing.lg),
 
-                // German Car Medic branding
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: AppColors.electricBlue,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.electricBlue.withValues(alpha: 0.3),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                  // German Car Medic branding
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: AppColors.electricBlue,
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusLarge,
                       ),
-                    ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.electricBlue.withValues(alpha: 0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.directions_car,
+                      size: 50,
+                      color: Colors.white,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.directions_car,
-                    size: 50,
-                    color: Colors.white,
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Welcome message
+                  Text(
+                    'Welcome to German Car Medic!',
+                    style: AppTypography.h2.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Welcome message
-                Text(
-                  'Welcome to German Car Medic!',
-                  style: AppTypography.h2.copyWith(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'Professional German vehicle diagnostics',
-                  style: AppTypography.bodyLarge.copyWith(
-                    color: AppColors.textSecondary,
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Professional German vehicle diagnostics',
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.xl),
+                  const SizedBox(height: AppSpacing.xl),
 
-                // VIN Scanner — primary action card
-                _buildFeatureCard(
-                  context,
-                  icon: Icons.qr_code_scanner,
-                  title: 'VIN Scanner',
-                  subtitle: 'Decode Vehicle Identification Numbers',
-                  onTap: () => Navigator.pushNamed(context, '/vin-scanner'),
-                  isPrimary: true,
-                ),
-                const SizedBox(height: AppSpacing.md),
+                  // VIN Scanner — primary action card
+                  _buildFeatureCard(
+                    context,
+                    icon: Icons.qr_code_scanner,
+                    title: 'VIN Scanner',
+                    subtitle: 'Decode Vehicle Identification Numbers',
+                    onTap: () => Navigator.pushNamed(context, '/vin-scanner'),
+                    isPrimary: true,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
 
-                // AI Assistant card
-                _buildFeatureCard(
-                  context,
-                  icon: Icons.psychology_outlined,
-                  title: 'AI Assistant',
-                  subtitle: 'Get intelligent vehicle diagnostics help',
-                  onTap: () => Navigator.pushNamed(context, '/ai-assistant'),
-                ),
-                const SizedBox(height: AppSpacing.md),
+                  // AI Assistant card
+                  _buildFeatureCard(
+                    context,
+                    icon: Icons.psychology_outlined,
+                    title: 'AI Assistant',
+                    subtitle: 'Get intelligent vehicle diagnostics help',
+                    onTap: () => Navigator.pushNamed(context, '/ai-assistant'),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
 
-                // QR Code Scanner card
-                _buildFeatureCard(
-                  context,
-                  icon: Icons.qr_code_2,
-                  title: 'QR Code Scanner',
-                  subtitle: 'Scan parts and component QR codes',
-                  onTap: () => Navigator.pushNamed(context, '/qr-scanner'),
-                ),
-              ],
+                  // QR Code Scanner card
+                  _buildFeatureCard(
+                    context,
+                    icon: Icons.qr_code_2,
+                    title: 'QR Code Scanner',
+                    subtitle: 'Scan parts and component QR codes',
+                    onTap: () => Navigator.pushNamed(context, '/qr-scanner'),
+                  ),
+                ],
+              ),
             ),
           ),
         );

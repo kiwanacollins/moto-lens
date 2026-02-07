@@ -17,3 +17,6 @@ export 'qr_scan_provider.dart';
 
 // Vehicle viewer provider
 export 'vehicle_viewer_provider.dart';
+
+// Connectivity / offline provider
+export 'connectivity_provider.dart';

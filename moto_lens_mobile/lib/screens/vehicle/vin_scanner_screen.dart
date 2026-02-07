@@ -7,6 +7,7 @@ import '../../models/vehicle/vin_decode_result.dart';
 import '../../models/vehicle/vin_scan_entry.dart';
 import '../../services/api_service.dart';
 import '../../services/vin_history_service.dart';
+import '../../services/connectivity_service.dart';
 import '../../utils/error_handler.dart';
 import 'vehicle_detail_screen.dart';
 
@@ -36,6 +37,7 @@ class _VinScannerScreenState extends State<VinScannerScreen>
   final FocusNode _vinFocusNode = FocusNode();
   final ApiService _apiService = ApiService();
   final VinHistoryService _historyService = VinHistoryService();
+  final ConnectivityService _connectivity = ConnectivityService();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -115,7 +117,7 @@ class _VinScannerScreenState extends State<VinScannerScreen>
     });
 
     try {
-      // Try cache first
+      // Try cache first (works offline or online)
       final cached = await _historyService.getCachedResult(vin);
       if (cached != null) {
         setState(() {
@@ -124,6 +126,21 @@ class _VinScannerScreenState extends State<VinScannerScreen>
         });
         await _historyService.addDecodeResult(cached);
         await _loadHistory();
+        return;
+      }
+
+      // If offline and no cache, queue for later
+      if (!_connectivity.isOnline) {
+        await _historyService.addOfflineScan(vin);
+        await _loadHistory();
+        if (mounted) {
+          setState(() {
+            _isDecoding = false;
+            _decodeError =
+                'You\'re offline. This VIN has been saved and will be '
+                'decoded automatically when connectivity returns.';
+          });
+        }
         return;
       }
 
@@ -273,9 +290,11 @@ class _VinScannerScreenState extends State<VinScannerScreen>
               onVinDetected: _onCameraScanComplete,
               onClose: _closeCameraScanner,
             )
-          : FadeTransition(
-              opacity: _fadeAnimation,
-              child: _showHistory ? _buildHistoryView() : _buildInputView(),
+          : OfflineBannerWrapper(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: _showHistory ? _buildHistoryView() : _buildInputView(),
+              ),
             ),
     );
   }
