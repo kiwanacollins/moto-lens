@@ -59,6 +59,9 @@ class User {
   }
 
   /// Create User from JSON
+  ///
+  /// Handles partial user objects from login/register responses
+  /// where some fields (createdAt, updatedAt, subscriptionTier) may be missing.
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as String,
@@ -67,15 +70,19 @@ class User {
       firstName: json['firstName'] as String,
       lastName: json['lastName'] as String,
       garageName: json['garageName'] as String?,
-      phoneNumber: json['phoneNumber'] as String?,
+      phoneNumber: json['phoneNumber'] as String? ?? json['phone'] as String?,
       profileImageUrl: json['profileImageUrl'] as String?,
       role: UserRole.fromString(json['role'] as String),
-      subscriptionTier: SubscriptionTier.fromString(
-        json['subscriptionTier'] as String,
-      ),
-      emailVerified: json['emailVerified'] as bool,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      subscriptionTier: json['subscriptionTier'] != null
+          ? SubscriptionTier.fromString(json['subscriptionTier'] as String)
+          : SubscriptionTier.free,
+      emailVerified: json['emailVerified'] as bool? ?? false,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : DateTime.now(),
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : DateTime.now(),
     );
   }
 

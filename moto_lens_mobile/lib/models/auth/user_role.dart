@@ -14,6 +14,9 @@ enum UserRole {
   final String value;
 
   /// Create UserRole from string value
+  ///
+  /// Handles backend enum values (MECHANIC, SHOP_OWNER, ADMIN, SUPPORT)
+  /// and lowercase variants.
   static UserRole fromString(String value) {
     switch (value.toLowerCase()) {
       case 'mechanic':
@@ -22,8 +25,12 @@ enum UserRole {
         return UserRole.admin;
       case 'customer':
         return UserRole.customer;
+      case 'shop_owner':
+        return UserRole.mechanic; // Map shop owners to mechanic role in mobile
+      case 'support':
+        return UserRole.admin; // Map support to admin role in mobile
       default:
-        throw ArgumentError('Invalid user role: $value');
+        return UserRole.mechanic; // Default to mechanic for unknown roles
     }
   }
 

@@ -14,16 +14,21 @@ enum SubscriptionTier {
   final String value;
 
   /// Create SubscriptionTier from string value
+  ///
+  /// Handles backend enum values (FREE, BASIC, PRO, ENTERPRISE)
+  /// and mobile-side names.
   static SubscriptionTier fromString(String value) {
     switch (value.toLowerCase()) {
       case 'free':
         return SubscriptionTier.free;
+      case 'basic':
+      case 'pro':
       case 'professional':
         return SubscriptionTier.professional;
       case 'enterprise':
         return SubscriptionTier.enterprise;
       default:
-        throw ArgumentError('Invalid subscription tier: $value');
+        return SubscriptionTier.free; // Default to free for unknown tiers
     }
   }
 

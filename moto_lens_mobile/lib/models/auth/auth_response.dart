@@ -29,12 +29,29 @@ class AuthResponse {
   bool get expiresSoon => minutesUntilExpiry <= 5 && minutesUntilExpiry > 0;
 
   /// Create AuthResponse from JSON
+  ///
+  /// Handles both flat and nested token formats:
+  /// - Flat: { accessToken, refreshToken, ... }
+  /// - Nested: { tokens: { accessToken, refreshToken }, ... }
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    // Extract tokens - backend nests them under 'tokens' key
+    final tokens = json['tokens'] as Map<String, dynamic>?;
+    final accessToken = (tokens?['accessToken'] ?? json['accessToken']) as String;
+    final refreshToken = (tokens?['refreshToken'] ?? json['refreshToken']) as String;
+
+    // Parse expiresAt if provided, otherwise default to 1 hour from now
+    DateTime expiresAt;
+    if (json['expiresAt'] != null) {
+      expiresAt = DateTime.parse(json['expiresAt'] as String);
+    } else {
+      expiresAt = DateTime.now().add(const Duration(hours: 1));
+    }
+
     return AuthResponse(
       user: User.fromJson(json['user'] as Map<String, dynamic>),
-      accessToken: json['accessToken'] as String,
-      refreshToken: json['refreshToken'] as String,
-      expiresAt: DateTime.parse(json['expiresAt'] as String),
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      expiresAt: expiresAt,
       message: json['message'] as String?,
     );
   }
