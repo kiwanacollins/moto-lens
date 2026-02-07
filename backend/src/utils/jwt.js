@@ -13,6 +13,7 @@
  */
 
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -57,7 +58,8 @@ class JWTUtil {
     return jwt.sign(
       {
         sub: user.id,
-        type: 'refresh'
+        type: 'refresh',
+        jti: crypto.randomUUID() // Unique ID to prevent duplicate tokens
       },
       process.env.JWT_REFRESH_SECRET,
       {

@@ -70,19 +70,6 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
     }
   }
 
-  /// Show error message
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-        ),
-      ),
-    );
-  }
 
   /// Navigate to register screen
   void _navigateToRegister() {

@@ -349,9 +349,11 @@ class ApiService {
   Future<void> logout() async {
     try {
       // Attempt to notify server about logout
-      await post('/auth/logout').catchError((_) {
+      try {
+        await post('/auth/logout');
+      } catch (_) {
         // Ignore logout API errors - clear local tokens anyway
-      });
+      }
 
       // Clear local tokens regardless of API response
       await _secureStorage.deleteTokens();

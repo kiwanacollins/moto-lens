@@ -377,9 +377,17 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
       }
     });
 
-    // Generate tokens
+    // Generate tokens (includes unique jti to prevent collisions)
     const tokens = JWTUtil.generateTokenPair(user);
     const deviceInfo = getDeviceInfo(req);
+
+    // Delete old inactive sessions for this user to prevent stale data buildup
+    await prisma.userSession.deleteMany({
+      where: {
+        userId: user.id,
+        isActive: false
+      }
+    });
 
     // Create session
     const session = await prisma.userSession.create({

@@ -321,8 +321,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   /// Build input decoration
   InputDecoration _buildInputDecoration() {
-    final bool hasError = widget.hasError || widget.errorMessage != null;
-
     return InputDecoration(
       hintText: widget.hintText,
       prefixIcon: widget.prefixIcon != null
@@ -419,7 +417,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
         return TextInputType.text;
       case CustomTextFieldType.search:
       case CustomTextFieldType.text:
-      default:
         return TextInputType.text;
     }
   }

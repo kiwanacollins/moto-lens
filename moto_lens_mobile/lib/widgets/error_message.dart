@@ -209,7 +209,6 @@ class ErrorMessage extends StatelessWidget {
       case ErrorMessageType.server:
         return Icons.cloud_off;
       case ErrorMessageType.general:
-      default:
         return Icons.error_outline;
     }
   }
@@ -227,7 +226,6 @@ class ErrorMessage extends StatelessWidget {
       case ErrorMessageType.server:
         return AppColors.error;
       case ErrorMessageType.general:
-      default:
         return AppColors.error;
     }
   }

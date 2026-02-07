@@ -110,19 +110,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     }
   }
 
-  /// Show error message
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-        ),
-      ),
-    );
-  }
 
   /// Navigate to next step
   void _nextStep() {

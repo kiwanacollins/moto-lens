@@ -66,20 +66,6 @@ class _PasswordResetScreenState extends State<PasswordResetScreen>
     }
   }
 
-  /// Show error message
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-        ),
-      ),
-    );
-  }
-
   /// Navigate back to login screen
   void _navigateToLogin() {
     Navigator.pop(context);

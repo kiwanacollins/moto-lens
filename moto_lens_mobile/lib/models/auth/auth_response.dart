@@ -36,8 +36,10 @@ class AuthResponse {
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     // Extract tokens - backend nests them under 'tokens' key
     final tokens = json['tokens'] as Map<String, dynamic>?;
-    final accessToken = (tokens?['accessToken'] ?? json['accessToken']) as String;
-    final refreshToken = (tokens?['refreshToken'] ?? json['refreshToken']) as String;
+    final accessToken =
+        (tokens?['accessToken'] ?? json['accessToken']) as String;
+    final refreshToken =
+        (tokens?['refreshToken'] ?? json['refreshToken']) as String;
 
     // Parse expiresAt if provided, otherwise default to 1 hour from now
     DateTime expiresAt;
