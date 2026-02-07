@@ -631,9 +631,11 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
 
 ---
 
-## 🎯 Phase 16: Flutter Mobile Vehicle Features
+## 🎯 Phase 16: Flutter Mobile Core Features
 
-### 16.1 VIN Scanner & Input Screen
+> **Dashboard Cards**: VIN Scanner (primary), AI Assistant, QR Code Scanner
+
+### 16.1 VIN Scanner Feature (Card 1 - Primary)
 - [x] Create `lib/screens/vehicle/vin_scanner_screen.dart`
 - [x] Integrate camera permission handling (iOS & Android)
 - [x] Implement VIN barcode scanning (if VINs have barcodes) or OCR
@@ -642,27 +644,74 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
   - [x] Uppercase transformation (JetBrains Mono font)
   - [x] Real-time format checking
   - [x] Sample VIN button for testing
-- [x] Add VIN scan history:
-  - [x] Recent scans list (local + synced)
-  - [x] Quick re-scan from history
-  - [x] Offline scan caching
 - [x] Connect to backend `/api/vin/decode` endpoint
 - [x] Display loading states with German Car Medic branding
 - [x] Handle API errors gracefully
-
-### 16.2 Vehicle Information Display
 - [ ] Create `lib/screens/vehicle/vehicle_detail_screen.dart`
 - [ ] Display decoded vehicle metadata:
   - [ ] Make, Model, Year (large, prominent)
   - [ ] Engine, Body Type, Trim
   - [ ] VIN display (JetBrains Mono, Electric Blue)
-  - [ ] Vehicle summary (5 AI-generated bullets)
+  - [ ] Vehicle summary (5 AI-generated bullets from backend)
 - [ ] Fetch and display vehicle images from backend
+- [ ] Add VIN scan history:
+  - [ ] Recent scans list (local + synced)
+  - [ ] Quick re-scan from history
+  - [ ] View past vehicle details
 - [ ] Add favorite/bookmark functionality
 - [ ] Implement share vehicle details feature
-- [ ] Add back navigation to scan new VIN
 
-### 16.3 360° Vehicle Viewer (Flutter Implementation)
+### 16.2 AI Assistant Feature (Card 2)
+- [ ] Create `lib/screens/ai/ai_assistant_screen.dart`
+- [ ] Design conversational AI interface:
+  - [ ] Chat-style message list
+  - [ ] User message input field
+  - [ ] Professional message bubbles (user vs AI)
+  - [ ] Typing indicators
+- [ ] Implement AI chat functionality:
+  - [ ] Connect to backend Gemini AI endpoints
+  - [ ] Send vehicle context with queries
+  - [ ] Handle streaming responses (optional)
+  - [ ] Display formatted AI responses
+- [ ] Add quick action buttons:
+  - [ ] "Explain this part"
+  - [ ] "Common issues with [vehicle]"
+  - [ ] "Maintenance schedule"
+  - [ ] "Diagnostic help"
+- [ ] Implement chat history:
+  - [ ] Save conversations locally
+  - [ ] Clear chat functionality
+  - [ ] Export chat transcript
+- [ ] Add AI response quality indicators
+- [ ] Handle API errors and fallbacks
+
+### 16.3 QR Code Scanner Feature (Card 3)
+- [ ] Create `lib/screens/scanner/qr_scanner_screen.dart`
+- [ ] Integrate QR code scanning library:
+  - [ ] `mobile_scanner` or `qr_code_scanner` package
+  - [ ] Camera permission handling
+  - [ ] Auto-detect and scan QR codes
+- [ ] Implement part QR code handling:
+  - [ ] Parse part number from QR code
+  - [ ] Fetch part details from backend
+  - [ ] Display part information screen
+- [ ] Add manual part number entry:
+  - [ ] Text input field for part numbers
+  - [ ] Format validation
+  - [ ] Search backend for part info
+- [ ] Create part information display:
+  - [ ] Part name and description
+  - [ ] Compatible vehicles
+  - [ ] Price and availability
+  - [ ] Installation guides (if available)
+  - [ ] Related parts suggestions
+- [ ] Add scan history:
+  - [ ] Recent scans list
+  - [ ] Quick re-scan functionality
+  - [ ] Clear history option
+- [ ] Implement offline QR code caching
+
+### 16.4 360° Vehicle Viewer & Interactive Parts (Future Enhancement)
 - [ ] Research Flutter 360° image viewer packages:
   - [ ] Option 1: `panorama` package
   - [ ] Option 2: `flutter_cube` for 3D rotation
@@ -674,53 +723,28 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
 - [ ] Load 8 angle images from backend web search
 - [ ] Add image preloading and caching
 - [ ] Professional loading states
-- [ ] Test performance on mid-range Android devices
-
-### 16.4 Interactive Parts Hotspot System
-- [ ] Implement hotspot system in Flutter:
+- [ ] Implement interactive parts hotspot system:
   - [ ] SVG overlay on vehicle images
-  - [ ] Red dot + connecting line diagram aesthetic
+  - [ ] Red dot + connecting line aesthetic
   - [ ] White label boxes for part names
-  - [ ] Smart label positioning (left/right based on location)
-- [ ] Implement touch detection on hotspots:
-  - [ ] 44px+ tap targets for glove-friendly use
-  - [ ] Visual feedback (pulse animations, Electric Blue highlights)
+  - [ ] 44px+ tap targets for glove use
+  - [ ] Visual feedback (pulse, Electric Blue)
   - [ ] Haptic feedback on tap
-- [ ] Load 29 common parts from hotspot data:
-  - [ ] Engine components, body panels, wheels, electrical
-  - [ ] Mapped across 8 viewing angles
+- [ ] Load 29 common parts from backend
 - [ ] Add toggle button to show/hide overlay
-- [ ] Persistent state across angle rotation
+- [ ] Test performance on mid-range devices
 
-### 16.5 Part Detail & Spare Parts
-- [ ] Create `lib/screens/parts/part_detail_screen.dart`:
-  - [ ] Part name and function description
-  - [ ] Common failure symptoms
-  - [ ] Related spare parts (max 5)
-  - [ ] OEM part numbers (JetBrains Mono)
-  - [ ] Aftermarket alternatives
-  - [ ] Price comparison
-  - [ ] Installation difficulty rating
-- [ ] Create `lib/widgets/parts/spare_parts_list.dart`:
-  - [ ] Filter by vehicle system (engine, electrical, body)
-  - [ ] Availability status indicators
-  - [ ] Price ranges (OEM vs aftermarket)
-  - [ ] Installation guides
-- [ ] Connect to backend spare parts APIs:
-  - [ ] `/api/parts/identify`
-  - [ ] `/api/parts/spare-parts`
-- [ ] Add shopping cart functionality (optional)
-- [ ] Implement part search within vehicle
-
-### 16.6 Offline Support & Caching
+### 16.5 Offline Support & Caching
 - [ ] Implement offline VIN scan storage
 - [ ] Cache vehicle data locally using `shared_preferences`
 - [ ] Cache vehicle images using `cached_network_image`
+- [ ] Cache AI chat history locally
+- [ ] Cache QR scan history and part data
 - [ ] Add sync indicator when online
 - [ ] Queue API calls for when connectivity returns
 - [ ] Add "Offline Mode" indicator in UI
 
-**Estimated Time:** 12-16 hours
+**Estimated Time:** 16-20 hours
 
 ---
 
