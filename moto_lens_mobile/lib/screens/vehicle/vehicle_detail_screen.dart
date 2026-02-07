@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/vehicle/vin_decode_result.dart';
+import '../../services/favorites_service.dart';
 import '../../styles/styles.dart';
 
 /// Vehicle Detail Screen - Displays decoded VIN information
@@ -24,6 +27,28 @@ class VehicleDetailScreen extends StatefulWidget {
 
 class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
   bool _isFavorite = false;
+  late FavoritesService _favoritesService;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeFavorites();
+  }
+
+  Future<void> _initializeFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    _favoritesService = FavoritesService(prefs);
+
+    final isFavorite = await _favoritesService.isFavorite(widget.vehicle.vin);
+
+    if (mounted) {
+      setState(() {
+        _isFavorite = isFavorite;
+        _isInitialized = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -462,41 +487,104 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
   }
 
   /// Toggle favorite status
-  void _toggleFavorite() {
-    setState(() {
-      _isFavorite = !_isFavorite;
-    });
+  Future<void> _toggleFavorite() async {
+    if (!_isInitialized) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _isFavorite
-              ? 'Added to favorites'
-              : 'Removed from favorites',
-        ),
-        backgroundColor: AppColors.electricBlue,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    try {
+      if (_isFavorite) {
+        // Remove from favorites
+        await _favoritesService.removeFavorite(widget.vehicle.vin);
+      } else {
+        // Add to favorites
+        await _favoritesService.addFavorite(widget.vehicle);
+      }
 
-    // TODO: Implement favorite persistence
+      setState(() {
+        _isFavorite = !_isFavorite;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _isFavorite
+                  ? 'Added to favorites'
+                  : 'Removed from favorites',
+            ),
+            backgroundColor: AppColors.electricBlue,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update favorites: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   /// Share vehicle details
-  void _shareVehicle() {
-    final vehicleName = widget.vehicle.displayName;
-    final vin = widget.vehicle.vin;
+  Future<void> _shareVehicle() async {
+    final vehicle = widget.vehicle;
 
-    // TODO: Implement share functionality using share_plus package
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Sharing $vehicleName (VIN: $vin)'),
-        backgroundColor: AppColors.electricBlue,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    // Build comprehensive share text
+    final shareText = StringBuffer();
+    shareText.writeln('🚗 ${vehicle.displayName}');
+    shareText.writeln('');
+    shareText.writeln('VIN: ${vehicle.vin}');
+    shareText.writeln('');
+
+    // Add specifications
+    if (vehicle.engineType != null) {
+      shareText.writeln('Engine: ${vehicle.engineType}');
+    }
+    if (vehicle.bodyStyle != null) {
+      shareText.writeln('Body Style: ${vehicle.bodyStyle}');
+    }
+    if (vehicle.transmission != null) {
+      shareText.writeln('Transmission: ${vehicle.transmission}');
+    }
+    if (vehicle.fuelType != null) {
+      shareText.writeln('Fuel Type: ${vehicle.fuelType}');
+    }
+    if (vehicle.driveType != null) {
+      shareText.writeln('Drive Type: ${vehicle.driveType}');
+    }
+    if (vehicle.displacement != null) {
+      shareText.writeln('Displacement: ${vehicle.displacement}L');
+    }
+    if (vehicle.power != null) {
+      shareText.writeln('Power: ${vehicle.power} HP');
+    }
+
+    shareText.writeln('');
+    shareText.writeln('Decoded with German Car Medic');
+
+    try {
+      await Share.share(
+        shareText.toString(),
+        subject: vehicle.displayName,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to share: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }
 

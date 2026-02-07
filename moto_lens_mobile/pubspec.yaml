@@ -51,6 +51,7 @@ dependencies:
   json_annotation: ^4.8.1 # JSON serialization
   crypto: ^3.0.3 # Cryptographic operations
   flutter_svg: ^2.0.10+1 # SVG rendering
+  share_plus: ^10.1.4 # Share vehicle details
 
 dev_dependencies:
   flutter_test:

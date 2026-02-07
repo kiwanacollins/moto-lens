@@ -647,19 +647,19 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
 - [x] Connect to backend `/api/vin/decode` endpoint
 - [x] Display loading states with German Car Medic branding
 - [x] Handle API errors gracefully
-- [ ] Create `lib/screens/vehicle/vehicle_detail_screen.dart`
-- [ ] Display decoded vehicle metadata:
-  - [ ] Make, Model, Year (large, prominent)
-  - [ ] Engine, Body Type, Trim
-  - [ ] VIN display (JetBrains Mono, Electric Blue)
+- [x] Create `lib/screens/vehicle/vehicle_detail_screen.dart`
+- [x] Display decoded vehicle metadata:
+  - [x] Make, Model, Year (large, prominent)
+  - [x] Engine, Body Type, Trim
+  - [x] VIN display (JetBrains Mono, Electric Blue)
   - [ ] Vehicle summary (5 AI-generated bullets from backend)
 - [ ] Fetch and display vehicle images from backend
-- [ ] Add VIN scan history:
-  - [ ] Recent scans list (local + synced)
-  - [ ] Quick re-scan from history
-  - [ ] View past vehicle details
-- [ ] Add favorite/bookmark functionality
-- [ ] Implement share vehicle details feature
+- [x] Add VIN scan history:
+  - [x] Recent scans list (local + synced)
+  - [x] Quick re-scan from history
+  - [x] View past vehicle details
+- [x] Add favorite/bookmark functionality
+- [x] Implement share vehicle details feature
 
 ### 16.2 AI Assistant Feature (Card 2)
 - [ ] Create `lib/screens/ai/ai_assistant_screen.dart`
