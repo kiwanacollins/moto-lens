@@ -26,7 +26,8 @@ class VinScanEntry {
       manufacturer: json['manufacturer'] as String?,
       model: json['model'] as String?,
       year: json['year'] as String?,
-      scannedAt: DateTime.tryParse(json['scannedAt'] as String? ?? '') ??
+      scannedAt:
+          DateTime.tryParse(json['scannedAt'] as String? ?? '') ??
           DateTime.now(),
       isSynced: json['isSynced'] as bool? ?? false,
     );

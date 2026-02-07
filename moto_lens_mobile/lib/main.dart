@@ -325,9 +325,7 @@ class MainApp extends StatelessWidget {
                     Text(
                       title,
                       style: AppTypography.h5.copyWith(
-                        color: isPrimary
-                            ? Colors.white
-                            : AppColors.textPrimary,
+                        color: isPrimary ? Colors.white : AppColors.textPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
