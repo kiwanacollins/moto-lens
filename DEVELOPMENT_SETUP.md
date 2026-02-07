@@ -171,16 +171,23 @@ Run `npm run db:studio` to open a web interface at `http://localhost:5555` where
 2. **Check the API URL** in `lib/config/environment.dart`:
    - Android Emulator: Use `10.0.2.2:3001`
    - iOS Simulator: Use `localhost:3001`
-   - Real Device: Use your computer's IP (e.g., `192.168.1.100:3001`)
+   - **Real Device (iPhone/Android)**: Use your computer's local IP (e.g., `192.168.1.146:3001`)
 
 3. **Get your computer's IP**:
    ```bash
    # On Mac/Linux
    ifconfig | grep "inet "
+   # Look for something like: inet 192.168.1.146
 
    # On Windows
    ipconfig
    ```
+
+4. **For Real Devices**:
+   - Ensure both your computer and phone are on the **same WiFi network**
+   - Update `lib/config/environment.dart` with your computer's local IP
+   - Test connectivity: Open Safari/Chrome on your phone and visit `http://YOUR_IP:3001/api/health`
+   - If the health check fails, check your Mac's firewall settings (System Settings > Network > Firewall)
 
 ### Login Fails
 

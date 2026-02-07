@@ -11,12 +11,18 @@ class Environment {
   static String get apiUrl {
     switch (mode) {
       case EnvironmentMode.development:
-        // For Android Emulator, use 10.0.2.2 to access host machine's localhost
-        // For iOS Simulator, localhost works fine
-        // For real devices, use your computer's IP address (e.g., http://192.168.1.100:3001)
-        return 'http://10.0.2.2:3001'; // Android emulator
-        // return 'http://localhost:3001'; // iOS simulator
-        // return 'http://192.168.1.100:3001'; // Real device (replace with your IP)
+        // OPTION 1: Android Emulator (default)
+        // return 'http://10.0.2.2:3001';
+
+        // OPTION 2: iOS Simulator
+        // return 'http://localhost:3001';
+
+        // OPTION 3: Real device or if 10.0.2.2 doesn't work
+        // Use your computer's IP address (find with: ifconfig | grep "inet ")
+        return 'http://192.168.1.146:3001'; // Your computer's local IP
+
+        // OPTION 4: If nothing works, try IPv4 localhost
+        // return 'http://127.0.0.1:3001';
 
       case EnvironmentMode.staging:
         return 'https://staging-api.motolens.com';

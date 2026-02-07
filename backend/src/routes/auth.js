@@ -364,6 +364,19 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
     // Reset failed attempts on successful login
     await PasswordUtil.resetFailedLoginAttempts(user.id);
 
+    // Invalidate any existing active sessions for this user
+    // This prevents duplicate refresh token issues and enhances security
+    await prisma.userSession.updateMany({
+      where: {
+        userId: user.id,
+        isActive: true
+      },
+      data: {
+        isActive: false,
+        lastActivityAt: new Date()
+      }
+    });
+
     // Generate tokens
     const tokens = JWTUtil.generateTokenPair(user);
     const deviceInfo = getDeviceInfo(req);
@@ -384,10 +397,12 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
     });
 
     // Log successful login
-    await logSecurityEvent(user.id, 'LOGIN_SUCCESS', 'INFO', {
-      sessionId: session.id,
-      ...deviceInfo
-    });
+    await logSecurityEvent(
+      user.id,
+      'LOGIN_SUCCESS',
+      'INFO',
+      `Login successful - Session: ${session.id}`
+    );
 
     res.json({
       success: true,
