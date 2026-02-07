@@ -151,11 +151,6 @@ class _VinScannerScreenState extends State<VinScannerScreen>
     }
   }
 
-  void _useSampleVin(SampleVin sample) {
-    _vinController.text = sample.vin;
-    _vinFocusNode.requestFocus();
-  }
-
   void _useHistoryVin(VinScanEntry entry) {
     _vinController.text = entry.vin;
     setState(() => _showHistory = false);
@@ -316,10 +311,6 @@ class _VinScannerScreenState extends State<VinScannerScreen>
             const SizedBox(height: AppSpacing.lg),
           ],
 
-          // Sample VINs
-          _buildSampleVins(),
-          const SizedBox(height: AppSpacing.lg),
-
           // Quick history
           if (_scanHistory.isNotEmpty) ...[_buildQuickHistory()],
         ],
@@ -391,10 +382,10 @@ class _VinScannerScreenState extends State<VinScannerScreen>
 
   Widget _buildCameraScanButton() {
     return Material(
-      color: AppColors.carbonBlack,
+      color: AppColors.electricBlue,
       borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
       elevation: 2,
-      shadowColor: AppColors.carbonBlack.withValues(alpha: 0.2),
+      shadowColor: AppColors.electricBlue.withValues(alpha: 0.3),
       child: InkWell(
         onTap: _openCameraScanner,
         borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
@@ -410,12 +401,12 @@ class _VinScannerScreenState extends State<VinScannerScreen>
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.electricBlue.withValues(alpha: 0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
                 ),
                 child: const Icon(
                   Icons.camera_alt,
-                  color: AppColors.electricBlue,
+                  color: Colors.white,
                   size: 26,
                 ),
               ),
@@ -857,91 +848,6 @@ class _VinScannerScreenState extends State<VinScannerScreen>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ===================== SAMPLE VINS =====================
-
-  Widget _buildSampleVins() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.science, color: AppColors.textSecondary, size: 18),
-            const SizedBox(width: AppSpacing.xs),
-            Text(
-              'Sample VINs for Testing',
-              style: AppTypography.h6.copyWith(color: AppColors.textSecondary),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        ...VinValidator.sampleVins.map((sample) => _buildSampleVinTile(sample)),
-      ],
-    );
-  }
-
-  Widget _buildSampleVinTile(SampleVin sample) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-      child: InkWell(
-        onTap: () => _useSampleVin(sample),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.backgroundSecondary,
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: AppColors.electricBlue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
-                ),
-                child: const Icon(
-                  Icons.directions_car,
-                  color: AppColors.electricBlue,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      sample.description,
-                      style: AppTypography.bodySmall.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      sample.vin,
-                      style: AppTypography.codeSmall.copyWith(
-                        color: AppColors.electricBlue,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 14,
-                color: AppColors.textSecondary,
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
