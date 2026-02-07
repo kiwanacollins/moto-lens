@@ -247,23 +247,37 @@ class MainApp extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                // Vehicle Info card
+                // AI Assistant card
                 _buildFeatureCard(
                   context,
-                  icon: Icons.info_outline,
-                  title: 'Vehicle Information',
-                  subtitle: 'Get detailed vehicle specifications',
-                  onTap: () => Navigator.pushNamed(context, '/vin-scanner'),
+                  icon: Icons.psychology_outlined,
+                  title: 'AI Assistant',
+                  subtitle: 'Get intelligent vehicle diagnostics help',
+                  onTap: () {
+                    // TODO: Navigate to AI Assistant screen
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('AI Assistant - Coming soon!'),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                // History card
+                // QR Code Scanner card
                 _buildFeatureCard(
                   context,
-                  icon: Icons.history,
-                  title: 'Search History',
-                  subtitle: 'Access your previous VIN scans',
-                  onTap: () => Navigator.pushNamed(context, '/vin-scanner'),
+                  icon: Icons.qr_code_2,
+                  title: 'QR Code Scanner',
+                  subtitle: 'Scan parts and component QR codes',
+                  onTap: () {
+                    // TODO: Navigate to QR Code Scanner screen
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('QR Code Scanner - Coming soon!'),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
