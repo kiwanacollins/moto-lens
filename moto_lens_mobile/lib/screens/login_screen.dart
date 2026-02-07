@@ -70,7 +70,6 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
     }
   }
 
-
   /// Navigate to register screen
   void _navigateToRegister() {
     Navigator.pushReplacementNamed(context, '/register');
@@ -129,10 +128,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
         Container(
           width: 280,
           height: 140,
-          child: SvgPicture.asset(
-            'assets/logo.svg',
-            fit: BoxFit.contain,
-          ),
+          child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
         ),
 
         const SizedBox(height: AppSpacing.lg),

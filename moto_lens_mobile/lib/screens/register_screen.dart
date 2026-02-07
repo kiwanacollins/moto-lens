@@ -110,7 +110,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     }
   }
 
-
   /// Navigate to next step
   void _nextStep() {
     if (_currentStep < 1) {
@@ -178,10 +177,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             width: 150,
             height: 80,
             padding: const EdgeInsets.all(AppSpacing.sm),
-            child: SvgPicture.asset(
-              'assets/logo.svg',
-              fit: BoxFit.contain,
-            ),
+            child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
           ),
 
           const SizedBox(height: AppSpacing.lg),
