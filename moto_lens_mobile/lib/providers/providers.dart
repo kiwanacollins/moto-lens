@@ -14,3 +14,6 @@ export 'ai_chat_provider.dart';
 
 // QR scan provider
 export 'qr_scan_provider.dart';
+
+// Vehicle viewer provider
+export 'vehicle_viewer_provider.dart';

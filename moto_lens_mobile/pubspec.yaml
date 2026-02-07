@@ -52,6 +52,7 @@ dependencies:
   crypto: ^3.0.3 # Cryptographic operations
   flutter_svg: ^2.0.10+1 # SVG rendering
   share_plus: ^10.1.4 # Share vehicle details
+  cached_network_image: ^3.4.1
 
 dev_dependencies:
   flutter_test:

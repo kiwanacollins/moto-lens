@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (_) => AiChatProvider()),
         ChangeNotifierProvider(create: (_) => QrScanProvider()),
+        ChangeNotifierProvider(create: (_) => VehicleViewerProvider()),
       ],
       child: MaterialApp(
         // App configuration
@@ -87,6 +88,19 @@ class MyApp extends StatelessWidget {
         }
         return MaterialPageRoute(
           builder: (_) => VehicleDetailScreen(vehicle: vehicle),
+        );
+      case '/vehicle-view':
+        // Extract vehicle from arguments
+        final viewArgs = settings.arguments as Map<String, dynamic>?;
+        final viewVehicle = viewArgs?['vehicle'];
+        if (viewVehicle == null) {
+          return MaterialPageRoute(
+            builder: (_) =>
+                Scaffold(body: Center(child: Text('Vehicle data not found'))),
+          );
+        }
+        return MaterialPageRoute(
+          builder: (_) => VehicleViewScreen(vehicle: viewVehicle),
         );
       default:
         return MaterialPageRoute(

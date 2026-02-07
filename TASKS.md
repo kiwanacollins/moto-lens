@@ -711,28 +711,52 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
   - [x] Clear history option
 - [x] Implement offline QR code caching
 
-### 16.4 360° Vehicle Viewer & Interactive Parts (Future Enhancement)
-- [ ] Research Flutter 360° image viewer packages:
-  - [ ] Option 1: `panorama` package
-  - [ ] Option 2: `flutter_cube` for 3D rotation
-  - [ ] Option 3: Custom gesture-based implementation
-- [ ] Implement touch/swipe rotation:
-  - [ ] Pinch to zoom (optional)
-  - [ ] Smooth drag sensitivity
-  - [ ] Rotation instructions overlay
-- [ ] Load 8 angle images from backend web search
-- [ ] Add image preloading and caching
-- [ ] Professional loading states
-- [ ] Implement interactive parts hotspot system:
-  - [ ] SVG overlay on vehicle images
-  - [ ] Red dot + connecting line aesthetic
-  - [ ] White label boxes for part names
-  - [ ] 44px+ tap targets for glove use
-  - [ ] Visual feedback (pulse, Electric Blue)
-  - [ ] Haptic feedback on tap
-- [ ] Load 29 common parts from backend
-- [ ] Add toggle button to show/hide overlay
-- [ ] Test performance on mid-range devices
+### 16.4 360° Vehicle Viewer & Interactive Parts (SerpAPI-powered, PWA parity)
+- [x] Research PWA implementation (Custom360Viewer, PartsGrid, PartDetailModal)
+- [x] Create vehicle viewer models (`vehicle_viewer.dart`):
+  - [x] `VehicleImage` model with angle, imageUrl, thumbnail, source
+  - [x] `UniversalPart` model with 42 universal automotive parts
+  - [x] `PartDetailsResponse` model with AI description, symptoms, image
+  - [x] `PartImage` model for SerpAPI image results
+- [x] Create vehicle viewer service (`vehicle_viewer_service.dart`):
+  - [x] `getVehicleImages(vin)` → `GET /api/vehicle/images/:vin`
+  - [x] `getVehicleImagesByData(make, model, year)` → `POST /api/vehicle/images`
+  - [x] `getPartDetails(partName, vehicleData)` → `POST /api/parts/details`
+- [x] Create vehicle viewer provider (`vehicle_viewer_provider.dart`):
+  - [x] Image loading and rotation state management
+  - [x] Part selection and detail lookup
+  - [x] Category filtering for parts grid
+- [x] Build 360° viewer widget (`vehicle_360_viewer.dart`):
+  - [x] GestureDetector drag-to-rotate (sensitivity: low=40, medium=20, high=10 px/step)
+  - [x] CachedNetworkImage with thumbnail blur placeholders
+  - [x] "Drag to rotate" hint overlay (auto-fades after 3s)
+  - [x] Prev/Next navigation buttons
+  - [x] Image counter overlay ("1 of 5")
+  - [x] Source badge, vehicle name overlay
+  - [x] Professional loading/error states
+  - [x] Autoplay support
+- [x] Build parts grid widget (`parts_grid.dart`):
+  - [x] 42 universal parts in 3-column grid
+  - [x] Category filter chips (horizontal scroll)
+  - [x] Part cards with icon, name, red dot indicator
+  - [x] 44px+ tap targets for glove use
+- [x] Build part detail bottom sheet (`part_detail_sheet.dart`):
+  - [x] Electric Blue header with part name
+  - [x] SerpAPI part image display
+  - [x] Parsed AI description with section headers
+  - [x] Common symptoms list
+  - [x] Copyable part number chip
+- [x] Build vehicle view screen (`vehicle_view_screen.dart`):
+  - [x] 360° viewer at top + parts grid below
+  - [x] Pull-to-refresh image loading
+  - [x] Error state handling
+- [x] Wire navigation & integrate:
+  - [x] Added `VehicleViewerProvider` to MultiProvider
+  - [x] Added `/vehicle-view` route
+  - [x] Updated barrel exports (screens.dart, providers.dart)
+  - [x] Replaced "Coming Soon" hero on VehicleDetailScreen with "View 360° & Parts" button
+- [x] Added `cached_network_image` dependency
+- [x] Flutter analyze: 0 errors (43 info-level pre-existing warnings only)
 
 ### 16.5 Offline Support & Caching
 - [ ] Implement offline VIN scan storage

@@ -16,10 +16,7 @@ import '../../styles/styles.dart';
 class VehicleDetailScreen extends StatefulWidget {
   final VinDecodeResult vehicle;
 
-  const VehicleDetailScreen({
-    super.key,
-    required this.vehicle,
-  });
+  const VehicleDetailScreen({super.key, required this.vehicle});
 
   @override
   State<VehicleDetailScreen> createState() => _VehicleDetailScreenState();
@@ -120,43 +117,75 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
 
   /// Hero section with vehicle image
   Widget _buildHeroSection() {
-    return Container(
-      width: double.infinity,
-      height: 200,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppColors.electricBlue,
-            AppColors.electricBlue.withValues(alpha: 0.7),
-          ],
-        ),
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(
+        context,
+        '/vehicle-view',
+        arguments: {'vehicle': widget.vehicle},
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.directions_car,
-              size: 80,
-              color: Colors.white.withValues(alpha: 0.9),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Vehicle Image',
-              style: AppTypography.bodySmall.copyWith(
-                color: Colors.white.withValues(alpha: 0.7),
+      child: Container(
+        width: double.infinity,
+        height: 200,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.electricBlue,
+              AppColors.electricBlue.withValues(alpha: 0.7),
+            ],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.view_in_ar,
+                size: 60,
+                color: Colors.white.withValues(alpha: 0.9),
               ),
-            ),
-            Text(
-              'Coming Soon',
-              style: AppTypography.bodySmall.copyWith(
-                color: Colors.white.withValues(alpha: 0.5),
-                fontSize: 10,
+              const SizedBox(height: AppSpacing.sm),
+              const Text(
+                'View 360° & Parts',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.touch_app,
+                      size: 14,
+                      color: Colors.white.withValues(alpha: 0.8),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Tap to explore',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -225,15 +254,13 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-        border: Border.all(color: AppColors.electricBlue.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: AppColors.electricBlue.withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.pin,
-            color: AppColors.electricBlue,
-            size: 20,
-          ),
+          Icon(Icons.pin, color: AppColors.electricBlue, size: 20),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
@@ -328,9 +355,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
       children: [
         Text(
           'Specifications',
-          style: AppTypography.h4.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTypography.h4.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.md),
         GridView.builder(
@@ -360,11 +385,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
       ),
       child: Row(
         children: [
-          Icon(
-            spec.icon,
-            size: 20,
-            color: AppColors.electricBlue,
-          ),
+          Icon(spec.icon, size: 20, color: AppColors.electricBlue),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Column(
@@ -406,7 +427,9 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
       details.add(_buildDetailRow('Series', widget.vehicle.series!));
     }
     if (widget.vehicle.countryOfOrigin != null) {
-      details.add(_buildDetailRow('Country of Origin', widget.vehicle.countryOfOrigin!));
+      details.add(
+        _buildDetailRow('Country of Origin', widget.vehicle.countryOfOrigin!),
+      );
     }
     if (widget.vehicle.plantCity != null) {
       details.add(_buildDetailRow('Plant City', widget.vehicle.plantCity!));
@@ -421,9 +444,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
       children: [
         Text(
           'Additional Information',
-          style: AppTypography.h4.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: AppTypography.h4.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.md),
         Container(
@@ -432,9 +453,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
             borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
             border: Border.all(color: AppColors.border),
           ),
-          child: Column(
-            children: details,
-          ),
+          child: Column(children: details),
         ),
       ],
     );
@@ -507,9 +526,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _isFavorite
-                  ? 'Added to favorites'
-                  : 'Removed from favorites',
+              _isFavorite ? 'Added to favorites' : 'Removed from favorites',
             ),
             backgroundColor: AppColors.electricBlue,
             behavior: SnackBarBehavior.floating,
@@ -569,10 +586,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
     shareText.writeln('Decoded with German Car Medic');
 
     try {
-      await Share.share(
-        shareText.toString(),
-        subject: vehicle.displayName,
-      );
+      await Share.share(shareText.toString(), subject: vehicle.displayName);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
