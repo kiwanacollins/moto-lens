@@ -11,3 +11,6 @@ export 'auth_context.dart';
 
 // AI chat provider
 export 'ai_chat_provider.dart';
+
+// QR scan provider
+export 'qr_scan_provider.dart';

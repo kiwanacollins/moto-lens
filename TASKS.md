@@ -686,30 +686,30 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
 - [x] Handle API errors and fallbacks
 
 ### 16.3 QR Code Scanner Feature (Card 3)
-- [ ] Create `lib/screens/scanner/qr_scanner_screen.dart`
-- [ ] Integrate QR code scanning library:
-  - [ ] `mobile_scanner` or `qr_code_scanner` package
-  - [ ] Camera permission handling
-  - [ ] Auto-detect and scan QR codes
-- [ ] Implement part QR code handling:
-  - [ ] Parse part number from QR code
-  - [ ] Fetch part details from backend
-  - [ ] Display part information screen
-- [ ] Add manual part number entry:
-  - [ ] Text input field for part numbers
-  - [ ] Format validation
-  - [ ] Search backend for part info
-- [ ] Create part information display:
-  - [ ] Part name and description
-  - [ ] Compatible vehicles
-  - [ ] Price and availability
-  - [ ] Installation guides (if available)
-  - [ ] Related parts suggestions
-- [ ] Add scan history:
-  - [ ] Recent scans list
-  - [ ] Quick re-scan functionality
-  - [ ] Clear history option
-- [ ] Implement offline QR code caching
+- [x] Create `lib/screens/scanner/qr_scanner_screen.dart`
+- [x] Integrate QR code scanning library:
+  - [x] `mobile_scanner` or `qr_code_scanner` package
+  - [x] Camera permission handling
+  - [x] Auto-detect and scan QR codes
+- [x] Implement part QR code handling:
+  - [x] Parse part number from QR code
+  - [x] Fetch part details from backend
+  - [x] Display part information screen
+- [x] Add manual part number entry:
+  - [x] Text input field for part numbers
+  - [x] Format validation
+  - [x] Search backend for part info
+- [x] Create part information display:
+  - [x] Part name and description
+  - [x] Compatible vehicles
+  - [x] Price and availability
+  - [x] Installation guides (if available)
+  - [x] Related parts suggestions
+- [x] Add scan history:
+  - [x] Recent scans list
+  - [x] Quick re-scan functionality
+  - [x] Clear history option
+- [x] Implement offline QR code caching
 
 ### 16.4 360° Vehicle Viewer & Interactive Parts (Future Enhancement)
 - [ ] Research Flutter 360° image viewer packages:

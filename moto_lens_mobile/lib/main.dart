@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
         ChangeNotifierProvider(create: (_) => AiChatProvider()),
+        ChangeNotifierProvider(create: (_) => QrScanProvider()),
       ],
       child: MaterialApp(
         // App configuration
@@ -70,6 +71,10 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const VinScannerScreen());
       case '/ai-assistant':
         return MaterialPageRoute(builder: (_) => const AiAssistantScreen());
+      case '/qr-scanner':
+        return MaterialPageRoute(builder: (_) => const QrScannerScreen());
+      case '/part-detail':
+        return MaterialPageRoute(builder: (_) => const PartDetailScreen());
       case '/vehicle-detail':
         // Extract vehicle from arguments
         final args = settings.arguments as Map<String, dynamic>?;
@@ -279,14 +284,7 @@ class MainApp extends StatelessWidget {
                   icon: Icons.qr_code_2,
                   title: 'QR Code Scanner',
                   subtitle: 'Scan parts and component QR codes',
-                  onTap: () {
-                    // TODO: Navigate to QR Code Scanner screen
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('QR Code Scanner - Coming soon!'),
-                      ),
-                    );
-                  },
+                  onTap: () => Navigator.pushNamed(context, '/qr-scanner'),
                 ),
               ],
             ),

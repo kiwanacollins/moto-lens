@@ -17,3 +17,7 @@ export 'vehicle/vehicle_detail_screen.dart';
 
 // AI screens
 export 'ai/ai_assistant_screen.dart';
+
+// Scanner screens
+export 'scanner/qr_scanner_screen.dart';
+export 'scanner/part_detail_screen.dart';
