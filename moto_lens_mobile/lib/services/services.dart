@@ -8,3 +8,6 @@ library;
 export 'secure_storage_service.dart';
 export 'api_service.dart';
 export 'auth_service.dart';
+
+// Vehicle services
+export 'vin_history_service.dart';

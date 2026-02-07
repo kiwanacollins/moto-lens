@@ -65,6 +65,8 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(
           builder: (_) => ResetPasswordScreen(token: token),
         );
+      case '/vin-scanner':
+        return MaterialPageRoute(builder: (_) => const VinScannerScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
@@ -188,188 +190,170 @@ class MainApp extends StatelessWidget {
             ],
           ),
           backgroundColor: AppColors.background,
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // German Car Medic branding
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: AppColors.electricBlue,
-                      borderRadius: BorderRadius.circular(
-                        AppSpacing.radiusLarge,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.electricBlue.withOpacity(0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.directions_car,
-                      size: 60,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: AppSpacing.lg),
 
-                  // Welcome message
-                  Text(
-                    'Welcome to German Car Medic!',
-                    style: AppTypography.h1.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
+                // German Car Medic branding
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: AppColors.electricBlue,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.electricBlue.withValues(alpha: 0.3),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    'Professional German vehicle diagnostics',
-                    style: AppTypography.bodyLarge.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
-                    textAlign: TextAlign.center,
+                  child: const Icon(
+                    Icons.directions_car,
+                    size: 50,
+                    color: Colors.white,
                   ),
-                  const SizedBox(height: AppSpacing.xl),
+                ),
+                const SizedBox(height: AppSpacing.lg),
 
-                  // Feature cards
-                  Card(
-                    elevation: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.lg),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.qr_code_scanner,
-                                color: AppColors.electricBlue,
-                                size: 32,
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'VIN Scanner',
-                                      style: AppTypography.h5,
-                                    ),
-                                    Text(
-                                      'Scan VIN codes with your camera',
-                                      style: AppTypography.bodyMedium.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                color: AppColors.electricBlue,
-                                size: 32,
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Vehicle Information',
-                                      style: AppTypography.h5,
-                                    ),
-                                    Text(
-                                      'Get detailed vehicle specifications',
-                                      style: AppTypography.bodyMedium.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.history,
-                                color: AppColors.electricBlue,
-                                size: 32,
-                              ),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Search History',
-                                      style: AppTypography.h5,
-                                    ),
-                                    Text(
-                                      'Access your previous searches',
-                                      style: AppTypography.bodyMedium.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                // Welcome message
+                Text(
+                  'Welcome to German Car Medic!',
+                  style: AppTypography.h2.copyWith(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Professional German vehicle diagnostics',
+                  style: AppTypography.bodyLarge.copyWith(
+                    color: AppColors.textSecondary,
                   ),
-                  const SizedBox(height: AppSpacing.xl),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpacing.xl),
 
-                  // Coming soon message
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.electricBlue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(
-                        AppSpacing.radiusMedium,
-                      ),
-                      border: Border.all(
-                        color: AppColors.electricBlue.withOpacity(0.3),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.construction,
-                          color: AppColors.electricBlue,
-                          size: 24,
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Text(
-                            'Full features coming soon! This is a preview build.',
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.electricBlue,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                // VIN Scanner — primary action card
+                _buildFeatureCard(
+                  context,
+                  icon: Icons.qr_code_scanner,
+                  title: 'VIN Scanner',
+                  subtitle: 'Decode Vehicle Identification Numbers',
+                  onTap: () => Navigator.pushNamed(context, '/vin-scanner'),
+                  isPrimary: true,
+                ),
+                const SizedBox(height: AppSpacing.md),
+
+                // Vehicle Info card
+                _buildFeatureCard(
+                  context,
+                  icon: Icons.info_outline,
+                  title: 'Vehicle Information',
+                  subtitle: 'Get detailed vehicle specifications',
+                  onTap: () => Navigator.pushNamed(context, '/vin-scanner'),
+                ),
+                const SizedBox(height: AppSpacing.md),
+
+                // History card
+                _buildFeatureCard(
+                  context,
+                  icon: Icons.history,
+                  title: 'Search History',
+                  subtitle: 'Access your previous VIN scans',
+                  onTap: () => Navigator.pushNamed(context, '/vin-scanner'),
+                ),
+              ],
             ),
           ),
         );
       },
+    );
+  }
+
+  static Widget _buildFeatureCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool isPrimary = false,
+  }) {
+    return Material(
+      color: isPrimary ? AppColors.electricBlue : AppColors.surface,
+      borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+      elevation: isPrimary ? 4 : 1,
+      shadowColor: isPrimary
+          ? AppColors.electricBlue.withValues(alpha: 0.3)
+          : AppColors.carbonBlack.withValues(alpha: 0.1),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: isPrimary
+              ? null
+              : BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+                  border: Border.all(color: AppColors.border),
+                ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: isPrimary
+                      ? Colors.white.withValues(alpha: 0.2)
+                      : AppColors.electricBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+                ),
+                child: Icon(
+                  icon,
+                  color: isPrimary ? Colors.white : AppColors.electricBlue,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTypography.h5.copyWith(
+                        color: isPrimary
+                            ? Colors.white
+                            : AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: isPrimary
+                            ? Colors.white.withValues(alpha: 0.8)
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: isPrimary
+                    ? Colors.white.withValues(alpha: 0.7)
+                    : AppColors.textSecondary,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -6,3 +6,6 @@ library;
 
 // Authentication models
 export 'auth/auth.dart';
+
+// Vehicle models
+export 'vehicle/vehicle.dart';
