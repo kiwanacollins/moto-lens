@@ -635,8 +635,8 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
 
 ### 16.1 VIN Scanner & Input Screen
 - [x] Create `lib/screens/vehicle/vin_scanner_screen.dart`
-- [ ] Integrate camera permission handling (iOS & Android)
-- [ ] Implement VIN barcode scanning (if VINs have barcodes) or OCR
+- [x] Integrate camera permission handling (iOS & Android)
+- [x] Implement VIN barcode scanning (if VINs have barcodes) or OCR
 - [x] Create manual VIN input screen with validation:
   - [x] 17-character validation
   - [x] Uppercase transformation (JetBrains Mono font)

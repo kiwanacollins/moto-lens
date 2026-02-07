@@ -11,3 +11,4 @@ export 'loading_spinner.dart';
 export 'error_message.dart';
 export 'error_alert.dart';
 export 'brand_card.dart';
+export 'vin_camera_scanner.dart';

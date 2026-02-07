@@ -43,6 +43,10 @@ dependencies:
   form_builder_validators: ^11.3.0 # Form validation
   flutter_form_builder: ^10.3.0+1 # Form widgets
 
+  # Camera & Barcode Scanning
+  mobile_scanner: ^7.1.4 # VIN barcode scanning (CameraX/ML Kit on Android, AVFoundation/Apple Vision on iOS)
+  permission_handler: ^11.3.1 # Runtime camera permission handling
+
   # Additional utilities
   json_annotation: ^4.8.1 # JSON serialization
   crypto: ^3.0.3 # Cryptographic operations

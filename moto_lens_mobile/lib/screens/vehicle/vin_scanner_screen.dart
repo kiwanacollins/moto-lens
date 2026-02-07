@@ -47,6 +47,7 @@ class _VinScannerScreenState extends State<VinScannerScreen>
   bool _isLoadingHistory = true;
   String? _decodeError;
   bool _showHistory = false;
+  bool _showCameraScanner = false;
 
   @override
   void initState() {
@@ -201,6 +202,23 @@ class _VinScannerScreenState extends State<VinScannerScreen>
     _vinFocusNode.requestFocus();
   }
 
+  void _openCameraScanner() {
+    setState(() => _showCameraScanner = true);
+  }
+
+  void _onCameraScanComplete(String vin) {
+    setState(() {
+      _showCameraScanner = false;
+    });
+    _vinController.text = vin;
+    // Auto-decode after camera scan
+    _decodeVin();
+  }
+
+  void _closeCameraScanner() {
+    setState(() => _showCameraScanner = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -232,10 +250,15 @@ class _VinScannerScreenState extends State<VinScannerScreen>
           ),
         ],
       ),
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: _showHistory ? _buildHistoryView() : _buildInputView(),
-      ),
+      body: _showCameraScanner
+          ? VinCameraScanner(
+              onVinDetected: _onCameraScanComplete,
+              onClose: _closeCameraScanner,
+            )
+          : FadeTransition(
+              opacity: _fadeAnimation,
+              child: _showHistory ? _buildHistoryView() : _buildInputView(),
+            ),
     );
   }
 
@@ -250,6 +273,14 @@ class _VinScannerScreenState extends State<VinScannerScreen>
           // Header
           _buildInputHeader(),
           const SizedBox(height: AppSpacing.lg),
+
+          // Camera scan button
+          _buildCameraScanButton(),
+          const SizedBox(height: AppSpacing.md),
+
+          // "or" divider
+          _buildOrDivider(),
+          const SizedBox(height: AppSpacing.md),
 
           // VIN Input Field
           _buildVinInput(),
@@ -334,6 +365,91 @@ class _VinScannerScreenState extends State<VinScannerScreen>
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildOrDivider() {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: AppColors.border)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          child: Text(
+            'OR ENTER MANUALLY',
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
+              fontSize: 11,
+            ),
+          ),
+        ),
+        const Expanded(child: Divider(color: AppColors.border)),
+      ],
+    );
+  }
+
+  Widget _buildCameraScanButton() {
+    return Material(
+      color: AppColors.carbonBlack,
+      borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+      elevation: 2,
+      shadowColor: AppColors.carbonBlack.withValues(alpha: 0.2),
+      child: InkWell(
+        onTap: _openCameraScanner,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppColors.electricBlue.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+                ),
+                child: const Icon(
+                  Icons.camera_alt,
+                  color: AppColors.electricBlue,
+                  size: 26,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Scan VIN Barcode',
+                      style: AppTypography.h5.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Use camera to scan the barcode on the vehicle',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: Colors.white.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.white.withValues(alpha: 0.5),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

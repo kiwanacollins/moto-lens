@@ -51,5 +51,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<!-- Camera permission for VIN barcode scanning -->
+	<key>NSCameraUsageDescription</key>
+	<string>German Car Medic needs camera access to scan VIN barcodes on vehicles.</string>
 </dict>
 </plist>
