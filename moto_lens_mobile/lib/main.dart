@@ -67,6 +67,20 @@ class MyApp extends StatelessWidget {
         );
       case '/vin-scanner':
         return MaterialPageRoute(builder: (_) => const VinScannerScreen());
+      case '/vehicle-detail':
+        // Extract vehicle from arguments
+        final args = settings.arguments as Map<String, dynamic>?;
+        final vehicle = args?['vehicle'];
+        if (vehicle == null) {
+          return MaterialPageRoute(
+            builder: (_) => Scaffold(
+              body: Center(child: Text('Vehicle data not found')),
+            ),
+          );
+        }
+        return MaterialPageRoute(
+          builder: (_) => VehicleDetailScreen(vehicle: vehicle),
+        );
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(

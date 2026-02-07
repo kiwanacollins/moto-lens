@@ -8,6 +8,7 @@ import '../../models/vehicle/vin_scan_entry.dart';
 import '../../services/api_service.dart';
 import '../../services/vin_history_service.dart';
 import '../../utils/error_handler.dart';
+import 'vehicle_detail_screen.dart';
 
 /// VIN Scanner & Input Screen for German Car Medic
 ///
@@ -140,6 +141,14 @@ class _VinScannerScreenState extends State<VinScannerScreen>
           _decodeResult = result;
           _isDecoding = false;
         });
+
+        // Navigate to vehicle detail screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VehicleDetailScreen(vehicle: result),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -151,9 +160,23 @@ class _VinScannerScreenState extends State<VinScannerScreen>
     }
   }
 
-  void _useHistoryVin(VinScanEntry entry) {
-    _vinController.text = entry.vin;
-    setState(() => _showHistory = false);
+  Future<void> _useHistoryVin(VinScanEntry entry) async {
+    // Try to get cached result and navigate to detail screen
+    final cachedResult = await _historyService.getCachedResult(entry.vin);
+
+    if (cachedResult != null && mounted) {
+      // Navigate to vehicle detail screen with cached result
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VehicleDetailScreen(vehicle: cachedResult),
+        ),
+      );
+    } else {
+      // Fallback: Fill VIN input for re-decoding
+      _vinController.text = entry.vin;
+      setState(() => _showHistory = false);
+    }
   }
 
   Future<void> _deleteHistoryEntry(String vin) async {
