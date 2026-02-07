@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../services/api_service.dart';
 
-/// User-friendly error handler for MotoLens
+/// User-friendly error handler for German Car Medic
 ///
 /// Translates technical errors into clear, actionable messages
 /// that users can understand and respond to.

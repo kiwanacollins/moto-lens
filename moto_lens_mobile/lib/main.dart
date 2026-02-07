@@ -31,10 +31,10 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         // App configuration
-        title: 'MotoLens',
+        title: 'German Car Medic',
         debugShowCheckedModeBanner: false,
 
-        // MotoLens theme
+        // German Car Medic theme
         theme: AppTheme.lightTheme,
 
         // Routing configuration
@@ -145,7 +145,7 @@ class MainApp extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              'MotoLens',
+              'German Car Medic',
               style: AppTypography.h3.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -194,7 +194,7 @@ class MainApp extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // MotoLens branding
+                  // German Car Medic branding
                   Container(
                     width: 120,
                     height: 120,
@@ -221,7 +221,7 @@ class MainApp extends StatelessWidget {
 
                   // Welcome message
                   Text(
-                    'Welcome to MotoLens!',
+                    'Welcome to German Car Medic!',
                     style: AppTypography.h1.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -229,7 +229,7 @@ class MainApp extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    'Professional VIN decoding at your fingertips',
+                    'Professional German vehicle diagnostics',
                     style: AppTypography.bodyLarge.copyWith(
                       color: AppColors.textSecondary,
                     ),

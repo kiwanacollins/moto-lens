@@ -3,7 +3,7 @@ import '../styles/styles.dart';
 
 /// Error Message Widget
 ///
-/// Professional, consistent error handling for MotoLens
+/// Professional, consistent error handling for German Car Medic
 /// Supports different error types, retry functionality, and automotive context
 /// Built with clear messaging and helpful recovery actions
 class ErrorMessage extends StatelessWidget {

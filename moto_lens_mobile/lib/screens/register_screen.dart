@@ -5,14 +5,14 @@ import '../styles/styles.dart';
 import '../widgets/widgets.dart';
 import '../providers/providers.dart';
 
-/// Professional Registration Screen for MotoLens
+/// Professional Registration Screen for German Car Medic
 ///
 /// Features:
 /// - 2-step registration process for mechanics
 /// - Comprehensive form validation
 /// - Password strength requirements
 /// - Terms and conditions acceptance
-/// - Professional MotoLens branding
+/// - Professional German Car Medic branding
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 

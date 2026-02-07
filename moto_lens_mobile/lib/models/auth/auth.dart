@@ -1,4 +1,4 @@
-/// MotoLens Authentication Models
+/// German Car Medic Authentication Models
 ///
 /// This barrel file exports all authentication-related models
 /// for easy importing throughout the application.

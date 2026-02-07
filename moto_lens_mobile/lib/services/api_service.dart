@@ -8,7 +8,7 @@ import '../models/auth/register_request.dart';
 import '../config/environment.dart';
 import 'secure_storage_service.dart';
 
-/// HTTP API service for MotoLens backend communication
+/// HTTP API service for German Car Medic backend communication
 ///
 /// Handles all API requests with automatic token management,
 /// request/response serialization, and error handling.
@@ -30,7 +30,7 @@ class ApiService {
   Map<String, String> get _baseHeaders => {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'User-Agent': 'MotoLens-Mobile/1.0.0',
+    'User-Agent': 'GermanCarMedic-Mobile/1.0.0',
     'X-Client-Platform': Platform.operatingSystem,
   };
 

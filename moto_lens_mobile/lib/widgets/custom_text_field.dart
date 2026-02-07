@@ -4,7 +4,7 @@ import '../styles/styles.dart';
 
 /// Custom Text Field Widget
 ///
-/// Professional, consistent input fields for MotoLens
+/// Professional, consistent input fields for German Car Medic
 /// Supports validation, different input types, and automotive-specific inputs
 /// Built with Electric Blue focus states and beautiful typography
 class CustomTextField extends StatefulWidget {

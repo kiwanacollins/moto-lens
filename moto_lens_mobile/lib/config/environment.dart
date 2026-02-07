@@ -1,4 +1,4 @@
-/// Environment configuration for MotoLens Mobile App
+/// Environment configuration for German Car Medic Mobile App
 ///
 /// Manages environment-specific settings like API URLs for development,
 /// staging, and production environments.
@@ -21,14 +21,14 @@ class Environment {
         // Use your computer's IP address (find with: ifconfig | grep "inet ")
         return 'http://192.168.1.146:3001'; // Your computer's local IP
 
-        // OPTION 4: If nothing works, try IPv4 localhost
-        // return 'http://127.0.0.1:3001';
+      // OPTION 4: If nothing works, try IPv4 localhost
+      // return 'http://127.0.0.1:3001';
 
       case EnvironmentMode.staging:
-        return 'https://staging-api.motolens.com';
+        return 'https://staging-api.germancarmedic.com';
 
       case EnvironmentMode.production:
-        return 'https://api.motolens.com';
+        return 'https://api.germancarmedic.com';
     }
   }
 
@@ -49,8 +49,4 @@ class Environment {
 }
 
 /// Environment mode enumeration
-enum EnvironmentMode {
-  development,
-  staging,
-  production,
-}
+enum EnvironmentMode { development, staging, production }

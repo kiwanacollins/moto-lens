@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// MotoLens Brand Colors
+/// German Car Medic Brand Colors
 ///
 /// Professional automotive design system matching React PWA
 /// Core colors: Electric Blue, Carbon Black, Gunmetal Gray

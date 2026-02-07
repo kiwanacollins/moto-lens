@@ -8,12 +8,12 @@ import '../models/auth/auth_response.dart';
 /// Provides encrypted storage for authentication tokens using platform-specific
 /// secure storage mechanisms (Android Keystore, iOS Keychain).
 class SecureStorageService {
-  static const String _accessTokenKey = 'moto_lens_access_token';
-  static const String _refreshTokenKey = 'moto_lens_refresh_token';
-  static const String _tokenExpiryKey = 'moto_lens_token_expiry';
-  static const String _userIdKey = 'moto_lens_user_id';
-  static const String _userEmailKey = 'moto_lens_user_email';
-  static const String _biometricEnabledKey = 'moto_lens_biometric_enabled';
+  static const String _accessTokenKey = 'gcm_access_token';
+  static const String _refreshTokenKey = 'gcm_refresh_token';
+  static const String _tokenExpiryKey = 'gcm_token_expiry';
+  static const String _userIdKey = 'gcm_user_id';
+  static const String _userEmailKey = 'gcm_user_email';
+  static const String _biometricEnabledKey = 'gcm_biometric_enabled';
 
   /// Platform-specific secure storage configuration
   static const AndroidOptions _androidOptions = AndroidOptions(
@@ -24,8 +24,8 @@ class SecureStorageService {
   );
 
   static const IOSOptions _iosOptions = IOSOptions(
-    groupId: 'group.com.motolens.app',
-    accountName: 'MotoLens',
+    groupId: 'group.com.germancarmedic.app',
+    accountName: 'GermanCarMedic',
     accessibility: KeychainAccessibility.first_unlock_this_device,
     synchronizable: false,
   );
@@ -37,8 +37,8 @@ class SecureStorageService {
   );
 
   static const WebOptions _webOptions = WebOptions(
-    dbName: 'MotoLensSecureStorage',
-    publicKey: 'MotoLensPublicKey',
+    dbName: 'GermanCarMedicSecureStorage',
+    publicKey: 'GermanCarMedicPublicKey',
   );
 
   static final FlutterSecureStorage _storage = FlutterSecureStorage(
@@ -247,7 +247,7 @@ class SecureStorageService {
   /// Store custom secure data
   Future<void> storeSecureData(String key, String value) async {
     try {
-      await _storage.write(key: 'moto_lens_$key', value: value);
+      await _storage.write(key: 'gcm_$key', value: value);
     } catch (e) {
       throw SecureStorageException('Failed to store secure data: $e');
     }
@@ -256,7 +256,7 @@ class SecureStorageService {
   /// Retrieve custom secure data
   Future<String?> getSecureData(String key) async {
     try {
-      return await _storage.read(key: 'moto_lens_$key');
+      return await _storage.read(key: 'gcm_$key');
     } catch (e) {
       throw SecureStorageException('Failed to retrieve secure data: $e');
     }
@@ -265,7 +265,7 @@ class SecureStorageService {
   /// Delete custom secure data
   Future<void> deleteSecureData(String key) async {
     try {
-      await _storage.delete(key: 'moto_lens_$key');
+      await _storage.delete(key: 'gcm_$key');
     } catch (e) {
       throw SecureStorageException('Failed to delete secure data: $e');
     }
@@ -275,7 +275,7 @@ class SecureStorageService {
   Future<bool> isSecureStorageAvailable() async {
     try {
       // Test by writing and reading a temporary value
-      const testKey = 'moto_lens_test_key';
+      const testKey = 'gcm_test_key';
       const testValue = 'test';
 
       await _storage.write(key: testKey, value: testValue);
@@ -292,7 +292,7 @@ class SecureStorageService {
   Future<List<String>> getAllKeys() async {
     try {
       final allData = await _storage.readAll();
-      return allData.keys.where((key) => key.startsWith('moto_lens_')).toList();
+      return allData.keys.where((key) => key.startsWith('gcm_')).toList();
     } catch (e) {
       throw SecureStorageException('Failed to retrieve all keys: $e');
     }

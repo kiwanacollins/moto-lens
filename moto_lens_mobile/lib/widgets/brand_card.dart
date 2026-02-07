@@ -5,7 +5,7 @@ import '../styles/styles.dart';
 ///
 /// Professional card component for automotive data display
 /// Optimized for VIN results, part information, and vehicle details
-/// Features MotoLens branding and consistent styling
+/// Features German Car Medic branding and consistent styling
 class BrandCard extends StatelessWidget {
   /// Card title
   final String? title;

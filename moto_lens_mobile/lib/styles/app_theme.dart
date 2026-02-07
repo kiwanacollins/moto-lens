@@ -4,7 +4,7 @@ import 'app_colors.dart';
 import 'app_typography.dart';
 import 'app_spacing.dart';
 
-/// MotoLens App Theme
+/// German Car Medic App Theme
 ///
 /// Complete theme configuration combining colors, typography, and spacing
 /// Professional automotive design system based on Electric Blue brand

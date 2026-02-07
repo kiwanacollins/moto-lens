@@ -9,7 +9,7 @@ import '../models/auth/user.dart';
 import 'api_service.dart';
 import 'secure_storage_service.dart';
 
-/// Authentication service for MotoLens application
+/// Authentication service for German Car Medic application
 ///
 /// Provides comprehensive authentication functionality including login, registration,
 /// password management, email verification, and security features like device

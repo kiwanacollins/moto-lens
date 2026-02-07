@@ -3,7 +3,7 @@ import '../styles/styles.dart';
 
 /// Loading Spinner Widget
 ///
-/// Professional, branded loading indicators for MotoLens
+/// Professional, branded loading indicators for German Car Medic
 /// Supports multiple sizes and styles with Electric Blue styling
 /// Built for automotive precision and user feedback
 class LoadingSpinner extends StatelessWidget {

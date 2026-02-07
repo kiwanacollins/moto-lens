@@ -6,7 +6,7 @@ import '../widgets/widgets.dart';
 import '../widgets/error_alert.dart';
 import '../providers/providers.dart';
 
-/// Professional Login Screen for MotoLens
+/// Professional Login Screen for German Car Medic
 ///
 /// Features:
 /// - Email/password authentication
@@ -15,7 +15,7 @@ import '../providers/providers.dart';
 /// - Password visibility toggle
 /// - Navigation to register and password reset
 /// - Social login options (coming soon)
-/// - Professional MotoLens branding
+/// - Professional German Car Medic branding
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -95,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
               children: [
                 const SizedBox(height: AppSpacing.xl),
 
-                // MotoLens Logo & Branding
+                // German Car Medic Logo & Branding
                 _buildHeader(),
 
                 const SizedBox(height: AppSpacing.xxxl),
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
   Widget _buildHeader() {
     return Column(
       children: [
-        // MotoLens Logo
+        // German Car Medic Logo
         Container(
           width: 280,
           height: 140,
@@ -143,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
         const SizedBox(height: AppSpacing.md),
 
         Text(
-          'Sign in to continue to MotoLens',
+          'Sign in to continue to German Car Medic',
           style: AppTypography.bodyLarge.copyWith(
             color: AppColors.textSecondary,
           ),

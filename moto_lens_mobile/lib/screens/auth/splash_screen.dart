@@ -3,10 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../services/services.dart';
 import '../../styles/styles.dart';
 
-/// MotoLens Splash Screen with Auto-Login
+/// German Car Medic Splash Screen with Auto-Login
 ///
 /// Professional branded splash screen that:
-/// - Displays MotoLens logo and branding
+/// - Displays German Car Medic logo and branding
 /// - Checks authentication status
 /// - Automatically navigates to appropriate screen
 /// - Handles network errors gracefully
@@ -43,21 +43,19 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeIn),
+      ),
+    );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack),
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack),
+      ),
+    );
 
     _animationController.forward();
   }
@@ -191,16 +189,13 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
-  /// Build MotoLens logo
+  /// Build German Car Medic logo
   Widget _buildLogo() {
     return Container(
       width: 250,
       height: 120,
       padding: const EdgeInsets.all(AppSpacing.lg),
-      child: SvgPicture.asset(
-        'assets/logo.svg',
-        fit: BoxFit.contain,
-      ),
+      child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
     );
   }
 
@@ -210,10 +205,10 @@ class _SplashScreenState extends State<SplashScreen>
       children: [
         // Brand Name
         Text(
-          'MotoLens',
+          'German Car Medic',
           style: AppTypography.h1.copyWith(
             color: Colors.white,
-            fontSize: 40,
+            fontSize: 36,
             fontWeight: AppTypography.bold,
             letterSpacing: -1,
           ),
@@ -251,11 +246,7 @@ class _SplashScreenState extends State<SplashScreen>
   /// Build loading indicator
   Widget _buildLoadingIndicator() {
     if (_hasError) {
-      return Icon(
-        Icons.error_outline,
-        color: AppColors.error,
-        size: 32,
-      );
+      return Icon(Icons.error_outline, color: AppColors.error, size: 32);
     }
 
     return SizedBox(

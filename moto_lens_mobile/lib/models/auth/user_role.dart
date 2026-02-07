@@ -1,4 +1,4 @@
-/// User role enumeration for MotoLens application
+/// User role enumeration for German Car Medic application
 ///
 /// Defines the different roles a user can have in the system:
 /// - mechanic: Professional mechanics (primary target users)

@@ -1,4 +1,4 @@
-/// Subscription tier enumeration for MotoLens application
+/// Subscription tier enumeration for German Car Medic application
 ///
 /// Defines subscription levels with different feature access:
 /// - free: Basic VIN decoding (limited lookups per day)

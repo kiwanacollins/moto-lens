@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-/// MotoLens Typography System
+/// German Car Medic Typography System
 ///
 /// Professional font system matching React PWA design
 /// Fonts: Inter (primary), JetBrains Mono (code/technical)

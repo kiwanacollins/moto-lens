@@ -3,7 +3,7 @@ import '../styles/styles.dart';
 
 /// Custom Button Widget
 ///
-/// Professional, consistent buttons for MotoLens
+/// Professional, consistent buttons for German Car Medic
 /// Supports multiple variants: primary, secondary, outline, text, destructive
 /// Built with automotive precision and beautiful Electric Blue styling
 class CustomButton extends StatelessWidget {

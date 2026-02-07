@@ -1,4 +1,4 @@
-/// MotoLens Custom Widgets
+/// German Car Medic Custom Widgets
 ///
 /// Professional UI components for automotive applications
 /// Consistent design system with Electric Blue branding

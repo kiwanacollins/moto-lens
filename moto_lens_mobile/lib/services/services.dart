@@ -1,4 +1,4 @@
-/// MotoLens Services
+/// German Car Medic Services
 ///
 /// This barrel file exports all service layer classes
 /// for easy importing throughout the application.

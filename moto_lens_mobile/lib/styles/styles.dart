@@ -1,4 +1,4 @@
-/// MotoLens Design System
+/// German Car Medic Design System
 ///
 /// Complete design system export for consistent UI across the app
 /// Professional automotive themes, colors, typography, and spacing

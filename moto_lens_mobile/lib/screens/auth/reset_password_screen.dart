@@ -3,7 +3,7 @@ import '../../styles/styles.dart';
 import '../../widgets/widgets.dart';
 import '../../services/services.dart';
 
-/// Reset Password Screen for MotoLens
+/// Reset Password Screen for German Car Medic
 ///
 /// Features:
 /// - New password field with strength indicator

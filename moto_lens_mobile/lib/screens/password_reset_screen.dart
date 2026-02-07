@@ -5,14 +5,14 @@ import '../widgets/widgets.dart';
 import '../widgets/error_alert.dart';
 import '../providers/providers.dart';
 
-/// Password Reset Screen for MotoLens
+/// Password Reset Screen for German Car Medic
 ///
 /// Features:
 /// - Email input for password reset request
 /// - Form validation with real-time feedback
 /// - Success state with instructions
 /// - Navigation back to login
-/// - Professional MotoLens branding
+/// - Professional German Car Medic branding
 class PasswordResetScreen extends StatefulWidget {
   const PasswordResetScreen({super.key});
 
@@ -277,7 +277,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen>
                 _buildInstructionStep(
                   '1',
                   'Check your email inbox',
-                  'Look for an email from MotoLens with reset instructions',
+                  'Look for an email from German Car Medic with reset instructions',
                 ),
 
                 const SizedBox(height: AppSpacing.md),

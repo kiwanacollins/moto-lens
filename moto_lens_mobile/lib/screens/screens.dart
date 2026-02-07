@@ -1,4 +1,4 @@
-/// MotoLens Screens
+/// German Car Medic Screens
 ///
 /// This barrel file exports all screen widgets for easy importing
 /// throughout the application.

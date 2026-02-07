@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// MotoLens Spacing System
+/// German Car Medic Spacing System
 ///
 /// Consistent spacing and layout constants for professional UI
 /// Based on 8px grid system for perfect alignment

@@ -1,4 +1,4 @@
-/// MotoLens Providers
+/// German Car Medic Providers
 ///
 /// This barrel file exports all provider classes and state management
 /// utilities for easy importing throughout the application.

@@ -1,7 +1,7 @@
 import 'user_role.dart';
 import 'subscription_tier.dart';
 
-/// Core user model for MotoLens application
+/// Core user model for German Car Medic application
 ///
 /// Represents authenticated users with all essential profile data,
 /// subscription status, and role-based permissions.
