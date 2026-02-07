@@ -60,18 +60,28 @@ app.use(securityHeaders);
 // Security logging for sensitive operations
 app.use(securityLogger);
 
-// Input sanitization (XSS prevention) - Disabled in development
-if (process.env.NODE_ENV === 'production') {
-    app.use(sanitizeInput);
-    app.use(validateSqlInput);
-}
+// Input sanitization (XSS prevention) - Applied in all environments
+// Security Note: Sanitization must run in dev to catch injection issues early
+app.use(sanitizeInput);
+app.use(validateSqlInput);
 
 // XSS prevention headers
 app.use(preventXSS);
 
-// Global rate limiting (all routes)
+// Global rate limiting (all routes) - Applied in all environments
+// Development uses a more lenient limit to avoid disrupting workflows
 if (process.env.NODE_ENV === 'production') {
     app.use(globalRateLimit);
+} else {
+    // Development: higher limit (500 req/15min) to avoid dev disruption
+    const devRateLimit = (await import('express-rate-limit')).default;
+    app.use(devRateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 500,
+        message: { success: false, error: 'Dev rate limit exceeded' },
+        standardHeaders: true,
+        legacyHeaders: false,
+    }));
 }
 
 // ========================================

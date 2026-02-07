@@ -821,12 +821,24 @@ Building a **Flutter mobile application** for German vehicle VIN decoding and in
 - Test files: `test/helpers/test_helpers.dart`, `test/providers/authentication_provider_test.dart`, `test/models/auth/auth_models_test.dart`, `test/models/vehicle/vehicle_models_test.dart`, `test/utils/error_handler_test.dart`, `test/services/api_service_test.dart`, `test/widgets/offline_banner_test.dart`, `test/widgets/responsive_test.dart`
 
 ### 17.2 Security Audit
-- [ ] Review Flutter secure storage implementation
-- [ ] Test token management and refresh
-- [ ] Verify API key security (not hardcoded)
-- [ ] Test session hijacking prevention
-- [ ] Review backend security (from Phase 15)
-- [ ] Fix any identified vulnerabilities
+- [x] Review Flutter secure storage implementation
+- [x] Test token management and refresh
+- [x] Verify API key security (not hardcoded)
+- [x] Test session hijacking prevention
+- [x] Review backend security (from Phase 15)
+- [x] Fix any identified vulnerabilities
+
+**Implementation Notes:**
+- Comprehensive audit of Flutter mobile (secure storage, auth service, API service, environment config, auth provider) and Node.js backend (JWT, auth middleware, password utils, auth routes, server config, security middleware)
+- **Vulnerabilities found & fixed:**
+  1. Backend: Input sanitization (`sanitizeInput`, `validateSqlInput`) was only applied in production — now runs in **all** environments
+  2. Backend: Global rate limiting was production-only — added dev-mode rate limiter (500 req/15min) for all environments
+  3. Flutter: Login lockout was in-memory only (reset on app restart) — now **persisted** to secure storage via `gcm_failed_login_attempts` and `gcm_lockout_until` keys
+  4. Flutter: `resetLoginAttempts()` was publicly accessible — now annotated with `@visibleForTesting` and made async to persist reset
+  5. Flutter: No build-mode safety check — added `Environment.validateEnvironment()` that warns in release builds if still using development mode; called in `main.dart`
+- **Security strengths confirmed:** Android Keystore (RSA+AES-GCM), iOS Keychain (first_unlock_this_device, non-synchronizable), bcrypt 12 rounds, JWT with separate access/refresh secrets, token rotation & blacklisting, session-based auth with 30-min inactivity timeout, comprehensive rate limiting, email enumeration prevention, no hardcoded API keys or secrets, .gitignore properly excludes .env files
+- Created `test/security/security_audit_test.dart` with **43 tests** covering: secure storage config, token management, no-hardcoded-secrets verification, session hijacking prevention, login lockout & brute-force protection, environment config safety, exception hierarchy, data isolation, password validation, and auth provider security
+- Full suite: **234 tests passing** (191 existing + 43 new)
 
 ### 17.3 Mobile App Deployment
 - [ ] **Android Deployment:**

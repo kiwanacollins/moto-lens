@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'config/environment.dart';
 import 'styles/styles.dart';
 import 'providers/providers.dart';
 import 'screens/screens.dart';
@@ -13,6 +14,9 @@ import 'widgets/offline_banner.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Validate environment configuration (warns if release build uses dev mode)
+  Environment.validateEnvironment();
 
   // Initialise core offline services before the widget tree
   await ConnectivityService().initialize();

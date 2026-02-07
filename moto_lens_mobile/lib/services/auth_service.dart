@@ -30,6 +30,54 @@ class AuthService {
   static const Duration _loginLockoutDuration = Duration(minutes: 15);
   int _failedLoginAttempts = 0;
   DateTime? _lockoutUntil;
+  bool _lockoutStateLoaded = false;
+
+  /// Load persisted lockout state from secure storage
+  Future<void> _loadLockoutState() async {
+    if (_lockoutStateLoaded) return;
+    _lockoutStateLoaded = true;
+    try {
+      final attemptsStr = await _secureStorage.getSecureData(
+        'failed_login_attempts',
+      );
+      final lockoutStr = await _secureStorage.getSecureData('lockout_until');
+
+      if (attemptsStr != null) {
+        _failedLoginAttempts = int.tryParse(attemptsStr) ?? 0;
+      }
+      if (lockoutStr != null) {
+        _lockoutUntil = DateTime.tryParse(lockoutStr);
+        // Clear expired lockout
+        if (_lockoutUntil != null && DateTime.now().isAfter(_lockoutUntil!)) {
+          _lockoutUntil = null;
+          _failedLoginAttempts = 0;
+          await _persistLockoutState();
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to load lockout state: $e');
+    }
+  }
+
+  /// Persist lockout state to secure storage
+  Future<void> _persistLockoutState() async {
+    try {
+      await _secureStorage.storeSecureData(
+        'failed_login_attempts',
+        _failedLoginAttempts.toString(),
+      );
+      if (_lockoutUntil != null) {
+        await _secureStorage.storeSecureData(
+          'lockout_until',
+          _lockoutUntil!.toIso8601String(),
+        );
+      } else {
+        await _secureStorage.deleteSecureData('lockout_until');
+      }
+    } catch (e) {
+      debugPrint('Failed to persist lockout state: $e');
+    }
+  }
 
   /// ==================== CORE AUTHENTICATION METHODS ====================
 
@@ -38,6 +86,9 @@ class AuthService {
   /// Returns [AuthResponse] containing user data and authentication tokens.
   /// Throws [AuthException] on failure.
   Future<AuthResponse> login(String email, String password) async {
+    // Load persisted lockout state before checking
+    await _loadLockoutState();
+
     // Check if login is locked out
     if (_isLockedOut()) {
       final minutesRemaining = _lockoutUntil!
@@ -61,6 +112,7 @@ class AuthService {
       // Reset failed attempts on successful login
       _failedLoginAttempts = 0;
       _lockoutUntil = null;
+      await _persistLockoutState();
 
       // Cache user data
       _cachedUser = authResponse.user;
@@ -76,6 +128,7 @@ class AuthService {
       // Implement progressive lockout
       if (_failedLoginAttempts >= _maxLoginAttempts) {
         _lockoutUntil = DateTime.now().add(_loginLockoutDuration);
+        await _persistLockoutState();
         throw AuthLockoutException(
           'Too many failed login attempts. Account locked for ${_loginLockoutDuration.inMinutes} minutes.',
         );
@@ -83,6 +136,7 @@ class AuthService {
 
       // Re-throw with remaining attempts information
       final attemptsRemaining = _maxLoginAttempts - _failedLoginAttempts;
+      await _persistLockoutState();
       throw AuthenticationException(
         '${e.message}\nAttempts remaining: $attemptsRemaining',
       );
@@ -453,10 +507,14 @@ class AuthService {
   /// Get lockout expiration time
   DateTime? get lockoutUntil => _lockoutUntil;
 
-  /// Reset login attempt tracking (for testing)
-  void resetLoginAttempts() {
+  /// Reset login attempt tracking
+  ///
+  /// Only exposed for testing purposes. Production code must not call this.
+  @visibleForTesting
+  Future<void> resetLoginAttempts() async {
     _failedLoginAttempts = 0;
     _lockoutUntil = null;
+    await _persistLockoutState();
   }
 
   /// ==================== UTILITY METHODS ====================
