@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../models/ai_chat_message.dart';
 import '../../services/api_service.dart';
 import '../../styles/styles.dart';
+import '../../widgets/formatted_markdown.dart';
 import '../../widgets/offline_banner.dart';
 
 /// Chat screen for scanning a car part image and asking follow-up questions.
@@ -599,13 +600,20 @@ class _ScanPartChatScreenState extends State<ScanPartChatScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SelectableText(
-                    message.content,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: isUser ? Colors.white : AppColors.textPrimary,
-                      height: 1.5,
+                  if (isUser)
+                    SelectableText(
+                      message.content,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: Colors.white,
+                        height: 1.5,
+                      ),
+                    )
+                  else
+                    FormattedMarkdown(
+                      data: message.content,
+                      textColor: AppColors.textPrimary,
+                      accentColor: AppColors.electricBlue,
                     ),
-                  ),
                   const SizedBox(height: AppSpacing.xxs),
                   Row(
                     mainAxisSize: MainAxisSize.min,

@@ -46,8 +46,9 @@ class AiAssistantScreen extends StatelessWidget {
                   height: 72,
                   decoration: BoxDecoration(
                     color: AppColors.electricBlue.withValues(alpha: 0.1),
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.radiusXLarge),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.radiusXLarge,
+                    ),
                   ),
                   child: const Icon(
                     Icons.psychology_outlined,
@@ -60,9 +61,7 @@ class AiAssistantScreen extends StatelessWidget {
               Center(
                 child: Text(
                   'How can I help you today?',
-                  style: AppTypography.h4.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTypography.h4.copyWith(fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -171,8 +170,9 @@ class _FeatureCard extends StatelessWidget {
                     height: 48,
                     decoration: BoxDecoration(
                       color: iconBackgroundColor,
-                      borderRadius:
-                          BorderRadius.circular(AppSpacing.radiusMedium),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusMedium,
+                      ),
                     ),
                     child: Icon(icon, color: Colors.white, size: 26),
                   ),
@@ -199,13 +199,10 @@ class _FeatureCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.md),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppSpacing.sm,
-                ),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                 decoration: BoxDecoration(
                   color: iconBackgroundColor,
-                  borderRadius:
-                      BorderRadius.circular(AppSpacing.radiusMedium),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
                 ),
                 child: Center(
                   child: Row(
