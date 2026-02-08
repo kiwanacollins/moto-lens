@@ -277,8 +277,10 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.history,
-                            color: AppColors.electricBlue),
+                        const Icon(
+                          Icons.history,
+                          color: AppColors.electricBlue,
+                        ),
                         const SizedBox(width: AppSpacing.sm),
                         Text(
                           'Chat History',
@@ -321,14 +323,12 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                               vertical: AppSpacing.sm,
                             ),
                             itemCount: sessions.length,
-                            separatorBuilder: (_, __) => Divider(
-                              height: 1,
-                              color: AppColors.border,
-                            ),
+                            separatorBuilder: (_, __) =>
+                                Divider(height: 1, color: AppColors.border),
                             itemBuilder: (ctx, index) {
                               final session = sessions[index];
-                              final isActive = provider.activeSession?.id ==
-                                  session.id;
+                              final isActive =
+                                  provider.activeSession?.id == session.id;
 
                               return Dismissible(
                                 key: Key(session.id),
@@ -337,7 +337,8 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                   color: AppColors.error,
                                   alignment: Alignment.centerRight,
                                   padding: const EdgeInsets.only(
-                                      right: AppSpacing.lg),
+                                    right: AppSpacing.lg,
+                                  ),
                                   child: const Icon(
                                     Icons.delete_outline,
                                     color: Colors.white,
@@ -347,33 +348,42 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                   return await showDialog<bool>(
                                         context: ctx,
                                         builder: (dialogCtx) => AlertDialog(
-                                          title: Text('Delete chat?',
-                                              style: AppTypography.h5),
+                                          title: Text(
+                                            'Delete chat?',
+                                            style: AppTypography.h5,
+                                          ),
                                           content: Text(
                                             'This will permanently delete this conversation.',
                                             style: AppTypography.bodyMedium,
                                           ),
                                           actions: [
                                             TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(dialogCtx, false),
+                                              onPressed: () => Navigator.pop(
+                                                dialogCtx,
+                                                false,
+                                              ),
                                               child: Text(
                                                 'Cancel',
-                                                style: AppTypography.buttonMedium
+                                                style: AppTypography
+                                                    .buttonMedium
                                                     .copyWith(
-                                                  color: AppColors.textSecondary,
-                                                ),
+                                                      color: AppColors
+                                                          .textSecondary,
+                                                    ),
                                               ),
                                             ),
                                             TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(dialogCtx, true),
+                                              onPressed: () => Navigator.pop(
+                                                dialogCtx,
+                                                true,
+                                              ),
                                               child: Text(
                                                 'Delete',
-                                                style: AppTypography.buttonMedium
+                                                style: AppTypography
+                                                    .buttonMedium
                                                     .copyWith(
-                                                  color: AppColors.error,
-                                                ),
+                                                      color: AppColors.error,
+                                                    ),
                                               ),
                                             ),
                                           ],
@@ -390,11 +400,13 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                     height: 40,
                                     decoration: BoxDecoration(
                                       color: isActive
-                                          ? AppColors.electricBlue
-                                              .withValues(alpha: 0.15)
+                                          ? AppColors.electricBlue.withValues(
+                                              alpha: 0.15,
+                                            )
                                           : AppColors.backgroundSecondary,
                                       borderRadius: BorderRadius.circular(
-                                          AppSpacing.radiusSmall),
+                                        AppSpacing.radiusSmall,
+                                      ),
                                     ),
                                     child: Icon(
                                       Icons.chat_bubble_outline,
@@ -432,15 +444,16 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                                             color: AppColors.electricBlue
                                                 .withValues(alpha: 0.15),
                                             borderRadius: BorderRadius.circular(
-                                                AppSpacing.radiusSmall),
+                                              AppSpacing.radiusSmall,
+                                            ),
                                           ),
                                           child: Text(
                                             'Active',
-                                            style:
-                                                AppTypography.bodySmall.copyWith(
-                                              color: AppColors.electricBlue,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            style: AppTypography.bodySmall
+                                                .copyWith(
+                                                  color: AppColors.electricBlue,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                           ),
                                         )
                                       : null,
