@@ -175,7 +175,7 @@ class VehicleViewerProvider extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   void setCategory(String? category) {
-    _activeCategory = category;
+    _activeCategory = (category == null || category == 'All') ? null : category;
     notifyListeners();
   }
 }
