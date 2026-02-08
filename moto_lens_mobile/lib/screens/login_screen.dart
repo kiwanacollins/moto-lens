@@ -131,12 +131,24 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
           child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
         ),
 
+        const SizedBox(height: AppSpacing.md),
+
+        // App Name
+        Text(
+          'German Car Medic',
+          style: AppTypography.h1.copyWith(
+            fontWeight: FontWeight.bold,
+            color: AppColors.electricBlue,
+          ),
+          textAlign: TextAlign.center,
+        ),
+
         const SizedBox(height: AppSpacing.lg),
 
         // Welcome Text
         Text(
           'Welcome Back',
-          style: AppTypography.h1.copyWith(fontWeight: FontWeight.bold),
+          style: AppTypography.h2.copyWith(fontWeight: FontWeight.w600),
           textAlign: TextAlign.center,
         ),
 

@@ -180,11 +180,23 @@ class _RegisterScreenState extends State<RegisterScreen>
             child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
           ),
 
+          const SizedBox(height: AppSpacing.md),
+
+          // App Name
+          Text(
+            'German Car Medic',
+            style: AppTypography.h1.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppColors.electricBlue,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
           const SizedBox(height: AppSpacing.lg),
 
           Text(
             'Create Account',
-            style: AppTypography.h2.copyWith(fontWeight: FontWeight.bold),
+            style: AppTypography.h2.copyWith(fontWeight: FontWeight.w600),
           ),
 
           const SizedBox(height: AppSpacing.md),
