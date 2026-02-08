@@ -32,24 +32,24 @@ class Environment {
   static String get apiUrl {
     switch (mode) {
       case EnvironmentMode.development:
-        // OPTION 1: Android Emulator (default)
+        // VPS Backend (accessible from all devices)
+        return 'http://207.180.249.87';
+
+        // OPTION 1: Android Emulator (local dev server)
         // return 'http://10.0.2.2:3001';
 
-        // OPTION 2: iOS Simulator
+        // OPTION 2: iOS Simulator (local dev server)
         // return 'http://localhost:3001';
 
-        // OPTION 3: Real device or if 10.0.2.2 doesn't work
+        // OPTION 3: Real device - local network (local dev server)
         // Use your computer's IP address (find with: ifconfig | grep "inet ")
-        return 'http://192.168.1.146:3001'; // Your computer's local IP
-
-      // OPTION 4: If nothing works, try IPv4 localhost
-      // return 'http://127.0.0.1:3001';
+        // return 'http://192.168.1.146:3001';
 
       case EnvironmentMode.staging:
-        return 'https://staging-api.germancarmedic.com';
+        return 'http://207.180.249.87';
 
       case EnvironmentMode.production:
-        return 'https://api.germancarmedic.com';
+        return 'http://207.180.249.87';
     }
   }
 
