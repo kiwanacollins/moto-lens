@@ -273,20 +273,11 @@ class MainApp extends StatelessWidget {
                   const SizedBox(height: AppSpacing.lg),
 
                   // German Car Medic branding
-                  Container(
-                    width: 100,
-                    height: 100,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.electricBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(
-                        AppSpacing.radiusLarge,
-                      ),
-                    ),
-                    child: SvgPicture.asset(
-                      'assets/logo.svg',
-                      fit: BoxFit.contain,
-                    ),
+                  SvgPicture.asset(
+                    'assets/car.svg',
+                    width: 300,
+                    height: 300,
+                    fit: BoxFit.contain,
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
