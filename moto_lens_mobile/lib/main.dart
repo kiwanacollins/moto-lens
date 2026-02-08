@@ -335,12 +335,12 @@ class MainApp extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.md),
 
-                  // QR Code Scanner card
+                  // Barcode Scanner card
                   _buildFeatureCard(
                     context,
-                    icon: Icons.qr_code_2,
-                    title: 'QR Code Scanner',
-                    subtitle: 'Scan parts and component QR codes',
+                    icon: Icons.barcode_reader,
+                    title: 'Barcode Scanner',
+                    subtitle: 'Scan parts and component barcodes',
                     onTap: () => Navigator.pushNamed(context, '/qr-scanner'),
                   ),
                 ],
