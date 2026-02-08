@@ -215,6 +215,15 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
 
     const { email, password, firstName, lastName, role = 'mechanic' } = req.body;
 
+    // Convert role string to Prisma enum value
+    const roleMapping = {
+      'mechanic': 'MECHANIC',
+      'shop_owner': 'SHOP_OWNER',
+      'admin': 'ADMIN',
+      'support': 'SUPPORT'
+    };
+    const prismaRole = roleMapping[role.toLowerCase()] || 'MECHANIC';
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email }
@@ -250,7 +259,7 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
         passwordHash,
         firstName,
         lastName,
-        role,
+        role: prismaRole,
         emailVerified: false,
         failedLoginAttempts: 0
       }
