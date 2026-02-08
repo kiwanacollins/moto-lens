@@ -120,23 +120,26 @@ class _VinScannerScreenState extends State<VinScannerScreen>
       // Try cache first (works offline or online)
       final cached = await _historyService.getCachedResult(vin);
       if (cached != null) {
+        // Save to history before navigating
+        await _historyService.addDecodeResult(cached);
+        await _loadHistory();
+
         if (mounted) {
           setState(() {
             _decodeResult = cached;
             _isDecoding = false;
           });
 
-          // Navigate to vehicle detail screen
-          Navigator.push(
+          // Navigate to vehicle detail screen, reload history on return
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => VehicleDetailScreen(vehicle: cached),
             ),
           );
+          // Refresh history when user returns from detail screen
+          _loadHistory();
         }
-        // Update history in background (non-critical)
-        _historyService.addDecodeResult(cached);
-        _loadHistory();
         return;
       }
 
@@ -159,25 +162,27 @@ class _VinScannerScreenState extends State<VinScannerScreen>
       final response = await _apiService.decodeVin(vin);
       final result = VinDecodeResult.fromJson(response);
 
+      // Cache and add to history BEFORE navigating
+      await _historyService.cacheResult(result);
+      await _historyService.addDecodeResult(result);
+      await _loadHistory();
+
       if (mounted) {
         setState(() {
           _decodeResult = result;
           _isDecoding = false;
         });
 
-        // Navigate to vehicle detail screen
-        Navigator.push(
+        // Navigate to vehicle detail screen, reload history on return
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => VehicleDetailScreen(vehicle: result),
           ),
         );
+        // Refresh history when user returns from detail screen
+        _loadHistory();
       }
-
-      // Cache and add to history in background (non-critical)
-      _historyService.cacheResult(result);
-      _historyService.addDecodeResult(result);
-      _loadHistory();
     } catch (e) {
       debugPrint('VIN decode error: $e');
       if (mounted) {
@@ -909,8 +914,6 @@ class _VinScannerScreenState extends State<VinScannerScreen>
   // ===================== QUICK HISTORY =====================
 
   Widget _buildQuickHistory() {
-    final recentScans = _scanHistory.take(3).toList();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -922,28 +925,38 @@ class _VinScannerScreenState extends State<VinScannerScreen>
                 Icon(Icons.history, color: AppColors.textSecondary, size: 18),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  'Recent Scans',
+                  'Recent Scans (${_scanHistory.length})',
                   style: AppTypography.h6.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
               ],
             ),
-            if (_scanHistory.length > 3)
-              TextButton(
-                onPressed: () => setState(() => _showHistory = true),
-                child: Text(
-                  'View All',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.electricBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
+            TextButton(
+              onPressed: () => setState(() => _showHistory = true),
+              child: Text(
+                'Manage',
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.electricBlue,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
-        ...recentScans.map((entry) => _buildHistoryTile(entry)),
+        // Scrollable container for all recent scans
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 300),
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
+            itemCount: _scanHistory.length,
+            itemBuilder: (context, index) {
+              return _buildHistoryTile(_scanHistory[index]);
+            },
+          ),
+        ),
       ],
     );
   }
