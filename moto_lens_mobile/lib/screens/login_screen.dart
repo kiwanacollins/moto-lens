@@ -201,35 +201,35 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.sm),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.xs),
 
                 // German Car Medic Logo & Branding
                 _buildHeader(),
 
-                const SizedBox(height: AppSpacing.xxxl),
+                const SizedBox(height: AppSpacing.sm),
 
                 // Login Form
                 _buildLoginForm(),
 
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.sm),
 
                 // Login Button
                 _buildLoginButton(),
 
                 // Biometric Login Button
                 if (_biometricAvailable) ...[
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: AppSpacing.xs),
                   _buildBiometricButton(),
                 ],
 
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.sm),
 
                 // Register & Password Reset Links
                 _buildBottomActions(),
@@ -252,7 +252,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
           child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
         ),
 
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.xs),
 
         // App Name
         Text(
@@ -264,7 +264,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
           textAlign: TextAlign.center,
         ),
 
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.xs),
 
         // Welcome Text
         Text(
@@ -273,7 +273,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
           textAlign: TextAlign.center,
         ),
 
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.xs),
 
         Text(
           'Sign in to continue to German Car Medic',
@@ -305,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
           ]),
         ),
 
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.sm),
 
         // Password Field
         CustomTextField(
@@ -330,7 +330,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
           onSubmitted: (_) => _handleLogin(),
         ),
 
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.xs),
 
         // Remember Me & Forgot Password
         Row(

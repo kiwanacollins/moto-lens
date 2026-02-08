@@ -141,7 +141,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.sm),
           child: ConstrainedBox(
             constraints: BoxConstraints(minHeight: constraints.maxHeight),
             child: IntrinsicHeight(
@@ -178,7 +178,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
         ),
 
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.xs),
 
         // App Name
         Text(
@@ -190,14 +190,14 @@ class _RegisterScreenState extends State<RegisterScreen>
           textAlign: TextAlign.center,
         ),
 
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.xs),
 
         Text(
           'Create Account',
           style: AppTypography.h2.copyWith(fontWeight: FontWeight.w600),
         ),
 
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.xs),
 
         // Progress Indicator
         Row(
@@ -229,7 +229,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         children: [
           Text('Personal Information', style: AppTypography.h3),
 
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.xs),
 
           Text(
             'Tell us about yourself',
@@ -238,7 +238,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
           ),
 
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.sm),
 
           // Email Address
           CustomTextField(
@@ -255,7 +255,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ]),
           ),
 
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.sm),
 
           // First Name
           CustomTextField(
@@ -274,7 +274,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ]),
           ),
 
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.sm),
 
           // Last Name
           CustomTextField(
@@ -306,7 +306,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         children: [
           Text('Password', style: AppTypography.h3),
 
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.xs),
 
           Text(
             'Create a secure password',
@@ -315,7 +315,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
           ),
 
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.sm),
 
           // Password
           CustomTextField(
@@ -352,7 +352,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ]),
           ),
 
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.sm),
 
           // Confirm Password
           CustomTextField(
@@ -384,7 +384,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   /// Build bottom navigation buttons
   Widget _buildBottomNavigation() {
     return Container(
-      padding: const EdgeInsets.only(top: AppSpacing.md),
+      padding: const EdgeInsets.only(top: AppSpacing.xs),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -409,7 +409,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               prefixIcon: _isLoading ? null : Icons.check,
             ),
 
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.xs),
 
           // Bottom Actions
           Row(
