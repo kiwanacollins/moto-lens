@@ -372,12 +372,15 @@ class PasswordUtil {
       await prisma.securityEvent.create({
         data: {
           userId,
-          eventType: failedAttempts >= maxAttempts ? 'ACCOUNT_LOCKED' : 'FAILED_LOGIN',
-          severity: failedAttempts >= maxAttempts ? 'HIGH' : 'MEDIUM',
-          details: {
+          eventType: failedAttempts >= maxAttempts ? 'ACCOUNT_LOCKED' : 'LOGIN_FAILURE',
+          severity: failedAttempts >= maxAttempts ? 'CRITICAL' : 'WARNING',
+          description: failedAttempts >= maxAttempts
+            ? `Account locked after ${failedAttempts} failed login attempts. Locked until ${accountLockedUntil?.toISOString()}`
+            : `Failed login attempt ${failedAttempts} of ${maxAttempts}`,
+          metadata: {
             failedAttempts,
             accountLocked: !!accountLockedUntil,
-            lockedUntil: accountLockedUntil
+            lockedUntil: accountLockedUntil?.toISOString()
           }
         }
       });

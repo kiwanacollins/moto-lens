@@ -305,9 +305,10 @@ const logSecurityEvent = (eventType, severity = 'MEDIUM') => {
             userId: req.user.id,
             eventType,
             severity,
+            description: `${eventType}: ${req.method} ${req.path}`,
             ipAddress: req.ip || req.connection.remoteAddress,
             userAgent: req.headers['user-agent'] || 'Unknown',
-            details: {
+            metadata: {
               method: req.method,
               path: req.path,
               timestamp: new Date().toISOString()

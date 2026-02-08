@@ -284,6 +284,9 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
       }
     });
 
+    // Calculate expiry time (15 minutes from now)
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
     res.status(201).json({
       success: true,
       message: 'Registration successful. You are now logged in.',
@@ -291,6 +294,7 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken
       },
+      expiresAt: expiresAt.toISOString(),
       user: {
         id: user.id,
         email: user.email,
@@ -423,6 +427,9 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
       `Login successful - Session: ${session.id}`
     );
 
+    // Calculate expiry time (15 minutes from now)
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
     res.json({
       success: true,
       message: 'Login successful',
@@ -430,6 +437,7 @@ router.post('/login', loginLimiter, validateLogin, async (req, res) => {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken
       },
+      expiresAt: expiresAt.toISOString(),
       user: {
         id: user.id,
         email: user.email,
@@ -560,12 +568,25 @@ router.post('/refresh-token', async (req, res) => {
     // Rotate tokens (generate new pair)
     const newTokens = await JWTUtil.rotateTokens(refreshToken, user);
 
+    // Calculate expiry time (15 minutes from now)
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
     res.json({
       success: true,
       message: 'Token refreshed successfully',
       tokens: {
         accessToken: newTokens.accessToken,
         refreshToken: newTokens.refreshToken
+      },
+      expiresAt: expiresAt.toISOString(),
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        emailVerified: user.emailVerified,
+        subscriptionTier: user.subscriptionTier
       }
     });
   } catch (error) {

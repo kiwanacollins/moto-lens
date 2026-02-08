@@ -183,6 +183,17 @@ class SecureStorageService {
     }
   }
 
+  /// Check if refresh token exists (for biometric login)
+  /// Unlike hasValidTokens, this doesn't check expiry since refresh tokens last longer
+  Future<bool> hasRefreshToken() async {
+    try {
+      final refreshToken = await getRefreshToken();
+      return refreshToken != null && refreshToken.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// Get time until token expiry in minutes
   Future<int> getMinutesUntilExpiry() async {
     try {
