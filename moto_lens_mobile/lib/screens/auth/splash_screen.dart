@@ -21,6 +21,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   final AuthService _authService = AuthService();
   final SecureStorageService _storageService = SecureStorageService();
+  final BiometricService _biometricService = BiometricService();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -86,7 +87,28 @@ class _SplashScreenState extends State<SplashScreen>
         return;
       }
 
-      // Tokens exist - verify with server
+      // Tokens exist — check if biometric gate is enabled
+      final biometricAvailable =
+          await _biometricService.isBiometricLoginAvailable();
+
+      if (biometricAvailable) {
+        // Prompt biometric before proceeding
+        setState(() {
+          _statusMessage = 'Verifying identity...';
+        });
+
+        final authenticated = await _biometricService.authenticate(
+          reason: 'Verify your identity to sign in to German Car Medic',
+        );
+
+        if (!authenticated) {
+          // Biometric failed/cancelled — fall back to login screen
+          _navigateToLogin();
+          return;
+        }
+      }
+
+      // Tokens exist (and biometric passed if enabled) - verify with server
       setState(() {
         _statusMessage = 'Verifying session...';
       });
