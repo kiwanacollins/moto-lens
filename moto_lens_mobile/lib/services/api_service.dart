@@ -256,7 +256,7 @@ class ApiService {
       if (refreshToken == null) return false;
 
       final response = await postPublic(
-        '/auth/refresh',
+        '/auth/refresh-token',
         body: {'refreshToken': refreshToken},
       );
 
@@ -399,7 +399,7 @@ class ApiService {
       }
 
       final response = await postPublic(
-        '/auth/refresh',
+        '/auth/refresh-token',
         body: {'refreshToken': refreshToken},
       );
 

@@ -97,7 +97,22 @@ const validateRegistration = [
   body('role')
     .optional()
     .isIn(['mechanic', 'shop_owner', 'admin'])
-    .withMessage('Invalid role')
+    .withMessage('Invalid role'),
+  body('username')
+    .optional()
+    .trim()
+    .isLength({ min: 3, max: 30 })
+    .withMessage('Username must be 3-30 characters'),
+  body('garageName')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Garage name must be 2-100 characters'),
+  body('phoneNumber')
+    .optional()
+    .trim()
+    .matches(/^\+?[\d\s\-\(\)]{10,}$/)
+    .withMessage('Invalid phone number format')
 ];
 
 const validateLogin = [
@@ -213,7 +228,7 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
       });
     }
 
-    const { email, password, firstName, lastName, role = 'mechanic' } = req.body;
+    const { email, password, firstName, lastName, role = 'mechanic', username, garageName, phoneNumber } = req.body;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -226,6 +241,20 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
         error: 'User already exists',
         message: 'An account with this email already exists'
       });
+    }
+
+    // Check if username is taken (if provided)
+    if (username) {
+      const existingUsername = await prisma.user.findUnique({
+        where: { username }
+      });
+      if (existingUsername) {
+        return res.status(409).json({
+          success: false,
+          error: 'Username taken',
+          message: 'This username is already in use'
+        });
+      }
     }
 
     // Validate password strength
@@ -251,6 +280,9 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
         firstName,
         lastName,
         role,
+        username: username || null,
+        garageName: garageName || null,
+        phoneNumber: phoneNumber || null,
         emailVerified: false,
         failedLoginAttempts: 0
       }
@@ -278,16 +310,39 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
       role: user.role
     });
 
+    // Auto-login: generate tokens and create session so user is immediately authenticated
+    const tokens = JWTUtil.generateTokenPair(user);
+    const deviceInfo = getDeviceInfo(req);
+
+    const session = await prisma.userSession.create({
+      data: {
+        userId: user.id,
+        refreshToken: tokens.refreshToken,
+        refreshTokenHash: PasswordUtil.hashToken(tokens.refreshToken),
+        userAgent: deviceInfo.userAgent,
+        ipAddress: deviceInfo.ipAddress,
+        deviceType: 'mobile',
+        isActive: true,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        lastActivityAt: new Date()
+      }
+    });
+
     res.status(201).json({
       success: true,
       message: 'Registration successful. Please check your email to verify your account.',
+      tokens: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
+      },
       user: {
         id: user.id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
-        emailVerified: user.emailVerified
+        emailVerified: user.emailVerified,
+        subscriptionTier: user.subscriptionTier
       }
     });
   } catch (error) {

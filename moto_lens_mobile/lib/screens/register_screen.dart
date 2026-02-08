@@ -3,6 +3,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../styles/styles.dart';
 import '../widgets/widgets.dart';
+import '../widgets/error_alert.dart';
 import '../providers/providers.dart';
 
 /// Professional Registration Screen for German Car Medic
@@ -24,7 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     with AuthenticationMixin {
   final _pageController = PageController();
   final _formKeys = [
-    GlobalKey<FormState>(), // Step 1: Personal Info & Garage Details
+    GlobalKey<FormState>(), // Step 1: Personal Info & Email
     GlobalKey<FormState>(), // Step 2: Password & Terms
   ];
 
@@ -204,7 +205,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           // Progress Indicator
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(3, (index) {
+            children: List.generate(2, (index) {
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 width: 24,
@@ -223,14 +224,12 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
   }
 
-  /// Step 1: Account Type & Email
-
-  /// Step 2: Personal Information
+  /// Step 1: Personal Information & Email
   Widget _buildPersonalInfoStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Form(
-        key: _formKeys[1],
+        key: _formKeys[0],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -246,6 +245,25 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
 
             const SizedBox(height: AppSpacing.xl),
+
+            // Email Address
+            CustomTextField(
+              controller: _emailController,
+              label: 'Email Address',
+              hintText: 'Enter your email',
+              type: CustomTextFieldType.email,
+              prefixIcon: Icons.email_outlined,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(
+                  errorText: 'Email is required',
+                ),
+                FormBuilderValidators.email(
+                  errorText: 'Enter a valid email address',
+                ),
+              ]),
+            ),
+
+            const SizedBox(height: AppSpacing.lg),
 
             // First Name
             CustomTextField(
@@ -342,12 +360,12 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
   }
 
-  /// Step 3: Password & Terms
+  /// Step 2: Password & Terms
   Widget _buildPasswordStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Form(
-        key: _formKeys[2],
+        key: _formKeys[1],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -492,7 +510,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           // Main Action Button
-          if (_currentStep < 2)
+          if (_currentStep < 1)
             CustomButton(
               text: 'Continue',
               onPressed: _nextStep,
@@ -561,7 +579,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 ),
               ],
 
-              if (_currentStep > 0 && _currentStep < 2) const Spacer(),
+              if (_currentStep > 0) const Spacer(),
             ],
           ),
         ],
