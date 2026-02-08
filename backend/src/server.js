@@ -51,6 +51,14 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // ========================================
+// TRUST PROXY CONFIGURATION
+// ========================================
+// Enable trust proxy for apps behind reverse proxy (nginx)
+// This allows express-rate-limit to correctly identify client IPs
+// from the X-Forwarded-For header set by nginx
+app.set('trust proxy', true);
+
+// ========================================
 // SECURITY MIDDLEWARE (Applied First)
 // ========================================
 
