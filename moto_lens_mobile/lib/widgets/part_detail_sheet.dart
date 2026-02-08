@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/vehicle_viewer.dart';
 import '../../styles/styles.dart';
@@ -155,12 +154,6 @@ class PartDetailSheet extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
         ],
 
-        // Part number chip
-        if (details.partNumber != null && details.partNumber!.isNotEmpty) ...[
-          _buildPartNumber(context),
-          const SizedBox(height: AppSpacing.lg),
-        ],
-
         // AI description
         if (details.description != null && details.description!.isNotEmpty) ...[
           _sectionTitle('Function & Description'),
@@ -254,58 +247,6 @@ class PartDetailSheet extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildPartNumber(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.sm,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm,
-            vertical: 6,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.electricBlue.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
-            border: Border.all(
-              color: AppColors.electricBlue.withValues(alpha: 0.3),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.tag, size: 14, color: AppColors.electricBlue),
-              const SizedBox(width: 4),
-              Text(
-                details.partNumber!,
-                style: AppTypography.codeSmall.copyWith(
-                  color: AppColors.electricBlue,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(width: 6),
-              GestureDetector(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: details.partNumber!));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Part number copied'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
-                child: const Icon(
-                  Icons.copy,
-                  size: 14,
-                  color: AppColors.electricBlue,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
