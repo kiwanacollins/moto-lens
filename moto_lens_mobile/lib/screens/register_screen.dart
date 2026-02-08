@@ -384,7 +384,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   /// Build bottom navigation buttons
   Widget _buildBottomNavigation() {
     return Container(
-      padding: const EdgeInsets.only(top: AppSpacing.xl),
+      padding: const EdgeInsets.only(top: AppSpacing.md),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
