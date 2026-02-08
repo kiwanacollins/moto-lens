@@ -192,9 +192,9 @@ class _SplashScreenState extends State<SplashScreen>
   /// Build German Car Medic logo
   Widget _buildLogo() {
     return Container(
-      width: 250,
-      height: 120,
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      width: 160,
+      height: 160,
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
     );
   }

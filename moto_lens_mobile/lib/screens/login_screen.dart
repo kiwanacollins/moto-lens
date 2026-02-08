@@ -126,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
       children: [
         // German Car Medic Logo
         Container(
-          width: 280,
+          width: 140,
           height: 140,
           child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
         ),
