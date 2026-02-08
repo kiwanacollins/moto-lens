@@ -320,17 +320,18 @@ class AuthService {
         // Parse error message from response
         try {
           final jsonResponse = jsonDecode(response.body);
-          final errorMessage = jsonResponse['message'] ?? 
-                              jsonResponse['error'] ?? 
-                              'Password reset failed';
-          
+          final errorMessage =
+              jsonResponse['message'] ??
+              jsonResponse['error'] ??
+              'Password reset failed';
+
           // Check for specific password reuse error
           if (errorMessage.contains('Password has been used recently')) {
             throw AuthValidationException(
               'This password was used recently. Please choose a different password.',
             );
           }
-          
+
           throw AuthException(errorMessage);
         } catch (e) {
           if (e is AuthValidationException || e is AuthException) {
@@ -344,7 +345,7 @@ class AuthService {
       if (e is AuthValidationException || e is AuthException) {
         rethrow;
       }
-      
+
       // Try to extract error from exception message
       final errorStr = e.toString();
       if (errorStr.contains('Password has been used recently')) {
@@ -352,7 +353,7 @@ class AuthService {
           'This password was used recently. Please choose a different password.',
         );
       }
-      
+
       throw AuthException('Password reset failed: ${e.toString()}');
     }
   }
