@@ -109,9 +109,14 @@ const validatePasswordChange = [
 ];
 
 const validatePasswordReset = [
-  body('token')
+  body('email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Valid email is required'),
+  body('otp')
     .notEmpty()
-    .withMessage('Reset token is required'),
+    .isLength({ min: 6, max: 6 })
+    .withMessage('OTP code must be 6 digits'),
   body('newPassword')
     .isLength({ min: 8 })
     .withMessage('New password must be at least 8 characters')
@@ -892,6 +897,8 @@ router.post('/reset-password', passwordResetLimiter, validatePasswordReset, asyn
       });
     }
 
+    console.log('Password reset attempt:', { email, otp: otp.substring(0, 2) + '****' });
+
     // Hash the OTP to find it in database
     const tokenHash = PasswordUtil.hashToken(otp);
 
@@ -917,7 +924,10 @@ router.post('/reset-password', passwordResetLimiter, validatePasswordReset, asyn
       }
     });
 
+    console.log('Token lookup result:', resetToken ? 'Found' : 'Not found');
+
     if (!resetToken) {
+      console.log('Reset token not found for email:', email);
       return res.status(400).json({
         success: false,
         error: 'Invalid or expired code',

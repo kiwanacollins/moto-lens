@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 
 /// User-friendly error handler for German Car Medic
 ///
@@ -36,6 +37,11 @@ class ErrorHandler {
     }
 
     // Handle custom API exceptions
+    if (error is AuthValidationException) {
+      // Return the validation message directly - it's already user-friendly
+      return error.message;
+    }
+
     if (error is AuthenticationException) {
       return _handleAuthenticationException(error);
     }
