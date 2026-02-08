@@ -124,4 +124,4 @@ flutter_launcher_icons:
   image_path: "assets/icon.png"
   min_sdk_android: 21
   remove_alpha_ios: true
-  background_color_ios: "#000000"
+  background_color_ios: "#ffffff"
