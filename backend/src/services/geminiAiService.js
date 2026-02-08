@@ -438,6 +438,7 @@ export default {
     generateVehicleSummary,
     identifyPart,
     generateSparePartsSummary,
+    generateResponse,
     GeminiAiError,
     SYSTEM_PROMPT
 };

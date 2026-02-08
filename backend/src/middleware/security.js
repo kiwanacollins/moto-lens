@@ -215,19 +215,19 @@ export const vinDecodeRateLimit = rateLimit({
  */
 export const sanitizeInput = (req, res, next) => {
     try {
-        // Sanitize body
+        // Sanitize body (can be replaced since it's mutable)
         if (req.body && typeof req.body === 'object') {
             req.body = sanitizeObject(req.body);
         }
 
-        // Sanitize query parameters
+        // Sanitize query parameters (in-place since query is read-only)
         if (req.query && typeof req.query === 'object') {
-            req.query = sanitizeObject(req.query);
+            sanitizeObjectInPlace(req.query);
         }
 
-        // Sanitize URL parameters
+        // Sanitize URL parameters (in-place since params is read-only)
         if (req.params && typeof req.params === 'object') {
-            req.params = sanitizeObject(req.params);
+            sanitizeObjectInPlace(req.params);
         }
 
         next();
@@ -267,6 +267,38 @@ function sanitizeObject(obj) {
     }
 
     return sanitized;
+}
+
+/**
+ * Sanitize an object in-place (mutates the original object)
+ * Used for read-only properties like req.query and req.params
+ * @param {Object} obj - Object to sanitize in place
+ */
+function sanitizeObjectInPlace(obj) {
+    if (typeof obj !== 'object' || obj === null) {
+        return;
+    }
+
+    if (Array.isArray(obj)) {
+        for (let i = 0; i < obj.length; i++) {
+            if (typeof obj[i] === 'object') {
+                sanitizeObjectInPlace(obj[i]);
+            } else {
+                obj[i] = sanitizeValue(obj[i]);
+            }
+        }
+        return;
+    }
+
+    // Sanitize all values in place
+    for (const key of Object.keys(obj)) {
+        const value = obj[key];
+        if (typeof value === 'object' && value !== null) {
+            sanitizeObjectInPlace(value);
+        } else {
+            obj[key] = sanitizeValue(value);
+        }
+    }
 }
 
 /**
