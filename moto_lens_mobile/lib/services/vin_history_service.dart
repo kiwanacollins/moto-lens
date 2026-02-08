@@ -65,18 +65,22 @@ class VinHistoryService {
 
   /// Add a decode result to history
   Future<void> addDecodeResult(VinDecodeResult result) async {
-    final entry = VinScanEntry(
-      vin: result.vin,
-      manufacturer: result.manufacturer,
-      model: result.model,
-      year: result.year,
-      scannedAt: DateTime.now(),
-      isSynced: _connectivity.isOnline,
-    );
-    await addEntry(entry);
+    try {
+      final entry = VinScanEntry(
+        vin: result.vin,
+        manufacturer: result.manufacturer,
+        model: result.model,
+        year: result.year,
+        scannedAt: DateTime.now(),
+        isSynced: _connectivity.isOnline,
+      );
+      await addEntry(entry);
 
-    // Also persist in offline cache for richer data access
-    await _offlineCache.cacheVehicleData(result.vin, result.toJson());
+      // Also persist in offline cache for richer data access
+      await _offlineCache.cacheVehicleData(result.vin, result.toJson());
+    } catch (_) {
+      // Silently fail - history is non-critical
+    }
   }
 
   /// Add a VIN scan that happened while offline (not yet decoded).

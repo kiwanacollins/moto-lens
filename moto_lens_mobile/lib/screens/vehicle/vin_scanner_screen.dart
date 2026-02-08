@@ -120,12 +120,23 @@ class _VinScannerScreenState extends State<VinScannerScreen>
       // Try cache first (works offline or online)
       final cached = await _historyService.getCachedResult(vin);
       if (cached != null) {
-        setState(() {
-          _decodeResult = cached;
-          _isDecoding = false;
-        });
-        await _historyService.addDecodeResult(cached);
-        await _loadHistory();
+        if (mounted) {
+          setState(() {
+            _decodeResult = cached;
+            _isDecoding = false;
+          });
+
+          // Navigate to vehicle detail screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VehicleDetailScreen(vehicle: cached),
+            ),
+          );
+        }
+        // Update history in background (non-critical)
+        _historyService.addDecodeResult(cached);
+        _loadHistory();
         return;
       }
 
@@ -148,11 +159,6 @@ class _VinScannerScreenState extends State<VinScannerScreen>
       final response = await _apiService.decodeVin(vin);
       final result = VinDecodeResult.fromJson(response);
 
-      // Cache and add to history
-      await _historyService.cacheResult(result);
-      await _historyService.addDecodeResult(result);
-      await _loadHistory();
-
       if (mounted) {
         setState(() {
           _decodeResult = result;
@@ -167,7 +173,13 @@ class _VinScannerScreenState extends State<VinScannerScreen>
           ),
         );
       }
+
+      // Cache and add to history in background (non-critical)
+      _historyService.cacheResult(result);
+      _historyService.addDecodeResult(result);
+      _loadHistory();
     } catch (e) {
+      debugPrint('VIN decode error: $e');
       if (mounted) {
         setState(() {
           _isDecoding = false;
