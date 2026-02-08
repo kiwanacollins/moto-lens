@@ -63,17 +63,6 @@ const passwordResetLimiter = rateLimit({
   }
 });
 
-// Lenient rate limit for email verification (10 per hour)
-const emailVerificationLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10,
-  message: {
-    success: false,
-    error: 'Too many verification attempts',
-    message: 'Please try again after 1 hour'
-  }
-});
-
 /**
  * Validation Middleware
  */
@@ -126,12 +115,6 @@ const validatePasswordReset = [
   body('newPassword')
     .isLength({ min: 8 })
     .withMessage('New password must be at least 8 characters')
-];
-
-const validateEmailToken = [
-  body('token')
-    .notEmpty()
-    .withMessage('Verification token is required')
 ];
 
 const validateProfileUpdate = [
@@ -274,28 +257,11 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
         firstName,
         lastName,
         role: prismaRole,
-        emailVerified: false,
+        emailVerified: true,
+        emailVerifiedAt: new Date(),
         failedLoginAttempts: 0
       }
     });
-
-    // Generate email verification token
-    const verificationToken = PasswordUtil.generateSecureToken();
-    const tokenHash = PasswordUtil.hashToken(verificationToken);
-
-    await prisma.emailVerificationToken.create({
-      data: {
-        userId: user.id,
-        email,
-        token: verificationToken,
-        tokenHash,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-      }
-    });
-
-    // Send verification email (non-blocking)
-    EmailService.sendVerificationEmail(user, verificationToken)
-      .catch(err => console.error('Failed to send verification email:', err));
 
     // Log registration event
     await logSecurityEvent(user.id, 'LOGIN_SUCCESS', 'INFO', `User registered: ${user.email}, role: ${user.role}`);
@@ -320,7 +286,7 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful. Please check your email to verify your account.',
+      message: 'Registration successful. You are now logged in.',
       tokens: {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken
@@ -981,175 +947,6 @@ router.post('/reset-password', passwordResetLimiter, validatePasswordReset, asyn
       success: false,
       error: 'Password reset failed',
       message: 'An error occurred while resetting password'
-    });
-  }
-});
-
-/**
- * ========================================
- * EMAIL VERIFICATION ROUTES
- * ========================================
- */
-
-/**
- * POST /api/auth/verify-email
- * Verify email address using token
- */
-router.post('/verify-email', emailVerificationLimiter, validateEmailToken, async (req, res) => {
-  try {
-    // Check for validation errors
-    const validationErrors = getValidationErrors(req);
-    if (validationErrors) {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation failed',
-        details: validationErrors
-      });
-    }
-
-    const { token } = req.body;
-
-    // Hash the token to find it in database
-    const tokenHash = PasswordUtil.hashToken(token);
-
-    // Find valid verification token
-    const verificationToken = await prisma.emailVerificationToken.findFirst({
-      where: {
-        tokenHash,
-        expiresAt: {
-          gt: new Date() // Token not expired
-        }
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            emailVerified: true
-          }
-        }
-      }
-    });
-
-    if (!verificationToken) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid or expired token',
-        message: 'Email verification token is invalid or has expired'
-      });
-    }
-
-    // Check if already verified
-    if (verificationToken.user.emailVerified) {
-      return res.json({
-        success: true,
-        message: 'Email already verified'
-      });
-    }
-
-    // Mark email as verified
-    await prisma.user.update({
-      where: { id: verificationToken.userId },
-      data: { emailVerified: true }
-    });
-
-    // Delete used verification token
-    await prisma.emailVerificationToken.delete({
-      where: { id: verificationToken.id }
-    });
-
-    // Log email verification
-    await logSecurityEvent(verificationToken.userId, 'EMAIL_VERIFIED', 'INFO', `Email verified: ${verificationToken.user.email}`);
-
-    res.json({
-      success: true,
-      message: 'Email verified successfully'
-    });
-  } catch (error) {
-    console.error('Email verification error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Email verification failed',
-      message: 'An error occurred while verifying email'
-    });
-  }
-});
-
-/**
- * POST /api/auth/resend-verification
- * Resend email verification
- */
-router.post('/resend-verification', emailVerificationLimiter, optionalAuth, async (req, res) => {
-  try {
-    let user;
-
-    // Get user from auth or email
-    if (req.user) {
-      user = req.user;
-    } else if (req.body.email) {
-      user = await prisma.user.findUnique({
-        where: { email: req.body.email }
-      });
-    } else {
-      return res.status(400).json({
-        success: false,
-        error: 'Email required',
-        message: 'Please provide email or authenticate'
-      });
-    }
-
-    if (!user) {
-      // Don't reveal if email exists
-      return res.json({
-        success: true,
-        message: 'If that email exists and is unverified, a verification link has been sent'
-      });
-    }
-
-    // Check if already verified
-    if (user.emailVerified) {
-      return res.json({
-        success: true,
-        message: 'Email already verified'
-      });
-    }
-
-    // Delete existing verification tokens
-    await prisma.emailVerificationToken.deleteMany({
-      where: { userId: user.id }
-    });
-
-    // Generate new verification token
-    const verificationToken = PasswordUtil.generateSecureToken();
-    const tokenHash = PasswordUtil.hashToken(verificationToken);
-
-    await prisma.emailVerificationToken.create({
-      data: {
-        userId: user.id,
-        email: user.email,
-        token: verificationToken,
-        tokenHash,
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-      }
-    });
-
-    // Send verification email (non-blocking)
-    EmailService.sendVerificationEmail(user, verificationToken)
-      .catch(err => console.error('Failed to send verification email:', err));
-
-    // Log verification resend
-    await logSecurityEvent(user.id, 'EMAIL_VERIFIED', 'INFO', `Verification email resent to: ${user.email}`);
-
-    res.json({
-      success: true,
-      message: 'Verification email sent. Please check your inbox.'
-    });
-  } catch (error) {
-    console.error('Resend verification error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to resend verification',
-      message: 'An error occurred while sending verification email'
     });
   }
 });

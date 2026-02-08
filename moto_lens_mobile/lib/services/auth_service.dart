@@ -12,8 +12,8 @@ import 'secure_storage_service.dart';
 /// Authentication service for German Car Medic application
 ///
 /// Provides comprehensive authentication functionality including login, registration,
-/// password management, email verification, and security features like device
-/// fingerprinting and login attempt tracking.
+/// password management, and security features like device fingerprinting and login
+/// attempt tracking.
 class AuthService {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
@@ -348,57 +348,6 @@ class AuthService {
       throw AuthValidationException('Current password is incorrect');
     } catch (e) {
       throw AuthException('Password change failed: ${e.toString()}');
-    }
-  }
-
-  /// ==================== EMAIL VERIFICATION ====================
-
-  /// Verify email address using verification token
-  ///
-  /// Called when user clicks verification link in email.
-  Future<void> verifyEmail(String token) async {
-    try {
-      final response = await _apiService.postPublic(
-        '/auth/verify-email',
-        body: {'token': token},
-      );
-
-      if (response.statusCode == 200) {
-        // Update cached user's email verification status
-        if (_cachedUser != null) {
-          _cachedUser = _cachedUser!.copyWith(emailVerified: true);
-        }
-      } else if (response.statusCode == 400) {
-        throw AuthValidationException('Invalid or expired verification token');
-      } else {
-        throw AuthException('Email verification failed');
-      }
-    } catch (e) {
-      if (e is AuthException) rethrow;
-      throw AuthException('Email verification failed: ${e.toString()}');
-    }
-  }
-
-  /// Resend email verification link
-  ///
-  /// Sends new verification email to user's registered address.
-  /// User must be authenticated.
-  Future<void> resendVerification() async {
-    try {
-      final response = await _apiService.post('/auth/resend-verification');
-
-      if (response.statusCode == 429) {
-        throw AuthRateLimitException(
-          'Please wait before requesting another verification email',
-        );
-      } else if (response.statusCode != 200) {
-        throw AuthException('Failed to resend verification email');
-      }
-    } on RateLimitException catch (e) {
-      throw AuthRateLimitException(e.message);
-    } catch (e) {
-      if (e is AuthException) rethrow;
-      throw AuthException('Failed to resend verification: ${e.toString()}');
     }
   }
 

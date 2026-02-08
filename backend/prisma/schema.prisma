@@ -59,7 +59,6 @@ model User {
   profile UserProfile?
   scanHistory VinScanHistory[]
   passwordResets PasswordResetToken[]
-  emailVerifications EmailVerificationToken[]
   loginHistory LoginHistory[]
 
   @@index([email])
@@ -202,31 +201,6 @@ model PasswordResetToken {
   @@index([token])
   @@index([expiresAt])
   @@map("password_reset_tokens")
-}
-
-/// Email verification tokens
-model EmailVerificationToken {
-  id String @id @default(uuid())
-  userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  email String // Email being verified
-
-  // Token information
-  token String @unique
-  tokenHash String
-
-  // Token lifecycle
-  used Boolean @default(false)
-  usedAt DateTime?
-  expiresAt DateTime
-
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([token])
-  @@index([expiresAt])
-  @@map("email_verification_tokens")
 }
 
 /// ==================== VIN SCANNING & HISTORY ====================
