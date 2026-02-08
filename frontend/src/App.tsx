@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import VinInputPage from './pages/VinInputPage';
 import VehicleViewPage from './pages/VehicleViewPage';
 import Vehicle360Test from './pages/Vehicle360Test';
@@ -15,6 +16,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route
           path="/"
           element={
