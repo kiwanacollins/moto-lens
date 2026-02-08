@@ -203,12 +203,28 @@ class _VehicleViewScreenState extends State<VehicleViewScreen> {
     UniversalPart part,
     VehicleViewerProvider provider,
   ) async {
+    // Show loading sheet immediately so the user knows something is happening
+    if (!mounted) return;
+    PartDetailSheet.showLoading(context, partName: part.name);
+
     await provider.selectPart(part, vehicleData: _vehicleData);
 
     if (!mounted) return;
 
+    // Close the loading sheet
+    Navigator.pop(context);
+
+    // Show the actual details if available
     if (provider.selectedPartDetails != null) {
       PartDetailSheet.show(context, details: provider.selectedPartDetails!);
+    } else if (provider.partError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load details: ${provider.partError}'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 }

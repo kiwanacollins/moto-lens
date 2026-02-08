@@ -30,6 +30,23 @@ class PartDetailSheet extends StatelessWidget {
     );
   }
 
+  /// Show a loading state bottom sheet while fetching part details.
+  static Future<void> showLoading(
+    BuildContext context, {
+    required String partName,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      backgroundColor: Colors.transparent,
+      builder: (_) => PartDetailSheet(
+        details: PartDetailsResponse(partId: '', partName: partName),
+        loading: true,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -356,6 +373,11 @@ class PartDetailSheet extends StatelessWidget {
         continue;
       }
 
+      // Skip stray dollar-number markers (e.g. "$1", "\$1")
+      if (RegExp(r'^\\\$\d+\s*$|^\$\d+\s*$').hasMatch(line)) {
+        continue;
+      }
+
       // Header: **Title** or **Title:**
       final headerOnly = RegExp(r'^\*\*([^*]+)\*\*:?\s*$').firstMatch(line);
       if (headerOnly != null) {
@@ -406,6 +428,8 @@ class PartDetailSheet extends StatelessWidget {
         .replaceAll(RegExp(r'\*([^*]+)\*'), r'$1')
         .replaceAll(RegExp(r'`([^`]+)`'), r'$1')
         .replaceFirst(RegExp(r'^\s*[*\-•]\s*'), '')
+        .replaceAll(RegExp(r'^\\\$\d+\s*$'), '')
+        .replaceAll(RegExp(r'^\$\d+\s*$'), '')
         .trim();
   }
 }

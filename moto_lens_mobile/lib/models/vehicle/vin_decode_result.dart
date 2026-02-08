@@ -26,6 +26,24 @@ class VinDecodeResult {
   final String? engineCode;
   final String? powerKw;
   final String? displacementCcm;
+  final String? engineHead;
+  final String? engineValves;
+  final String? torque;
+  final String? length;
+  final String? width;
+  final String? height;
+  final String? wheelbase;
+  final String? weight;
+  final String? maxWeight;
+  final String? wheelSize;
+  final String? maxSpeed;
+  final String? co2Emission;
+  final String? emissionStandard;
+  final String? manufacturerAddress;
+  final String? productionStarted;
+  final String? productionStopped;
+  final String? vehicleType;
+  final String? airConditioning;
   final Map<String, dynamic>? rawData;
   final DateTime decodedAt;
 
@@ -53,6 +71,24 @@ class VinDecodeResult {
     this.engineCode,
     this.powerKw,
     this.displacementCcm,
+    this.engineHead,
+    this.engineValves,
+    this.torque,
+    this.length,
+    this.width,
+    this.height,
+    this.wheelbase,
+    this.weight,
+    this.maxWeight,
+    this.wheelSize,
+    this.maxSpeed,
+    this.co2Emission,
+    this.emissionStandard,
+    this.manufacturerAddress,
+    this.productionStarted,
+    this.productionStopped,
+    this.vehicleType,
+    this.airConditioning,
     this.rawData,
     required this.decodedAt,
   });
@@ -107,8 +143,26 @@ class VinDecodeResult {
       seats: vehicle['seats']?.toString(),
       cylinders: vehicle['cylinders']?.toString(),
       engineCode: vehicle['engineCode'] as String?,
-      powerKw: vehicle['powerKw']?.toString(),
+      powerKw: vehicle['powerKw']?.toString() ?? vehicle['kilowatts']?.toString(),
       displacementCcm: vehicle['displacementCcm']?.toString(),
+      engineHead: vehicle['engineHead'] as String?,
+      engineValves: vehicle['engineValves']?.toString(),
+      torque: vehicle['torque']?.toString(),
+      length: vehicle['length']?.toString(),
+      width: vehicle['width']?.toString(),
+      height: vehicle['height']?.toString(),
+      wheelbase: vehicle['wheelbase']?.toString(),
+      weight: vehicle['weight']?.toString(),
+      maxWeight: vehicle['maxWeight']?.toString(),
+      wheelSize: vehicle['wheelSize'] as String?,
+      maxSpeed: vehicle['maxSpeed']?.toString(),
+      co2Emission: vehicle['co2Emission']?.toString(),
+      emissionStandard: vehicle['emissionStandard'] as String?,
+      manufacturerAddress: vehicle['manufacturerAddress'] as String?,
+      productionStarted: vehicle['productionStarted']?.toString(),
+      productionStopped: vehicle['productionStopped']?.toString(),
+      vehicleType: vehicle['vehicleType'] as String?,
+      airConditioning: vehicle['airConditioning'] as String?,
       rawData: vehicle,
       decodedAt: DateTime.now(),
     );
@@ -139,6 +193,24 @@ class VinDecodeResult {
     'engineCode': engineCode,
     'powerKw': powerKw,
     'displacementCcm': displacementCcm,
+    'engineHead': engineHead,
+    'engineValves': engineValves,
+    'torque': torque,
+    'length': length,
+    'width': width,
+    'height': height,
+    'wheelbase': wheelbase,
+    'weight': weight,
+    'maxWeight': maxWeight,
+    'wheelSize': wheelSize,
+    'maxSpeed': maxSpeed,
+    'co2Emission': co2Emission,
+    'emissionStandard': emissionStandard,
+    'manufacturerAddress': manufacturerAddress,
+    'productionStarted': productionStarted,
+    'productionStopped': productionStopped,
+    'vehicleType': vehicleType,
+    'airConditioning': airConditioning,
     'decodedAt': decodedAt.toIso8601String(),
   };
 
@@ -168,6 +240,24 @@ class VinDecodeResult {
       engineCode: json['engineCode'] as String?,
       powerKw: json['powerKw'] as String?,
       displacementCcm: json['displacementCcm'] as String?,
+      engineHead: json['engineHead'] as String?,
+      engineValves: json['engineValves'] as String?,
+      torque: json['torque'] as String?,
+      length: json['length'] as String?,
+      width: json['width'] as String?,
+      height: json['height'] as String?,
+      wheelbase: json['wheelbase'] as String?,
+      weight: json['weight'] as String?,
+      maxWeight: json['maxWeight'] as String?,
+      wheelSize: json['wheelSize'] as String?,
+      maxSpeed: json['maxSpeed'] as String?,
+      co2Emission: json['co2Emission'] as String?,
+      emissionStandard: json['emissionStandard'] as String?,
+      manufacturerAddress: json['manufacturerAddress'] as String?,
+      productionStarted: json['productionStarted'] as String?,
+      productionStopped: json['productionStopped'] as String?,
+      vehicleType: json['vehicleType'] as String?,
+      airConditioning: json['airConditioning'] as String?,
       decodedAt:
           DateTime.tryParse(json['decodedAt'] as String? ?? '') ??
           DateTime.now(),

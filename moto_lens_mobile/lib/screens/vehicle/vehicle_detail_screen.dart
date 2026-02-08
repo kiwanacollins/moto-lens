@@ -210,6 +210,16 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                         ),
                       if (widget.vehicle.engineType != null)
                         _SectionRow('Engine', widget.vehicle.engineType!),
+                      if (widget.vehicle.engineHead != null)
+                        _SectionRow(
+                          'Engine Head',
+                          widget.vehicle.engineHead!,
+                        ),
+                      if (widget.vehicle.engineValves != null)
+                        _SectionRow(
+                          'Engine Valves',
+                          widget.vehicle.engineValves!,
+                        ),
                       if (widget.vehicle.transmission != null)
                         _SectionRow(
                           'Transmission',
@@ -219,7 +229,78 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // Manufacturer section
+                  // Dimensions & Weight section
+                  _buildSection(
+                    title: 'Dimensions & Weight',
+                    rows: [
+                      if (widget.vehicle.length != null)
+                        _SectionRow(
+                          'Length',
+                          '${widget.vehicle.length} mm',
+                        ),
+                      if (widget.vehicle.width != null)
+                        _SectionRow(
+                          'Width',
+                          '${widget.vehicle.width} mm',
+                        ),
+                      if (widget.vehicle.height != null)
+                        _SectionRow(
+                          'Height',
+                          '${widget.vehicle.height} mm',
+                        ),
+                      if (widget.vehicle.wheelbase != null)
+                        _SectionRow(
+                          'Wheelbase',
+                          '${widget.vehicle.wheelbase} mm',
+                        ),
+                      if (widget.vehicle.weight != null)
+                        _SectionRow(
+                          'Weight (empty)',
+                          '${widget.vehicle.weight} kg',
+                        ),
+                      if (widget.vehicle.maxWeight != null)
+                        _SectionRow(
+                          'Max Weight',
+                          '${widget.vehicle.maxWeight} kg',
+                        ),
+                      if (widget.vehicle.wheelSize != null)
+                        _SectionRow(
+                          'Wheel Size',
+                          widget.vehicle.wheelSize!,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Performance & Emissions section
+                  _buildSection(
+                    title: 'Performance & Emissions',
+                    rows: [
+                      if (widget.vehicle.maxSpeed != null)
+                        _SectionRow(
+                          'Max Speed',
+                          '${widget.vehicle.maxSpeed} km/h',
+                        ),
+                      if (widget.vehicle.torque != null)
+                        _SectionRow(
+                          'Torque',
+                          widget.vehicle.torque!,
+                        ),
+                      if (widget.vehicle.co2Emission != null)
+                        _SectionRow(
+                          'CO2 Emission',
+                          '${widget.vehicle.co2Emission} g/km',
+                        ),
+                      if (widget.vehicle.emissionStandard != null)
+                        _SectionRow(
+                          'Emission Standard',
+                          widget.vehicle.emissionStandard!,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Manufacturer & Production section
                   _buildSection(
                     title: 'Manufacturer',
                     rows: [
@@ -227,6 +308,11 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                         _SectionRow(
                           'Manufacturer',
                           widget.vehicle.manufacturer!,
+                        ),
+                      if (widget.vehicle.manufacturerAddress != null)
+                        _SectionRow(
+                          'Manufacturer Address',
+                          widget.vehicle.manufacturerAddress!,
                         ),
                       if (widget.vehicle.plantCity != null)
                         _SectionRow(
@@ -239,6 +325,34 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                           'Plant Country',
                           widget.vehicle.plantCountry ??
                               widget.vehicle.countryOfOrigin!,
+                        ),
+                      if (widget.vehicle.productionStarted != null)
+                        _SectionRow(
+                          'Production Started',
+                          widget.vehicle.productionStarted!,
+                        ),
+                      if (widget.vehicle.productionStopped != null)
+                        _SectionRow(
+                          'Production Stopped',
+                          widget.vehicle.productionStopped!,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Additional Features section
+                  _buildSection(
+                    title: 'Additional Features',
+                    rows: [
+                      if (widget.vehicle.airConditioning != null)
+                        _SectionRow(
+                          'Air Conditioning',
+                          widget.vehicle.airConditioning!,
+                        ),
+                      if (widget.vehicle.vehicleType != null)
+                        _SectionRow(
+                          'Vehicle Type',
+                          widget.vehicle.vehicleType!,
                         ),
                     ],
                   ),
