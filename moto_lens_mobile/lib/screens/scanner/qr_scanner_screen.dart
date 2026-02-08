@@ -644,9 +644,10 @@ class _QrScannerScreenState extends State<QrScannerScreen>
   }
 
   Widget _buildRecentScans(QrScanProvider provider) {
-    final recent = provider.history.take(3).toList();
+    final recent = provider.history;
     return Container(
       width: double.infinity,
+      constraints: const BoxConstraints(maxHeight: 180),
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
@@ -655,18 +656,72 @@ class _QrScannerScreenState extends State<QrScannerScreen>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Recent Scans',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
+          Row(
+            children: [
+              const Text(
+                'Recent Scans',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => _confirmClearHistory(provider),
+                child: const Icon(Icons.close, color: Colors.white54, size: 18),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.xs),
-          ...recent.map((entry) => _buildRecentTile(entry, provider)),
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                children: recent
+                    .map((entry) => _buildRecentTile(entry, provider))
+                    .toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmClearHistory(QrScanProvider provider) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Clear recent scans?', style: AppTypography.h5),
+        content: Text(
+          'This will remove all scan history.',
+          style: AppTypography.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Cancel',
+              style: AppTypography.buttonMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              provider.clearHistory();
+            },
+            child: Text(
+              'Clear',
+              style: AppTypography.buttonMedium.copyWith(
+                color: AppColors.error,
+              ),
+            ),
+          ),
         ],
       ),
     );
