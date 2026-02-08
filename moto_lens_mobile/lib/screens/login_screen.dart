@@ -72,6 +72,11 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
       if (success && mounted) {
         // After successful login, offer biometric opt-in if not already enabled
         await _offerBiometricOptIn();
+
+        // Navigate to home by replacing the entire navigation stack
+        if (mounted) {
+          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        }
       } else if (!success && mounted) {
         ErrorSnackBar.show(
           context,
@@ -166,17 +171,29 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
         final provider = context.auth;
         final success = await provider.refreshTokens();
 
-        if (!success && mounted) {
+        if (success && mounted) {
+          // Navigate to home after successful biometric login
+          Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        } else if (!success && mounted) {
           // Tokens expired or invalid, fall back to regular login
           ErrorSnackBar.show(
             context,
             'Session expired. Please sign in with your password.',
           );
         }
+      } else if (!authenticated && mounted) {
+        // User cancelled or authentication failed
+        ErrorSnackBar.show(
+          context,
+          'Biometric authentication cancelled or failed.',
+        );
       }
     } catch (e) {
       if (mounted) {
-        ErrorSnackBar.show(context, 'Biometric authentication failed.');
+        ErrorSnackBar.show(
+          context,
+          'Biometric authentication failed. Please use password login.',
+        );
       }
     } finally {
       if (mounted) {

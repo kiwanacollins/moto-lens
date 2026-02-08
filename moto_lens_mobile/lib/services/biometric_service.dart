@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:local_auth_android/local_auth_android.dart';
 import 'secure_storage_service.dart';
 
 /// Biometric authentication service for German Car Medic
@@ -74,13 +75,25 @@ class BiometricService {
     String reason = 'Verify your identity to sign in',
   }) async {
     try {
-      return await _localAuth.authenticate(
+      final bool didAuthenticate = await _localAuth.authenticate(
         localizedReason: reason,
-        biometricOnly: true,
-        sensitiveTransaction: false,
-        persistAcrossBackgrounding: true,
+        authMessages: const <AuthMessages>[
+          AndroidAuthMessages(
+            signInTitle: 'Biometric Authentication',
+            cancelButton: 'Cancel',
+          ),
+        ],
       );
-    } on PlatformException {
+      return didAuthenticate;
+    } on PlatformException catch (e) {
+      // Handle specific platform exceptions
+      if (e.code == 'NotAvailable' || e.code == 'NotEnrolled') {
+        throw Exception(
+          'Biometric authentication not available on this device',
+        );
+      }
+      return false;
+    } catch (_) {
       return false;
     }
   }

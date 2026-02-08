@@ -71,7 +71,14 @@ class _RegisterScreenState extends State<RegisterScreen>
       );
 
       if (success && mounted) {
-        await _showVerificationEmailDialog();
+        // Show success notification
+        _showSuccessNotification();
+        // Logout and navigate to login page
+        await context.logout();
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted) {
+          _navigateToLogin();
+        }
       } else if (!success && mounted) {
         ErrorSnackBar.show(
           context,
@@ -90,74 +97,32 @@ class _RegisterScreenState extends State<RegisterScreen>
     }
   }
 
-  /// Show dialog informing the user that a verification email was sent
-  Future<void> _showVerificationEmailDialog() async {
-    final email = _emailController.text.trim();
-
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
+  /// Show success notification after registration
+  void _showSuccessNotification() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
           children: [
-            Icon(Icons.mark_email_read_outlined,
-                color: AppColors.electricBlue, size: 28),
-            const SizedBox(width: AppSpacing.sm),
+            const Icon(Icons.check_circle_outline, color: Colors.white),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Check Your Email',
-                style: AppTypography.h3.copyWith(fontWeight: FontWeight.w600),
+                'Account created successfully! Please sign in.',
+                style: AppTypography.bodyMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'A verification link has been sent to:',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              email,
-              style: AppTypography.bodyMedium.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.electricBlue,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Please verify your email to unlock all features. '
-              'The link will expire in 24 hours.',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.electricBlue,
-            ),
-            child: const Text('Go to Sign In'),
-          ),
-        ],
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
-
-    // Log out and redirect to login so the user signs in after verifying
-    if (mounted) {
-      await context.logout();
-      _navigateToLogin();
-    }
   }
 
   /// Navigate to next step
