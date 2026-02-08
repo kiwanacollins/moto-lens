@@ -54,12 +54,6 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     _scrollToBottom();
   }
 
-  void _sendQuickAction(String text) {
-    _controller.clear();
-    context.read<AiChatProvider>().sendMessage(text);
-    _scrollToBottom();
-  }
-
   void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 150), () {
       if (_scrollController.hasClients) {
@@ -302,69 +296,8 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AppSpacing.xl),
-          _buildQuickActions(),
         ],
       ),
-    );
-  }
-
-  // --------------------------------------------------------------------------
-  // Quick action chips
-  // --------------------------------------------------------------------------
-
-  Widget _buildQuickActions() {
-    final actions = [
-      _QuickAction(
-        icon: Icons.build_outlined,
-        label: 'Explain this part',
-        prompt:
-            'Explain what a catalytic converter does, how it works, and common failure symptoms.',
-      ),
-      _QuickAction(
-        icon: Icons.warning_amber_outlined,
-        label: 'Common issues',
-        prompt:
-            'What are the most common mechanical issues with German vehicles and how to diagnose them?',
-      ),
-      _QuickAction(
-        icon: Icons.calendar_month_outlined,
-        label: 'Maintenance schedule',
-        prompt:
-            'Give me a general maintenance schedule for a German vehicle — oil changes, brakes, timing chain, etc.',
-      ),
-      _QuickAction(
-        icon: Icons.troubleshoot_outlined,
-        label: 'Diagnostic help',
-        prompt:
-            'My check engine light is on. Walk me through the initial diagnostic steps.',
-      ),
-    ];
-
-    return Wrap(
-      spacing: AppSpacing.xs,
-      runSpacing: AppSpacing.xs,
-      alignment: WrapAlignment.center,
-      children: actions.map(_buildQuickChip).toList(),
-    );
-  }
-
-  Widget _buildQuickChip(_QuickAction action) {
-    return ActionChip(
-      avatar: Icon(action.icon, size: 18, color: AppColors.electricBlue),
-      label: Text(
-        action.label,
-        style: AppTypography.bodySmall.copyWith(
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      backgroundColor: AppColors.surface,
-      side: BorderSide(color: AppColors.border),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-      ),
-      onPressed: () => _sendQuickAction(action.prompt),
     );
   }
 
@@ -642,21 +575,6 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
     final m = dt.minute.toString().padLeft(2, '0');
     return '$h:$m';
   }
-}
-
-// =============================================================================
-// Private helpers
-// =============================================================================
-
-class _QuickAction {
-  final IconData icon;
-  final String label;
-  final String prompt;
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.prompt,
-  });
 }
 
 /// Animated three-dot typing indicator.

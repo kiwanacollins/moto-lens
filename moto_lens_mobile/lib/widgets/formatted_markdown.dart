@@ -98,9 +98,7 @@ class FormattedMarkdown extends StatelessWidget {
 
       // --- Horizontal rule ---
       horizontalRuleDecoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: AppColors.border, width: 1),
-        ),
+        border: Border(top: BorderSide(color: AppColors.border, width: 1)),
       ),
 
       // --- Links ---
@@ -115,10 +113,7 @@ class FormattedMarkdown extends StatelessWidget {
       tableBody: baseText,
       tableBorder: TableBorder.all(color: AppColors.border, width: 0.5),
       tableHeadAlign: TextAlign.left,
-      tableCellsPadding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
+      tableCellsPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     );
   }
 }
