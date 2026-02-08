@@ -180,53 +180,53 @@ class _RegisterScreenState extends State<RegisterScreen>
   Widget _buildHeader() {
     return Column(
       children: [
-          // Logo
-          Container(
-            width: 150,
-            height: 80,
-            padding: const EdgeInsets.all(AppSpacing.sm),
-            child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
+        // Logo
+        Container(
+          width: 150,
+          height: 80,
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
+        ),
+
+        const SizedBox(height: AppSpacing.md),
+
+        // App Name
+        Text(
+          'German Car Medic',
+          style: AppTypography.h1.copyWith(
+            fontWeight: FontWeight.bold,
+            color: AppColors.electricBlue,
           ),
+          textAlign: TextAlign.center,
+        ),
 
-          const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.lg),
 
-          // App Name
-          Text(
-            'German Car Medic',
-            style: AppTypography.h1.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppColors.electricBlue,
-            ),
-            textAlign: TextAlign.center,
-          ),
+        Text(
+          'Create Account',
+          style: AppTypography.h2.copyWith(fontWeight: FontWeight.w600),
+        ),
 
-          const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.md),
 
-          Text(
-            'Create Account',
-            style: AppTypography.h2.copyWith(fontWeight: FontWeight.w600),
-          ),
-
-          const SizedBox(height: AppSpacing.md),
-
-          // Progress Indicator
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(2, (index) {
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: 24,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: index <= _currentStep
-                      ? AppColors.electricBlue
-                      : AppColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              );
-            }),
-          ),
-        ],
+        // Progress Indicator
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(2, (index) {
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: 24,
+              height: 4,
+              decoration: BoxDecoration(
+                color: index <= _currentStep
+                    ? AppColors.electricBlue
+                    : AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            );
+          }),
+        ),
+      ],
     );
   }
 
