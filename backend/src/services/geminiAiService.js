@@ -166,11 +166,12 @@ Include:
 0. Main components/subparts that make up this ${partName} (list 3-5 key components)
 1. Part function and purpose in the vehicle system
 2. Common OEM part number(s) or equivalents
-3. Typical replacement cost range (if applicable)
-4. Expected service life or maintenance interval
-5. Symptoms of failure or common issues
-6. Compatible aftermarket alternatives (if applicable)
-7. Installation complexity (simple/moderate/complex)
+3. Expected service life or maintenance interval
+4. Symptoms of failure or common issues
+5. Compatible aftermarket alternatives (if applicable)
+6. Installation complexity (simple/moderate/complex)
+
+IMPORTANT: Do NOT include any pricing, cost estimates, price ranges, or monetary values in your response. Focus only on technical specifications.
 
 Format: Use concise bullet points. Be specific with part numbers. Include metric measurements where relevant.`;
 

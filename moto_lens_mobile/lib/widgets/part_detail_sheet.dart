@@ -187,7 +187,7 @@ class PartDetailSheet extends StatelessWidget {
         if (details.symptoms.isNotEmpty) ...[
           _sectionTitle('Common Symptoms When Faulty'),
           const SizedBox(height: AppSpacing.xs),
-          ...details.symptoms.map(
+          ...details.symptoms.where((s) => !_isPricingLine(s)).map(
             (s) => Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
@@ -378,6 +378,11 @@ class PartDetailSheet extends StatelessWidget {
         continue;
       }
 
+      // Skip lines containing pricing/cost information
+      if (_isPricingLine(line)) {
+        continue;
+      }
+
       // Header: **Title** or **Title:**
       final headerOnly = RegExp(r'^\*\*([^*]+)\*\*:?\s*$').firstMatch(line);
       if (headerOnly != null) {
@@ -420,6 +425,19 @@ class PartDetailSheet extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: widgets,
     );
+  }
+
+  bool _isPricingLine(String line) {
+    final lower = line.toLowerCase();
+    return RegExp(
+      r'\$\d|€\d|£\d|\d+\s*(?:usd|eur|gbp)|'
+      r'(?:cost|price|pricing|priced)\s*(?:range|estimate|approximately|around|about)?'
+      r'\s*[:.]?\s*[\$€£]|'
+      r'(?:typically|approximately|around|about)\s*[\$€£]|'
+      r'replacement\s+cost|price\s+range|cost\s+range|'
+      r'(?:^\s*[\$€£]\s*\d)',
+      caseSensitive: false,
+    ).hasMatch(lower);
   }
 
   String _cleanMarkdown(String text) {
