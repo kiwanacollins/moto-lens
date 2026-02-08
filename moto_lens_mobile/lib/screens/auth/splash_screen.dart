@@ -88,8 +88,8 @@ class _SplashScreenState extends State<SplashScreen>
       }
 
       // Tokens exist — check if biometric gate is enabled
-      final biometricAvailable =
-          await _biometricService.isBiometricLoginAvailable();
+      final biometricAvailable = await _biometricService
+          .isBiometricLoginAvailable();
 
       if (biometricAvailable) {
         // Prompt biometric before proceeding

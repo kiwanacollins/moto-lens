@@ -131,35 +131,55 @@ class _RegisterScreenState extends State<RegisterScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Column(
+        child: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
           children: [
-            // Header with progress indicator
-            _buildHeader(),
-
-            // Main content
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [_buildPersonalInfoStep(), _buildPasswordStep()],
-              ),
-            ),
-
-            // Bottom navigation
-            _buildBottomNavigation(),
+            _buildStepPage(_buildPersonalInfoStep()),
+            _buildStepPage(_buildPasswordStep()),
           ],
         ),
       ),
     );
   }
 
+  /// Wraps a step's form content with the shared header and bottom nav
+  /// inside a single scrollable column so the keyboard never obscures fields.
+  Widget _buildStepPage(Widget stepContent) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: IntrinsicHeight(
+              child: Column(
+                children: [
+                  // Header (scrolls with content)
+                  _buildHeader(),
+
+                  // Step form content
+                  stepContent,
+
+                  const Spacer(),
+
+                  // Bottom navigation
+                  _buildBottomNavigation(),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   /// Build header with logo and progress
   Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Column(
-        children: [
+    return Column(
+      children: [
           // Logo
           Container(
             width: 150,
@@ -207,224 +227,214 @@ class _RegisterScreenState extends State<RegisterScreen>
             }),
           ),
         ],
-      ),
     );
   }
 
   /// Step 1: Personal Information & Email
   Widget _buildPersonalInfoStep() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Form(
-        key: _formKeys[0],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Personal Information', style: AppTypography.h3),
+    return Form(
+      key: _formKeys[0],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Personal Information', style: AppTypography.h3),
 
-            const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.md),
 
-            Text(
-              'Tell us about yourself',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+          Text(
+            'Tell us about yourself',
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // Email Address
+          CustomTextField(
+            controller: _emailController,
+            label: 'Email Address',
+            hintText: 'Enter your email',
+            type: CustomTextFieldType.email,
+            prefixIcon: Icons.email_outlined,
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required(errorText: 'Email is required'),
+              FormBuilderValidators.email(
+                errorText: 'Enter a valid email address',
               ),
-            ),
+            ]),
+          ),
 
-            const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
 
-            // Email Address
-            CustomTextField(
-              controller: _emailController,
-              label: 'Email Address',
-              hintText: 'Enter your email',
-              type: CustomTextFieldType.email,
-              prefixIcon: Icons.email_outlined,
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(errorText: 'Email is required'),
-                FormBuilderValidators.email(
-                  errorText: 'Enter a valid email address',
-                ),
-              ]),
-            ),
+          // First Name
+          CustomTextField(
+            controller: _firstNameController,
+            label: 'First Name',
+            hintText: 'Enter your first name',
+            prefixIcon: Icons.person_outlined,
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required(
+                errorText: 'First name is required',
+              ),
+              FormBuilderValidators.minLength(
+                2,
+                errorText: 'Name must be at least 2 characters',
+              ),
+            ]),
+          ),
 
-            const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.lg),
 
-            // First Name
-            CustomTextField(
-              controller: _firstNameController,
-              label: 'First Name',
-              hintText: 'Enter your first name',
-              prefixIcon: Icons.person_outlined,
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(
-                  errorText: 'First name is required',
-                ),
-                FormBuilderValidators.minLength(
-                  2,
-                  errorText: 'Name must be at least 2 characters',
-                ),
-              ]),
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Last Name
-            CustomTextField(
-              controller: _lastNameController,
-              label: 'Last Name',
-              hintText: 'Enter your last name',
-              prefixIcon: Icons.person_outlined,
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(
-                  errorText: 'Last name is required',
-                ),
-                FormBuilderValidators.minLength(
-                  2,
-                  errorText: 'Name must be at least 2 characters',
-                ),
-              ]),
-            ),
-          ],
-        ),
+          // Last Name
+          CustomTextField(
+            controller: _lastNameController,
+            label: 'Last Name',
+            hintText: 'Enter your last name',
+            prefixIcon: Icons.person_outlined,
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required(
+                errorText: 'Last name is required',
+              ),
+              FormBuilderValidators.minLength(
+                2,
+                errorText: 'Name must be at least 2 characters',
+              ),
+            ]),
+          ),
+        ],
       ),
     );
   }
 
   /// Step 2: Password & Terms
   Widget _buildPasswordStep() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      child: Form(
-        key: _formKeys[1],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Security & Terms', style: AppTypography.h3),
+    return Form(
+      key: _formKeys[1],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Security & Terms', style: AppTypography.h3),
 
-            const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.md),
 
-            Text(
-              'Create a secure password and accept our terms',
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+          Text(
+            'Create a secure password and accept our terms',
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // Password
+          CustomTextField(
+            controller: _passwordController,
+            label: 'Password',
+            hintText: 'Create a secure password',
+            type: CustomTextFieldType.password,
+            prefixIcon: Icons.lock_outlined,
+            suffixIcon: _obscurePassword
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            onSuffixIconPressed: () {
+              setState(() => _obscurePassword = !_obscurePassword);
+            },
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required(errorText: 'Password is required'),
+              FormBuilderValidators.minLength(
+                8,
+                errorText: 'Password must be at least 8 characters',
               ),
-            ),
-
-            const SizedBox(height: AppSpacing.xl),
-
-            // Password
-            CustomTextField(
-              controller: _passwordController,
-              label: 'Password',
-              hintText: 'Create a secure password',
-              type: CustomTextFieldType.password,
-              prefixIcon: Icons.lock_outlined,
-              suffixIcon: _obscurePassword
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined,
-              onSuffixIconPressed: () {
-                setState(() => _obscurePassword = !_obscurePassword);
-              },
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(
-                  errorText: 'Password is required',
-                ),
-                FormBuilderValidators.minLength(
-                  8,
-                  errorText: 'Password must be at least 8 characters',
-                ),
-                (value) {
-                  if (value == null || value.isEmpty) return null;
-                  if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                    return 'Password must contain at least one uppercase letter';
-                  }
-                  if (!RegExp(r'[a-z]').hasMatch(value)) {
-                    return 'Password must contain at least one lowercase letter';
-                  }
-                  if (!RegExp(r'[0-9]').hasMatch(value)) {
-                    return 'Password must contain at least one number';
-                  }
-                  return null;
-                },
-              ]),
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Confirm Password
-            CustomTextField(
-              controller: _confirmPasswordController,
-              label: 'Confirm Password',
-              hintText: 'Re-enter your password',
-              type: CustomTextFieldType.password,
-              prefixIcon: Icons.lock_outlined,
-              suffixIcon: _obscureConfirmPassword
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined,
-              onSuffixIconPressed: () {
-                setState(
-                  () => _obscureConfirmPassword = !_obscureConfirmPassword,
-                );
-              },
-              validator: (value) {
-                if (value != _passwordController.text) {
-                  return 'Passwords do not match';
+              (value) {
+                if (value == null || value.isEmpty) return null;
+                if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                  return 'Password must contain at least one uppercase letter';
+                }
+                if (!RegExp(r'[a-z]').hasMatch(value)) {
+                  return 'Password must contain at least one lowercase letter';
+                }
+                if (!RegExp(r'[0-9]').hasMatch(value)) {
+                  return 'Password must contain at least one number';
                 }
                 return null;
               },
-            ),
+            ]),
+          ),
 
-            const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.lg),
 
-            // Terms and Conditions
-            CheckboxListTile(
-              value: _acceptTerms,
-              onChanged: (value) =>
-                  setState(() => _acceptTerms = value ?? false),
-              activeColor: AppColors.electricBlue,
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              title: RichText(
-                text: TextSpan(
-                  style: AppTypography.bodyMedium,
-                  children: [
-                    const TextSpan(text: 'I accept the '),
-                    TextSpan(
-                      text: 'Terms and Conditions',
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.electricBlue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const TextSpan(text: ' and '),
-                    TextSpan(
-                      text: 'Privacy Policy',
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.electricBlue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          // Confirm Password
+          CustomTextField(
+            controller: _confirmPasswordController,
+            label: 'Confirm Password',
+            hintText: 'Re-enter your password',
+            type: CustomTextFieldType.password,
+            prefixIcon: Icons.lock_outlined,
+            suffixIcon: _obscureConfirmPassword
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            onSuffixIconPressed: () {
+              setState(
+                () => _obscureConfirmPassword = !_obscureConfirmPassword,
+              );
+            },
+            validator: (value) {
+              if (value != _passwordController.text) {
+                return 'Passwords do not match';
+              }
+              return null;
+            },
+          ),
 
-            // Marketing Emails (Optional)
-            CheckboxListTile(
-              value: _acceptMarketing,
-              onChanged: (value) =>
-                  setState(() => _acceptMarketing = value ?? false),
-              activeColor: AppColors.electricBlue,
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              title: Text(
-                'I would like to receive product updates and marketing emails',
+          const SizedBox(height: AppSpacing.xl),
+
+          // Terms and Conditions
+          CheckboxListTile(
+            value: _acceptTerms,
+            onChanged: (value) => setState(() => _acceptTerms = value ?? false),
+            activeColor: AppColors.electricBlue,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: RichText(
+              text: TextSpan(
                 style: AppTypography.bodyMedium,
+                children: [
+                  const TextSpan(text: 'I accept the '),
+                  TextSpan(
+                    text: 'Terms and Conditions',
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.electricBlue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const TextSpan(text: ' and '),
+                  TextSpan(
+                    text: 'Privacy Policy',
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.electricBlue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+
+          // Marketing Emails (Optional)
+          CheckboxListTile(
+            value: _acceptMarketing,
+            onChanged: (value) =>
+                setState(() => _acceptMarketing = value ?? false),
+            activeColor: AppColors.electricBlue,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text(
+              'I would like to receive product updates and marketing emails',
+              style: AppTypography.bodyMedium,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -432,11 +442,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   /// Build bottom navigation buttons
   Widget _buildBottomNavigation() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border, width: 1)),
-      ),
+      padding: const EdgeInsets.only(top: AppSpacing.xl),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
