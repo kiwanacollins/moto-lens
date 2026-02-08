@@ -659,7 +659,10 @@ app.post('/api/parts/details', async (req, res) => {
 
             // Parse AI response to extract structured data
             if (partInfo && partInfo.information) {
-                aiDescription = partInfo.information;
+                // Clean stray $1/$2/etc. markers that Gemini sometimes injects
+                aiDescription = partInfo.information
+                    .replace(/^\$(\d+)\s+/gm, '')
+                    .replace(/^\\\$(\d+)\s+/gm, '');
 
                 // Try to extract symptoms from the AI response
                 const symptomsMatch = aiDescription.match(/symptoms?.*?:(.*?)(?=\n\n|installation|compatible|$)/is);

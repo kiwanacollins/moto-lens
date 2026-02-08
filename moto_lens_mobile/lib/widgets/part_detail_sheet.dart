@@ -206,7 +206,7 @@ class PartDetailSheet extends StatelessWidget {
                   Expanded(
                     child: Text(
                       _cleanMarkdown(s),
-                      style: AppTypography.bodySmall.copyWith(
+                      style: AppTypography.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                         height: 1.5,
                       ),
@@ -314,7 +314,7 @@ class PartDetailSheet extends StatelessWidget {
       text,
       style: const TextStyle(
         fontFamily: 'Inter',
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
       ),
@@ -338,7 +338,7 @@ class PartDetailSheet extends StatelessWidget {
                 currentHeader!,
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 11,
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppColors.electricBlue,
                   letterSpacing: 0.5,
@@ -353,7 +353,7 @@ class PartDetailSheet extends StatelessWidget {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 _cleanMarkdown(b),
-                style: AppTypography.bodySmall.copyWith(
+                style: AppTypography.bodyMedium.copyWith(
                   color: AppColors.textSecondary,
                   height: 1.6,
                 ),
@@ -367,13 +367,18 @@ class PartDetailSheet extends StatelessWidget {
     }
 
     for (final raw in lines) {
-      final line = raw.trim();
+      // Strip leading $1/$2/etc. markers that Gemini sometimes injects
+      final line = raw
+          .trim()
+          .replaceFirst(RegExp(r'^\\\$\d+\s+'), '')
+          .replaceFirst(RegExp(r'^\$\d+\s+'), '')
+          .trim();
       if (line.isEmpty) {
         flush();
         continue;
       }
 
-      // Skip stray dollar-number markers (e.g. "$1", "\$1")
+      // Skip lines that are ONLY a dollar-number marker
       if (RegExp(r'^\\\$\d+\s*$|^\$\d+\s*$').hasMatch(line)) {
         continue;
       }
@@ -402,6 +407,27 @@ class PartDetailSheet extends StatelessWidget {
         continue;
       }
 
+      // Numbered header without bold: "1. Title:" or "2. Title:"
+      final numberedHeader = RegExp(
+        r'^\d+\.\s+([^:]+):\s*$',
+      ).firstMatch(line);
+      if (numberedHeader != null) {
+        flush();
+        currentHeader = _cleanMarkdown(numberedHeader.group(1)!);
+        continue;
+      }
+
+      // Numbered inline header: "1. Title: content"
+      final numberedInline = RegExp(
+        r'^\d+\.\s+([^:]+):\s+(.+)$',
+      ).firstMatch(line);
+      if (numberedInline != null) {
+        flush();
+        currentHeader = _cleanMarkdown(numberedInline.group(1)!);
+        currentBullets.add(numberedInline.group(2)!);
+        continue;
+      }
+
       // Bullet
       final bulletStripped = line.replaceFirst(
         RegExp(r'^([*\-•]|\d+\.)\s+'),
@@ -414,7 +440,7 @@ class PartDetailSheet extends StatelessWidget {
     if (widgets.isEmpty) {
       return Text(
         _cleanMarkdown(description),
-        style: AppTypography.bodySmall.copyWith(
+        style: AppTypography.bodyMedium.copyWith(
           color: AppColors.textSecondary,
           height: 1.6,
         ),
@@ -442,12 +468,12 @@ class PartDetailSheet extends StatelessWidget {
 
   String _cleanMarkdown(String text) {
     return text
-        .replaceAll(RegExp(r'\*\*([^*]+)\*\*'), r'$1')
-        .replaceAll(RegExp(r'\*([^*]+)\*'), r'$1')
-        .replaceAll(RegExp(r'`([^`]+)`'), r'$1')
+        .replaceAllMapped(RegExp(r'\*\*([^*]+)\*\*'), (m) => m.group(1)!)
+        .replaceAllMapped(RegExp(r'\*([^*]+)\*'), (m) => m.group(1)!)
+        .replaceAllMapped(RegExp(r'`([^`]+)`'), (m) => m.group(1)!)
         .replaceFirst(RegExp(r'^\s*[*\-•]\s*'), '')
-        .replaceAll(RegExp(r'^\\\$\d+\s*$'), '')
-        .replaceAll(RegExp(r'^\$\d+\s*$'), '')
+        .replaceFirst(RegExp(r'^\s*\\\$\d+\s+'), '')
+        .replaceFirst(RegExp(r'^\s*\$\d+\s+'), '')
         .trim();
   }
 }
