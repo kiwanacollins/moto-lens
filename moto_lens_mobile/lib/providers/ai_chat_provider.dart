@@ -2,29 +2,49 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/ai_chat_message.dart';
+import '../models/chat_session.dart';
 import '../services/ai_chat_service.dart';
 import '../services/connectivity_service.dart';
 
 /// State management for the AI Assistant chat.
 ///
-/// Holds the conversation, sends messages through [AiChatService],
-/// and persists chat history to local storage.
-/// Offline-aware: shows cached history while offline and gives a
-/// clear message when the user tries to send without connectivity.
+/// Supports multiple chat sessions with local persistence.
+/// Each session has its own message history. Users can create new chats,
+/// switch between sessions, and delete old conversations.
 class AiChatProvider extends ChangeNotifier {
   final AiChatService _chatService = AiChatService();
   final ConnectivityService _connectivity = ConnectivityService();
 
-  List<AiChatMessage> _messages = [];
+  /// All chat sessions, newest first.
+  List<ChatSession> _sessions = [];
+
+  /// The currently active session ID.
+  String? _activeSessionId;
+
   VehicleContext? _vehicleContext;
   bool _isTyping = false;
+
+  static const String _storageKey = 'ai_chat_sessions_v2';
 
   // ---------------------------------------------------------------------------
   // Getters
   // ---------------------------------------------------------------------------
 
-  /// All messages in the current conversation, oldest first.
-  List<AiChatMessage> get messages => List.unmodifiable(_messages);
+  /// All sessions, newest first.
+  List<ChatSession> get sessions => List.unmodifiable(_sessions);
+
+  /// The currently active session (or null if none).
+  ChatSession? get activeSession {
+    if (_activeSessionId == null) return null;
+    try {
+      return _sessions.firstWhere((s) => s.id == _activeSessionId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Messages in the active session.
+  List<AiChatMessage> get messages => activeSession?.messages ?? [];
 
   /// Whether the AI is currently generating a response.
   bool get isTyping => _isTyping;
@@ -32,8 +52,42 @@ class AiChatProvider extends ChangeNotifier {
   /// The current vehicle context (if any).
   VehicleContext? get vehicleContext => _vehicleContext;
 
-  /// Whether the conversation has any messages.
-  bool get hasMessages => _messages.isNotEmpty;
+  /// Whether the active session has any messages.
+  bool get hasMessages => activeSession?.hasMessages ?? false;
+
+  /// Whether there are any sessions at all.
+  bool get hasSessions => _sessions.isNotEmpty;
+
+  // ---------------------------------------------------------------------------
+  // Session management
+  // ---------------------------------------------------------------------------
+
+  /// Create a new chat session and make it active.
+  void createNewChat() {
+    final session = ChatSession.create();
+    _sessions.insert(0, session);
+    _activeSessionId = session.id;
+    notifyListeners();
+    _saveSessions();
+  }
+
+  /// Switch to an existing session by ID.
+  void switchToSession(String sessionId) {
+    if (_sessions.any((s) => s.id == sessionId)) {
+      _activeSessionId = sessionId;
+      notifyListeners();
+    }
+  }
+
+  /// Delete a session by ID.
+  void deleteSession(String sessionId) {
+    _sessions.removeWhere((s) => s.id == sessionId);
+    if (_activeSessionId == sessionId) {
+      _activeSessionId = _sessions.isNotEmpty ? _sessions.first.id : null;
+    }
+    notifyListeners();
+    _saveSessions();
+  }
 
   // ---------------------------------------------------------------------------
   // Vehicle context
@@ -56,23 +110,48 @@ class AiChatProvider extends ChangeNotifier {
   Future<void> sendMessage(String content) async {
     if (content.trim().isEmpty) return;
 
+    // Ensure we have an active session
+    if (activeSession == null) {
+      createNewChat();
+    }
+
+    final sessionIndex = _sessions.indexWhere((s) => s.id == _activeSessionId);
+    if (sessionIndex == -1) return;
+
     // Add user message
     final userMessage = AiChatMessage.user(content.trim());
-    _messages.add(userMessage);
+    final updatedMessages = List<AiChatMessage>.from(
+      _sessions[sessionIndex].messages,
+    )..add(userMessage);
+
+    // Update session with new message and derived title
+    _sessions[sessionIndex] = _sessions[sessionIndex].copyWith(
+      messages: updatedMessages,
+      title: updatedMessages.length == 1
+          ? _sessions[sessionIndex]
+                .copyWith(messages: updatedMessages)
+                .derivedTitle
+          : _sessions[sessionIndex].title,
+      updatedAt: DateTime.now(),
+    );
+
     _isTyping = true;
     notifyListeners();
 
     // Check connectivity before hitting the network
     if (!_connectivity.isOnline) {
-      _messages.add(
-        AiChatMessage.aiError(
-          'You\'re currently offline. Your message has been saved and you can '
-          'retry when connectivity returns.',
-        ),
+      final errorMsg = AiChatMessage.aiError(
+        'You\'re currently offline. Your message has been saved and you can '
+        'retry when connectivity returns.',
+      );
+      _sessions[sessionIndex] = _sessions[sessionIndex].copyWith(
+        messages: List<AiChatMessage>.from(_sessions[sessionIndex].messages)
+          ..add(errorMsg),
+        updatedAt: DateTime.now(),
       );
       _isTyping = false;
       notifyListeners();
-      _saveHistory();
+      _saveSessions();
       return;
     }
 
@@ -83,36 +162,53 @@ class AiChatProvider extends ChangeNotifier {
       );
 
       final aiMessage = AiChatMessage.ai(responseText);
-      _messages.add(aiMessage);
+      _sessions[sessionIndex] = _sessions[sessionIndex].copyWith(
+        messages: List<AiChatMessage>.from(_sessions[sessionIndex].messages)
+          ..add(aiMessage),
+        updatedAt: DateTime.now(),
+      );
     } catch (e) {
       final errorMessage = AiChatMessage.aiError(e.toString());
-      _messages.add(errorMessage);
+      _sessions[sessionIndex] = _sessions[sessionIndex].copyWith(
+        messages: List<AiChatMessage>.from(_sessions[sessionIndex].messages)
+          ..add(errorMessage),
+        updatedAt: DateTime.now(),
+      );
     } finally {
       _isTyping = false;
       notifyListeners();
-      _saveHistory();
+      _saveSessions();
     }
   }
 
   /// Retry the last failed AI response.
   Future<void> retryLastMessage() async {
+    if (activeSession == null) return;
+
+    final sessionIndex = _sessions.indexWhere((s) => s.id == _activeSessionId);
+    if (sessionIndex == -1) return;
+
+    final msgs = List<AiChatMessage>.from(_sessions[sessionIndex].messages);
+
     // Find the last user message
     AiChatMessage? lastUserMsg;
-    for (int i = _messages.length - 1; i >= 0; i--) {
-      if (_messages[i].isUser) {
-        lastUserMsg = _messages[i];
+    for (int i = msgs.length - 1; i >= 0; i--) {
+      if (msgs[i].isUser) {
+        lastUserMsg = msgs[i];
         break;
       }
     }
     if (lastUserMsg == null) return;
 
     // Remove any trailing error messages
-    while (_messages.isNotEmpty && _messages.last.isError) {
-      _messages.removeLast();
+    while (msgs.isNotEmpty && msgs.last.isError) {
+      msgs.removeLast();
     }
-    notifyListeners();
 
-    // Re-send
+    _sessions[sessionIndex] = _sessions[sessionIndex].copyWith(
+      messages: msgs,
+      updatedAt: DateTime.now(),
+    );
     _isTyping = true;
     notifyListeners();
 
@@ -121,13 +217,21 @@ class AiChatProvider extends ChangeNotifier {
         lastUserMsg.content,
         vehicleContext: _vehicleContext,
       );
-      _messages.add(AiChatMessage.ai(responseText));
+      _sessions[sessionIndex] = _sessions[sessionIndex].copyWith(
+        messages: List<AiChatMessage>.from(_sessions[sessionIndex].messages)
+          ..add(AiChatMessage.ai(responseText)),
+        updatedAt: DateTime.now(),
+      );
     } catch (e) {
-      _messages.add(AiChatMessage.aiError(e.toString()));
+      _sessions[sessionIndex] = _sessions[sessionIndex].copyWith(
+        messages: List<AiChatMessage>.from(_sessions[sessionIndex].messages)
+          ..add(AiChatMessage.aiError(e.toString())),
+        updatedAt: DateTime.now(),
+      );
     } finally {
       _isTyping = false;
       notifyListeners();
-      _saveHistory();
+      _saveSessions();
     }
   }
 
@@ -135,24 +239,71 @@ class AiChatProvider extends ChangeNotifier {
   // Chat history
   // ---------------------------------------------------------------------------
 
-  /// Clear all messages.
+  /// Clear all messages in the active session.
   void clearChat() {
-    _messages = [];
+    if (activeSession == null) return;
+
+    final sessionIndex = _sessions.indexWhere((s) => s.id == _activeSessionId);
+    if (sessionIndex == -1) return;
+
+    _sessions[sessionIndex] = _sessions[sessionIndex].copyWith(
+      messages: [],
+      title: 'New Chat',
+      updatedAt: DateTime.now(),
+    );
     _isTyping = false;
     notifyListeners();
-    _saveHistory();
+    _saveSessions();
   }
 
-  /// Load chat history from local storage.
+  /// Load chat sessions from local storage.
   Future<void> loadHistory() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getString('ai_chat_history');
+
+      // Try new format first
+      final raw = prefs.getString(_storageKey);
       if (raw != null) {
-        final list = json.decode(raw) as List;
-        _messages = list
+        final data = json.decode(raw) as Map<String, dynamic>;
+        final sessionsList = data['sessions'] as List;
+        _sessions = sessionsList
+            .map((e) => ChatSession.fromJson(e as Map<String, dynamic>))
+            .toList();
+        _activeSessionId = data['activeSessionId'] as String?;
+
+        // Ensure active session exists
+        if (_activeSessionId != null &&
+            !_sessions.any((s) => s.id == _activeSessionId)) {
+          _activeSessionId = _sessions.isNotEmpty ? _sessions.first.id : null;
+        }
+
+        notifyListeners();
+        return;
+      }
+
+      // Migrate from old format (single chat history)
+      final oldRaw = prefs.getString('ai_chat_history');
+      if (oldRaw != null) {
+        final list = json.decode(oldRaw) as List;
+        final oldMessages = list
             .map((e) => AiChatMessage.fromJson(e as Map<String, dynamic>))
             .toList();
+
+        if (oldMessages.isNotEmpty) {
+          final migratedSession = ChatSession(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            title: 'Migrated Chat',
+            createdAt: oldMessages.first.timestamp,
+            updatedAt: oldMessages.last.timestamp,
+            messages: oldMessages,
+          );
+          _sessions = [migratedSession];
+          _activeSessionId = migratedSession.id;
+
+          // Save in new format and remove old key
+          await _saveSessions();
+          await prefs.remove('ai_chat_history');
+        }
         notifyListeners();
       }
     } catch (e) {
@@ -162,14 +313,18 @@ class AiChatProvider extends ChangeNotifier {
 
   /// Export the full chat transcript as a single String.
   String exportTranscript() {
+    final session = activeSession;
+    if (session == null) return '';
+
     final buffer = StringBuffer();
-    buffer.writeln('=== German Car Medic — AI Chat Transcript ===');
+    buffer.writeln('=== Moto Lens — AI Chat Transcript ===');
+    buffer.writeln('Session: ${session.title}');
     if (_vehicleContext != null && !_vehicleContext!.isEmpty) {
       buffer.writeln('Vehicle: ${_vehicleContext!.displayLabel}');
     }
     buffer.writeln('');
 
-    for (final msg in _messages) {
+    for (final msg in session.messages) {
       final label = msg.isUser ? 'You' : 'AI';
       final time = _formatTime(msg.timestamp);
       buffer.writeln('[$time] $label:');
@@ -184,13 +339,16 @@ class AiChatProvider extends ChangeNotifier {
   // Private helpers
   // ---------------------------------------------------------------------------
 
-  Future<void> _saveHistory() async {
+  Future<void> _saveSessions() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final encoded = json.encode(_messages.map((m) => m.toJson()).toList());
-      await prefs.setString('ai_chat_history', encoded);
+      final data = {
+        'sessions': _sessions.map((s) => s.toJson()).toList(),
+        'activeSessionId': _activeSessionId,
+      };
+      await prefs.setString(_storageKey, json.encode(data));
     } catch (e) {
-      debugPrint('Failed to save AI chat history: $e');
+      debugPrint('Failed to save AI chat sessions: $e');
     }
   }
 

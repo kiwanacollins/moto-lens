@@ -188,6 +188,18 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
         ],
       ),
       actions: [
+        // New chat button
+        IconButton(
+          icon: const Icon(Icons.add_comment_outlined, color: Colors.white),
+          tooltip: 'New Chat',
+          onPressed: _startNewChat,
+        ),
+        // History button
+        IconButton(
+          icon: const Icon(Icons.history, color: Colors.white),
+          tooltip: 'Chat History',
+          onPressed: _showChatHistory,
+        ),
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert, color: Colors.white),
           onSelected: (value) {
@@ -224,6 +236,229 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // Session management
+  // --------------------------------------------------------------------------
+
+  void _startNewChat() {
+    context.read<AiChatProvider>().createNewChat();
+    _controller.clear();
+  }
+
+  void _showChatHistory() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.3,
+        maxChildSize: 0.85,
+        expand: false,
+        builder: (ctx, scrollController) {
+          return Consumer<AiChatProvider>(
+            builder: (_, provider, __) {
+              final sessions = provider.sessions;
+
+              return Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: AppColors.border),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.history,
+                            color: AppColors.electricBlue),
+                        const SizedBox(width: AppSpacing.sm),
+                        Text(
+                          'Chat History',
+                          style: AppTypography.h5.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: sessions.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.chat_bubble_outline,
+                                  size: 48,
+                                  color: AppColors.textDisabled,
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                                Text(
+                                  'No chat history yet',
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.separated(
+                            controller: scrollController,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.sm,
+                            ),
+                            itemCount: sessions.length,
+                            separatorBuilder: (_, __) => Divider(
+                              height: 1,
+                              color: AppColors.border,
+                            ),
+                            itemBuilder: (ctx, index) {
+                              final session = sessions[index];
+                              final isActive = provider.activeSession?.id ==
+                                  session.id;
+
+                              return Dismissible(
+                                key: Key(session.id),
+                                direction: DismissDirection.endToStart,
+                                background: Container(
+                                  color: AppColors.error,
+                                  alignment: Alignment.centerRight,
+                                  padding: const EdgeInsets.only(
+                                      right: AppSpacing.lg),
+                                  child: const Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                confirmDismiss: (_) async {
+                                  return await showDialog<bool>(
+                                        context: ctx,
+                                        builder: (dialogCtx) => AlertDialog(
+                                          title: Text('Delete chat?',
+                                              style: AppTypography.h5),
+                                          content: Text(
+                                            'This will permanently delete this conversation.',
+                                            style: AppTypography.bodyMedium,
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(dialogCtx, false),
+                                              child: Text(
+                                                'Cancel',
+                                                style: AppTypography.buttonMedium
+                                                    .copyWith(
+                                                  color: AppColors.textSecondary,
+                                                ),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(dialogCtx, true),
+                                              child: Text(
+                                                'Delete',
+                                                style: AppTypography.buttonMedium
+                                                    .copyWith(
+                                                  color: AppColors.error,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ) ??
+                                      false;
+                                },
+                                onDismissed: (_) {
+                                  provider.deleteSession(session.id);
+                                },
+                                child: ListTile(
+                                  leading: Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: isActive
+                                          ? AppColors.electricBlue
+                                              .withValues(alpha: 0.15)
+                                          : AppColors.backgroundSecondary,
+                                      borderRadius: BorderRadius.circular(
+                                          AppSpacing.radiusSmall),
+                                    ),
+                                    child: Icon(
+                                      Icons.chat_bubble_outline,
+                                      size: 20,
+                                      color: isActive
+                                          ? AppColors.electricBlue
+                                          : AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    session.title,
+                                    style: AppTypography.bodyMedium.copyWith(
+                                      fontWeight: isActive
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  subtitle: Text(
+                                    session.preview,
+                                    style: AppTypography.bodySmall.copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  trailing: isActive
+                                      ? Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.electricBlue
+                                                .withValues(alpha: 0.15),
+                                            borderRadius: BorderRadius.circular(
+                                                AppSpacing.radiusSmall),
+                                          ),
+                                          child: Text(
+                                            'Active',
+                                            style:
+                                                AppTypography.bodySmall.copyWith(
+                                              color: AppColors.electricBlue,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        )
+                                      : null,
+                                  onTap: () {
+                                    provider.switchToSession(session.id);
+                                    Navigator.pop(ctx);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
