@@ -358,7 +358,7 @@ class MainApp extends StatelessWidget {
   }) {
     // Use a lighter, more subtle blue for all cards
     final cardColor = AppColors.electricBlue.withValues(alpha: 0.12);
-    
+
     return Material(
       color: cardColor,
       borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
@@ -386,11 +386,7 @@ class MainApp extends StatelessWidget {
                   color: AppColors.electricBlue.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
                 ),
-                child: Icon(
-                  icon,
-                  color: AppColors.electricBlue,
-                  size: 28,
-                ),
+                child: Icon(icon, color: AppColors.electricBlue, size: 28),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
