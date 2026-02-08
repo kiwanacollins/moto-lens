@@ -102,9 +102,7 @@ class VinDecodeResult {
 
     return VinDecodeResult(
       vin: (vehicle['vin'] ?? json['vin'] ?? '').toString(),
-      manufacturer:
-          _toStr(vehicle['manufacturer']) ??
-          _toStr(vehicle['make']),
+      manufacturer: _toStr(vehicle['manufacturer']) ?? _toStr(vehicle['make']),
       model: _toStr(vehicle['model']),
       year: _toStr(vehicle['year']),
       bodyStyle:
@@ -118,15 +116,11 @@ class VinDecodeResult {
       transmission:
           _toStr(vehicle['transmission']) ??
           _toStr(vehicle['transmissionStyle']),
-      driveType:
-          _toStr(vehicle['driveType']) ??
-          _toStr(vehicle['drivetrain']),
+      driveType: _toStr(vehicle['driveType']) ?? _toStr(vehicle['drivetrain']),
       fuelType:
-          _toStr(vehicle['fuelType']) ??
-          _toStr(vehicle['fuelTypePrimary']),
+          _toStr(vehicle['fuelType']) ?? _toStr(vehicle['fuelTypePrimary']),
       displacement:
-          _toStr(vehicle['displacement']) ??
-          _toStr(vehicle['displacementL']),
+          _toStr(vehicle['displacement']) ?? _toStr(vehicle['displacementL']),
       power:
           _toStr(vehicle['power']) ??
           _toStr(vehicle['horsepower']) ??
@@ -137,9 +131,7 @@ class VinDecodeResult {
           _toStr(vehicle['plantCountry']),
       plantCity: _toStr(vehicle['plantCity']),
       plantCountry: _toStr(vehicle['plantCountry']),
-      series:
-          _toStr(vehicle['series']) ??
-          _toStr(vehicle['style']),
+      series: _toStr(vehicle['series']) ?? _toStr(vehicle['style']),
       trim: _toStr(vehicle['trim']),
       productType: _toStr(vehicle['productType']),
       doors: _toStr(vehicle['doors']),
@@ -262,8 +254,7 @@ class VinDecodeResult {
       vehicleType: _toStr(json['vehicleType']),
       airConditioning: _toStr(json['airConditioning']),
       decodedAt:
-          DateTime.tryParse(_toStr(json['decodedAt']) ?? '') ??
-          DateTime.now(),
+          DateTime.tryParse(_toStr(json['decodedAt']) ?? '') ?? DateTime.now(),
     );
   }
 
