@@ -1,7 +1,7 @@
 /// VIN Decode Result model for German Car Medic
 ///
 /// Represents the decoded vehicle information returned from
-/// the backend `/api/vehicle/decode` endpoint.
+/// the backend `/api/vin/decode` endpoint.
 class VinDecodeResult {
   final String vin;
   final String? manufacturer;
@@ -16,8 +16,16 @@ class VinDecodeResult {
   final String? power;
   final String? countryOfOrigin;
   final String? plantCity;
+  final String? plantCountry;
   final String? series;
   final String? trim;
+  final String? productType;
+  final String? doors;
+  final String? seats;
+  final String? cylinders;
+  final String? engineCode;
+  final String? powerKw;
+  final String? displacementCcm;
   final Map<String, dynamic>? rawData;
   final DateTime decodedAt;
 
@@ -35,8 +43,16 @@ class VinDecodeResult {
     this.power,
     this.countryOfOrigin,
     this.plantCity,
+    this.plantCountry,
     this.series,
     this.trim,
+    this.productType,
+    this.doors,
+    this.seats,
+    this.cylinders,
+    this.engineCode,
+    this.powerKw,
+    this.displacementCcm,
     this.rawData,
     required this.decodedAt,
   });
@@ -48,30 +64,51 @@ class VinDecodeResult {
     return VinDecodeResult(
       vin: (vehicle['vin'] ?? json['vin'] ?? '') as String,
       manufacturer:
-          vehicle['manufacturer'] as String? ?? vehicle['make'] as String?,
+          vehicle['manufacturer'] as String? ??
+          vehicle['make'] as String?,
       model: vehicle['model'] as String?,
       year: vehicle['year']?.toString(),
       bodyStyle:
-          vehicle['bodyStyle'] as String? ?? vehicle['bodyClass'] as String?,
+          vehicle['bodyStyle'] as String? ??
+          vehicle['bodyType'] as String? ??
+          vehicle['bodyClass'] as String?,
       engineType:
-          vehicle['engineType'] as String? ?? vehicle['engineModel'] as String?,
+          vehicle['engineType'] as String? ??
+          vehicle['engine'] as String? ??
+          vehicle['engineModel'] as String?,
       transmission:
           vehicle['transmission'] as String? ??
           vehicle['transmissionStyle'] as String?,
-      driveType: vehicle['driveType'] as String?,
+      driveType:
+          vehicle['driveType'] as String? ??
+          vehicle['drivetrain'] as String?,
       fuelType:
           vehicle['fuelType'] as String? ??
           vehicle['fuelTypePrimary'] as String?,
       displacement:
           vehicle['displacement'] as String? ??
           vehicle['displacementL']?.toString(),
-      power: vehicle['power'] as String? ?? vehicle['engineHP']?.toString(),
+      power:
+          vehicle['power'] as String? ??
+          vehicle['horsepower']?.toString() ??
+          vehicle['engineHP']?.toString(),
       countryOfOrigin:
           vehicle['countryOfOrigin'] as String? ??
+          vehicle['origin'] as String? ??
           vehicle['plantCountry'] as String?,
       plantCity: vehicle['plantCity'] as String?,
-      series: vehicle['series'] as String?,
+      plantCountry: vehicle['plantCountry'] as String?,
+      series:
+          vehicle['series'] as String? ??
+          vehicle['style'] as String?,
       trim: vehicle['trim'] as String?,
+      productType: vehicle['productType'] as String?,
+      doors: vehicle['doors']?.toString(),
+      seats: vehicle['seats']?.toString(),
+      cylinders: vehicle['cylinders']?.toString(),
+      engineCode: vehicle['engineCode'] as String?,
+      powerKw: vehicle['powerKw']?.toString(),
+      displacementCcm: vehicle['displacementCcm']?.toString(),
       rawData: vehicle,
       decodedAt: DateTime.now(),
     );
@@ -92,8 +129,16 @@ class VinDecodeResult {
     'power': power,
     'countryOfOrigin': countryOfOrigin,
     'plantCity': plantCity,
+    'plantCountry': plantCountry,
     'series': series,
     'trim': trim,
+    'productType': productType,
+    'doors': doors,
+    'seats': seats,
+    'cylinders': cylinders,
+    'engineCode': engineCode,
+    'powerKw': powerKw,
+    'displacementCcm': displacementCcm,
     'decodedAt': decodedAt.toIso8601String(),
   };
 
@@ -113,8 +158,16 @@ class VinDecodeResult {
       power: json['power'] as String?,
       countryOfOrigin: json['countryOfOrigin'] as String?,
       plantCity: json['plantCity'] as String?,
+      plantCountry: json['plantCountry'] as String?,
       series: json['series'] as String?,
       trim: json['trim'] as String?,
+      productType: json['productType'] as String?,
+      doors: json['doors'] as String?,
+      seats: json['seats'] as String?,
+      cylinders: json['cylinders'] as String?,
+      engineCode: json['engineCode'] as String?,
+      powerKw: json['powerKw'] as String?,
+      displacementCcm: json['displacementCcm'] as String?,
       decodedAt:
           DateTime.tryParse(json['decodedAt'] as String? ?? '') ??
           DateTime.now(),

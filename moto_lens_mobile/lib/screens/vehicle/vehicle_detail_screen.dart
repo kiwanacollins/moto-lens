@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../models/vehicle/vin_decode_result.dart';
+import '../../models/vehicle_viewer.dart';
 import '../../services/favorites_service.dart';
+import '../../services/vehicle_viewer_service.dart';
 import '../../styles/styles.dart';
 
 /// Vehicle Detail Screen - Displays decoded VIN information
 ///
-/// Shows comprehensive vehicle information including:
-/// - Make, Model, Year (prominent)
-/// - Engine, Body Type, Trim
-/// - VIN display with copy functionality
-/// - Vehicle specifications
+/// Shows comprehensive vehicle information in grouped sections:
+/// - Hero image from SERP API
+/// - Basic Vehicle Identification (Make, Model, Year, Product Type, Body, Drive)
+/// - Engine (Displacement, Power, Fuel Type, Engine Code, Transmission)
+/// - Manufacturer (Manufacturer, Plant Country)
 class VehicleDetailScreen extends StatefulWidget {
   final VinDecodeResult vehicle;
 
@@ -27,10 +30,15 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
   late FavoritesService _favoritesService;
   bool _isInitialized = false;
 
+  // Vehicle image from SERP API
+  String? _vehicleImageUrl;
+  bool _isLoadingImage = false;
+
   @override
   void initState() {
     super.initState();
     _initializeFavorites();
+    _loadVehicleImage();
   }
 
   Future<void> _initializeFavorites() async {
@@ -44,6 +52,43 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         _isFavorite = isFavorite;
         _isInitialized = true;
       });
+    }
+  }
+
+  Future<void> _loadVehicleImage() async {
+    setState(() => _isLoadingImage = true);
+
+    try {
+      final service = VehicleViewerService();
+      List<VehicleImage> images;
+
+      if (widget.vehicle.vin.isNotEmpty) {
+        images = await service.getVehicleImages(widget.vehicle.vin);
+      } else if (widget.vehicle.manufacturer != null &&
+          widget.vehicle.model != null &&
+          widget.vehicle.year != null) {
+        images = await service.getVehicleImagesByData(
+          make: widget.vehicle.manufacturer!,
+          model: widget.vehicle.model!,
+          year: widget.vehicle.year!,
+        );
+      } else {
+        images = [];
+      }
+
+      final validImages =
+          images.where((i) => i.success && i.imageUrl.isNotEmpty).toList();
+
+      if (mounted && validImages.isNotEmpty) {
+        setState(() {
+          _vehicleImageUrl = validImages.first.imageUrl;
+          _isLoadingImage = false;
+        });
+      } else if (mounted) {
+        setState(() => _isLoadingImage = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingImage = false);
     }
   }
 
@@ -83,29 +128,121 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hero section with vehicle image placeholder
+            // Hero section with vehicle image from SERP API
             _buildHeroSection(),
 
-            // Main vehicle information
             Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Make, Model, Year (large, prominent)
-                  _buildVehicleTitle(),
-                  const SizedBox(height: AppSpacing.md),
-
                   // VIN display with copy button
                   _buildVinDisplay(),
-                  const SizedBox(height: AppSpacing.xl),
+                  const SizedBox(height: AppSpacing.lg),
 
-                  // Specifications grid
-                  _buildSpecificationsGrid(),
-                  const SizedBox(height: AppSpacing.xl),
+                  // Basic Vehicle Identification section
+                  _buildSection(
+                    title: 'Basic Vehicle Identification',
+                    rows: [
+                      if (widget.vehicle.manufacturer != null)
+                        _SectionRow('Make', widget.vehicle.manufacturer!),
+                      if (widget.vehicle.model != null)
+                        _SectionRow('Model', widget.vehicle.model!),
+                      if (widget.vehicle.year != null)
+                        _SectionRow('Model Year', widget.vehicle.year!),
+                      if (widget.vehicle.productType != null)
+                        _SectionRow(
+                          'Product Type',
+                          widget.vehicle.productType!,
+                        ),
+                      if (widget.vehicle.bodyStyle != null)
+                        _SectionRow('Body', widget.vehicle.bodyStyle!),
+                      if (widget.vehicle.driveType != null)
+                        _SectionRow('Drive', widget.vehicle.driveType!),
+                      if (widget.vehicle.trim != null)
+                        _SectionRow('Trim', widget.vehicle.trim!),
+                      if (widget.vehicle.series != null)
+                        _SectionRow('Series', widget.vehicle.series!),
+                      if (widget.vehicle.doors != null)
+                        _SectionRow('Doors', widget.vehicle.doors!),
+                      if (widget.vehicle.seats != null)
+                        _SectionRow('Seats', widget.vehicle.seats!),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
 
-                  // Additional details
-                  _buildAdditionalDetails(),
+                  // Engine section
+                  _buildSection(
+                    title: 'Engine',
+                    rows: [
+                      if (widget.vehicle.displacementCcm != null)
+                        _SectionRow(
+                          'Engine Displacement (ccm)',
+                          widget.vehicle.displacementCcm!,
+                        ),
+                      if (widget.vehicle.displacement != null &&
+                          widget.vehicle.displacementCcm == null)
+                        _SectionRow(
+                          'Displacement',
+                          '${widget.vehicle.displacement}L',
+                        ),
+                      if (widget.vehicle.powerKw != null)
+                        _SectionRow(
+                          'Engine Power (kW)',
+                          widget.vehicle.powerKw!,
+                        ),
+                      if (widget.vehicle.power != null)
+                        _SectionRow(
+                          'Engine Power (HP)',
+                          widget.vehicle.power!,
+                        ),
+                      if (widget.vehicle.cylinders != null)
+                        _SectionRow('Cylinders', widget.vehicle.cylinders!),
+                      if (widget.vehicle.fuelType != null)
+                        _SectionRow(
+                          'Fuel Type - Primary',
+                          widget.vehicle.fuelType!,
+                        ),
+                      if (widget.vehicle.engineCode != null)
+                        _SectionRow(
+                          'Engine Code',
+                          widget.vehicle.engineCode!,
+                        ),
+                      if (widget.vehicle.engineType != null)
+                        _SectionRow('Engine', widget.vehicle.engineType!),
+                      if (widget.vehicle.transmission != null)
+                        _SectionRow(
+                          'Transmission',
+                          widget.vehicle.transmission!,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Manufacturer section
+                  _buildSection(
+                    title: 'Manufacturer',
+                    rows: [
+                      if (widget.vehicle.manufacturer != null)
+                        _SectionRow(
+                          'Manufacturer',
+                          widget.vehicle.manufacturer!,
+                        ),
+                      if (widget.vehicle.plantCity != null)
+                        _SectionRow(
+                          'Plant City',
+                          widget.vehicle.plantCity!,
+                        ),
+                      if (widget.vehicle.plantCountry != null ||
+                          widget.vehicle.countryOfOrigin != null)
+                        _SectionRow(
+                          'Plant Country',
+                          widget.vehicle.plantCountry ??
+                              widget.vehicle.countryOfOrigin!,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
                 ],
               ),
             ),
@@ -115,7 +252,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
     );
   }
 
-  /// Hero section with vehicle image
+  /// Hero section with vehicle image from SERP API
   Widget _buildHeroSection() {
     return GestureDetector(
       onTap: () => Navigator.pushNamed(
@@ -125,125 +262,130 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
       ),
       child: Container(
         width: double.infinity,
-        height: 200,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.electricBlue,
-              AppColors.electricBlue.withValues(alpha: 0.7),
-            ],
-          ),
+        height: 220,
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.view_in_ar,
-                size: 60,
-                color: Colors.white.withValues(alpha: 0.9),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              const Text(
-                'View 360° & Parts',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.touch_app,
-                      size: 14,
-                      color: Colors.white.withValues(alpha: 0.8),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Tap to explore',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 12,
-                      ),
-                    ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Background image or placeholder
+            if (_vehicleImageUrl != null)
+              CachedNetworkImage(
+                imageUrl: _vehicleImageUrl!,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => _buildImagePlaceholder(),
+                errorWidget: (_, __, ___) => _buildImagePlaceholder(),
+              )
+            else if (_isLoadingImage)
+              _buildImageLoading()
+            else
+              _buildImagePlaceholder(),
+
+            // Gradient overlay for readability
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.1),
+                    Colors.black.withValues(alpha: 0.5),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+
+            // "View 360° & Parts" overlay
+            Positioned(
+              bottom: AppSpacing.md,
+              left: AppSpacing.md,
+              right: AppSpacing.md,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.vehicle.displayName,
+                      style: AppTypography.h4.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius:
+                          BorderRadius.circular(AppSpacing.radiusMedium),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.view_in_ar,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '360° & Parts',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  /// Large, prominent vehicle title
-  Widget _buildVehicleTitle() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Manufacturer
-        if (widget.vehicle.manufacturer != null)
-          Text(
-            widget.vehicle.manufacturer!.toUpperCase(),
-            style: AppTypography.h5.copyWith(
-              color: AppColors.electricBlue,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-            ),
-          ),
-        const SizedBox(height: AppSpacing.xs),
+  Widget _buildImageLoading() {
+    return Container(
+      color: AppColors.zinc100,
+      child: const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.electricBlue),
+          strokeWidth: 3,
+        ),
+      ),
+    );
+  }
 
-        // Model and Year
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Text(
-                widget.vehicle.model ?? 'Unknown Model',
-                style: AppTypography.h1.copyWith(
-                  fontWeight: FontWeight.bold,
-                  height: 1.1,
-                ),
-              ),
-            ),
-            if (widget.vehicle.year != null)
-              Text(
-                widget.vehicle.year!,
-                style: AppTypography.h2.copyWith(
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+  Widget _buildImagePlaceholder() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.electricBlue.withValues(alpha: 0.8),
+            AppColors.electricBlue,
           ],
         ),
-
-        // Trim (if available)
-        if (widget.vehicle.trim != null) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            widget.vehicle.trim!,
-            style: AppTypography.bodyLarge.copyWith(
-              color: AppColors.textSecondary,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
-      ],
+      ),
+      child: Center(
+        child: Icon(
+          Icons.directions_car,
+          size: 80,
+          color: Colors.white.withValues(alpha: 0.3),
+        ),
+      ),
     );
   }
 
@@ -299,194 +441,74 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
     );
   }
 
-  /// Specifications grid (Engine, Body Type, etc.)
-  Widget _buildSpecificationsGrid() {
-    final specs = [
-      if (widget.vehicle.engineType != null)
-        _SpecItem(
-          icon: Icons.speed,
-          label: 'Engine',
-          value: widget.vehicle.engineType!,
-        ),
-      if (widget.vehicle.bodyStyle != null)
-        _SpecItem(
-          icon: Icons.directions_car_outlined,
-          label: 'Body Style',
-          value: widget.vehicle.bodyStyle!,
-        ),
-      if (widget.vehicle.transmission != null)
-        _SpecItem(
-          icon: Icons.settings,
-          label: 'Transmission',
-          value: widget.vehicle.transmission!,
-        ),
-      if (widget.vehicle.fuelType != null)
-        _SpecItem(
-          icon: Icons.local_gas_station,
-          label: 'Fuel Type',
-          value: widget.vehicle.fuelType!,
-        ),
-      if (widget.vehicle.driveType != null)
-        _SpecItem(
-          icon: Icons.compare_arrows,
-          label: 'Drive Type',
-          value: widget.vehicle.driveType!,
-        ),
-      if (widget.vehicle.displacement != null)
-        _SpecItem(
-          icon: Icons.straighten,
-          label: 'Displacement',
-          value: '${widget.vehicle.displacement}L',
-        ),
-      if (widget.vehicle.power != null)
-        _SpecItem(
-          icon: Icons.bolt,
-          label: 'Power',
-          value: '${widget.vehicle.power} HP',
-        ),
-    ];
+  /// Build a grouped section card with a title and key-value rows
+  Widget _buildSection({
+    required String title,
+    required List<_SectionRow> rows,
+  }) {
+    if (rows.isEmpty) return const SizedBox.shrink();
 
-    if (specs.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Specifications',
-          style: AppTypography.h4.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: AppSpacing.md,
-            mainAxisSpacing: AppSpacing.md,
-            childAspectRatio: 2.5,
-          ),
-          itemCount: specs.length,
-          itemBuilder: (context, index) => _buildSpecCard(specs[index]),
-        ),
-      ],
-    );
-  }
-
-  /// Individual specification card
-  Widget _buildSpecCard(_SpecItem spec) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
         border: Border.all(color: AppColors.border),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(spec.icon, size: 20, color: AppColors.electricBlue),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  spec.label,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
-                    fontSize: 10,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  spec.value,
-                  style: AppTypography.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+          // Section title
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.sm,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Additional details section
-  Widget _buildAdditionalDetails() {
-    final details = <Widget>[];
-
-    if (widget.vehicle.series != null) {
-      details.add(_buildDetailRow('Series', widget.vehicle.series!));
-    }
-    if (widget.vehicle.countryOfOrigin != null) {
-      details.add(
-        _buildDetailRow('Country of Origin', widget.vehicle.countryOfOrigin!),
-      );
-    }
-    if (widget.vehicle.plantCity != null) {
-      details.add(_buildDetailRow('Plant City', widget.vehicle.plantCity!));
-    }
-
-    if (details.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Additional Information',
-          style: AppTypography.h4.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(children: details),
-        ),
-      ],
-    );
-  }
-
-  /// Detail row for additional information
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
             child: Text(
-              label,
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textSecondary,
+              title,
+              style: AppTypography.h3.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              value,
-              style: AppTypography.bodyMedium.copyWith(
-                fontWeight: FontWeight.w600,
+
+          // Key-value rows
+          ...rows.map(
+            (row) => Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
               ),
-              textAlign: TextAlign.right,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      row.label,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      row.value,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+
+          const SizedBox(height: AppSpacing.sm),
         ],
       ),
     );
@@ -511,10 +533,8 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
 
     try {
       if (_isFavorite) {
-        // Remove from favorites
         await _favoritesService.removeFavorite(widget.vehicle.vin);
       } else {
-        // Add to favorites
         await _favoritesService.addFavorite(widget.vehicle);
       }
 
@@ -552,19 +572,20 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
   Future<void> _shareVehicle() async {
     final vehicle = widget.vehicle;
 
-    // Build comprehensive share text
     final shareText = StringBuffer();
-    shareText.writeln('🚗 ${vehicle.displayName}');
+    shareText.writeln(vehicle.displayName);
     shareText.writeln('');
     shareText.writeln('VIN: ${vehicle.vin}');
     shareText.writeln('');
 
-    // Add specifications
+    if (vehicle.bodyStyle != null) {
+      shareText.writeln('Body: ${vehicle.bodyStyle}');
+    }
+    if (vehicle.driveType != null) {
+      shareText.writeln('Drive: ${vehicle.driveType}');
+    }
     if (vehicle.engineType != null) {
       shareText.writeln('Engine: ${vehicle.engineType}');
-    }
-    if (vehicle.bodyStyle != null) {
-      shareText.writeln('Body Style: ${vehicle.bodyStyle}');
     }
     if (vehicle.transmission != null) {
       shareText.writeln('Transmission: ${vehicle.transmission}');
@@ -572,14 +593,11 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
     if (vehicle.fuelType != null) {
       shareText.writeln('Fuel Type: ${vehicle.fuelType}');
     }
-    if (vehicle.driveType != null) {
-      shareText.writeln('Drive Type: ${vehicle.driveType}');
-    }
-    if (vehicle.displacement != null) {
-      shareText.writeln('Displacement: ${vehicle.displacement}L');
-    }
     if (vehicle.power != null) {
       shareText.writeln('Power: ${vehicle.power} HP');
+    }
+    if (vehicle.countryOfOrigin != null) {
+      shareText.writeln('Origin: ${vehicle.countryOfOrigin}');
     }
 
     shareText.writeln('');
@@ -602,15 +620,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
   }
 }
 
-/// Specification item data class
-class _SpecItem {
-  final IconData icon;
+/// Simple data class for section rows
+class _SectionRow {
   final String label;
   final String value;
 
-  const _SpecItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+  const _SectionRow(this.label, this.value);
 }
