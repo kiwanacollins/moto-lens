@@ -77,11 +77,6 @@ class RegisterRequest {
       errors.add('Please enter a valid phone number');
     }
 
-    // Terms acceptance validation
-    if (!acceptTerms) {
-      errors.add('You must accept the Terms of Service');
-    }
-
     return errors;
   }
 

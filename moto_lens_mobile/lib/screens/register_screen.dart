@@ -40,8 +40,6 @@ class _RegisterScreenState extends State<RegisterScreen>
   int _currentStep = 0;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _acceptTerms = false;
-  bool _acceptMarketing = false;
   bool _isLoading = false;
 
   @override
@@ -57,15 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   /// Handle registration submission
   Future<void> _handleRegister() async {
-    if (!(_formKeys[1].currentState?.validate() ?? false) || !_acceptTerms) {
-      if (!_acceptTerms) {
-        ErrorSnackBar.show(
-          context,
-          'Please accept the Terms and Conditions to continue',
-        );
-      }
-      return;
-    }
+    if (!(_formKeys[1].currentState?.validate() ?? false)) return;
 
     setState(() => _isLoading = true);
 
@@ -76,8 +66,8 @@ class _RegisterScreenState extends State<RegisterScreen>
         confirmPassword: _confirmPasswordController.text,
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        acceptTerms: _acceptTerms,
-        acceptMarketing: _acceptMarketing,
+        acceptTerms: true,
+        acceptMarketing: false,
       );
 
       if (!success && mounted) {
@@ -314,12 +304,12 @@ class _RegisterScreenState extends State<RegisterScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Security & Terms', style: AppTypography.h3),
+          Text('Password', style: AppTypography.h3),
 
           const SizedBox(height: AppSpacing.md),
 
           Text(
-            'Create a secure password and accept our terms',
+            'Create a secure password',
             style: AppTypography.bodyMedium.copyWith(
               color: AppColors.textSecondary,
             ),
@@ -385,54 +375,6 @@ class _RegisterScreenState extends State<RegisterScreen>
               }
               return null;
             },
-          ),
-
-          const SizedBox(height: AppSpacing.xl),
-
-          // Terms and Conditions
-          CheckboxListTile(
-            value: _acceptTerms,
-            onChanged: (value) => setState(() => _acceptTerms = value ?? false),
-            activeColor: AppColors.electricBlue,
-            contentPadding: EdgeInsets.zero,
-            controlAffinity: ListTileControlAffinity.leading,
-            title: RichText(
-              text: TextSpan(
-                style: AppTypography.bodyMedium,
-                children: [
-                  const TextSpan(text: 'I accept the '),
-                  TextSpan(
-                    text: 'Terms and Conditions',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.electricBlue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const TextSpan(text: ' and '),
-                  TextSpan(
-                    text: 'Privacy Policy',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: AppColors.electricBlue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Marketing Emails (Optional)
-          CheckboxListTile(
-            value: _acceptMarketing,
-            onChanged: (value) =>
-                setState(() => _acceptMarketing = value ?? false),
-            activeColor: AppColors.electricBlue,
-            contentPadding: EdgeInsets.zero,
-            controlAffinity: ListTileControlAffinity.leading,
-            title: Text(
-              'I would like to receive product updates and marketing emails',
-              style: AppTypography.bodyMedium,
-            ),
           ),
         ],
       ),
