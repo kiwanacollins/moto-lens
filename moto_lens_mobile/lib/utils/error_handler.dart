@@ -56,6 +56,11 @@ class ErrorHandler {
       return _handleApiException(error);
     }
 
+    // Handle TypeError (e.g. unexpected type in JSON parsing)
+    if (error is TypeError) {
+      return 'Unable to process vehicle data. Please try again.';
+    }
+
     // Handle error strings
     if (error is String) {
       return _handleErrorString(error);
