@@ -33,9 +33,6 @@ class _RegisterScreenState extends State<RegisterScreen>
   final _emailController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _garageNameController = TextEditingController();
-  final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -52,9 +49,6 @@ class _RegisterScreenState extends State<RegisterScreen>
     _emailController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
-    _usernameController.dispose();
-    _garageNameController.dispose();
-    _phoneNumberController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _pageController.dispose();
@@ -82,13 +76,6 @@ class _RegisterScreenState extends State<RegisterScreen>
         confirmPassword: _confirmPasswordController.text,
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        username: _usernameController.text.trim().isEmpty
-            ? null
-            : _usernameController.text.trim(),
-        garageName: _garageNameController.text.trim(),
-        phoneNumber: _phoneNumberController.text.trim().isEmpty
-            ? null
-            : _phoneNumberController.text.trim(),
         acceptTerms: _acceptTerms,
         acceptMarketing: _acceptMarketing,
       );
@@ -254,9 +241,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               type: CustomTextFieldType.email,
               prefixIcon: Icons.email_outlined,
               validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(
-                  errorText: 'Email is required',
-                ),
+                FormBuilderValidators.required(errorText: 'Email is required'),
                 FormBuilderValidators.email(
                   errorText: 'Enter a valid email address',
                 ),
@@ -299,60 +284,6 @@ class _RegisterScreenState extends State<RegisterScreen>
                   errorText: 'Name must be at least 2 characters',
                 ),
               ]),
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Username (Optional)
-            CustomTextField(
-              controller: _usernameController,
-              label: 'Username (Optional)',
-              hintText: 'Choose a username',
-              prefixIcon: Icons.alternate_email,
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.minLength(
-                  3,
-                  errorText: 'Username must be at least 3 characters',
-                ),
-              ]),
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Garage Name (required for mechanic accounts)
-            CustomTextField(
-              controller: _garageNameController,
-              label: 'Garage/Business Name',
-              hintText: 'Enter your garage or business name',
-              prefixIcon: Icons.business,
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(
-                  errorText:
-                      'Business name is required for professional accounts',
-                ),
-                FormBuilderValidators.minLength(
-                  2,
-                  errorText: 'Business name must be at least 2 characters',
-                ),
-              ]),
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Phone Number (Optional)
-            CustomTextField(
-              controller: _phoneNumberController,
-              label: 'Phone Number (Optional)',
-              hintText: 'Enter your phone number',
-              type: CustomTextFieldType.phone,
-              prefixIcon: Icons.phone_outlined,
-              validator: (value) {
-                if (value == null || value.isEmpty) return null;
-                if (!RegExp(r'^\+?[\d\s\-\(\)]{10,}$').hasMatch(value)) {
-                  return 'Enter a valid phone number';
-                }
-                return null;
-              },
             ),
           ],
         ),

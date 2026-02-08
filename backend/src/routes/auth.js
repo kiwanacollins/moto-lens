@@ -97,22 +97,7 @@ const validateRegistration = [
   body('role')
     .optional()
     .isIn(['mechanic', 'shop_owner', 'admin'])
-    .withMessage('Invalid role'),
-  body('username')
-    .optional()
-    .trim()
-    .isLength({ min: 3, max: 30 })
-    .withMessage('Username must be 3-30 characters'),
-  body('garageName')
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 100 })
-    .withMessage('Garage name must be 2-100 characters'),
-  body('phoneNumber')
-    .optional()
-    .trim()
-    .matches(/^\+?[\d\s\-\(\)]{10,}$/)
-    .withMessage('Invalid phone number format')
+    .withMessage('Invalid role')
 ];
 
 const validateLogin = [
@@ -228,7 +213,7 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
       });
     }
 
-    const { email, password, firstName, lastName, role = 'mechanic', username, garageName, phoneNumber } = req.body;
+    const { email, password, firstName, lastName, role = 'mechanic' } = req.body;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -241,20 +226,6 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
         error: 'User already exists',
         message: 'An account with this email already exists'
       });
-    }
-
-    // Check if username is taken (if provided)
-    if (username) {
-      const existingUsername = await prisma.user.findUnique({
-        where: { username }
-      });
-      if (existingUsername) {
-        return res.status(409).json({
-          success: false,
-          error: 'Username taken',
-          message: 'This username is already in use'
-        });
-      }
     }
 
     // Validate password strength
@@ -280,9 +251,6 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
         firstName,
         lastName,
         role,
-        username: username || null,
-        garageName: garageName || null,
-        phoneNumber: phoneNumber || null,
         emailVerified: false,
         failedLoginAttempts: 0
       }
