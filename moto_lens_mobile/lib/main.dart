@@ -317,7 +317,7 @@ class MainApp extends StatelessWidget {
                   // VIN Scanner — primary action card
                   _buildFeatureCard(
                     context,
-                    icon: Icons.qr_code_scanner,
+                    icon: Icons.search,
                     title: 'VIN Scanner',
                     subtitle: 'Decode Vehicle Identification Numbers',
                     onTap: () => Navigator.pushNamed(context, '/vin-scanner'),
