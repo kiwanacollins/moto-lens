@@ -451,8 +451,10 @@ class ApiService {
   /// Decode VIN number
   Future<Map<String, dynamic>> decodeVin(String vin) async {
     try {
-      final response = await post('/vehicle/decode', body: {'vin': vin});
+      final response = await post('/vin/decode', body: {'vin': vin});
       return json.decode(response.body);
+    } on ApiException {
+      rethrow;
     } catch (e) {
       throw ApiException('Failed to decode VIN: $e');
     }
