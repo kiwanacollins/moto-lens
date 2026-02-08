@@ -4,6 +4,7 @@ import '../styles/styles.dart';
 import '../widgets/widgets.dart';
 import '../widgets/error_alert.dart';
 import '../providers/providers.dart';
+import 'verify_otp_screen.dart';
 
 /// Password Reset Screen for German Car Medic
 ///
@@ -46,7 +47,16 @@ class _PasswordResetScreenState extends State<PasswordResetScreen>
       );
 
       if (success) {
-        setState(() => _emailSent = true);
+        if (mounted) {
+          // Navigate to OTP verification screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  VerifyOTPScreen(email: _emailController.text.trim()),
+            ),
+          );
+        }
       } else if (mounted) {
         ErrorSnackBar.show(
           context,

@@ -89,8 +89,100 @@ class EmailService {
     }
   }
 
-  /**
-   * Send password reset link to user
+  /**   * Send password reset email with OTP code
+   * @param {Object} user - User object from database
+   * @param {string} otp - 6-digit OTP code
+   * @returns {Promise<Object>} Email send result
+   */
+  static async sendPasswordResetOTP(user, otp) {
+    try {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .otp-code { font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #667eea; text-align: center; padding: 20px; background: white; border-radius: 8px; margin: 20px 0; }
+            .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🔐 Password Reset OTP</h1>
+            </div>
+            <div class="content">
+              <p>Hi ${user.firstName || user.email},</p>
+              <p>You requested to reset your password for German Car Medic. Use the OTP code below to complete the process:</p>
+              
+              <div class="otp-code">${otp}</div>
+              
+              <p style="text-align: center; color: #666;">This code will expire in <strong>15 minutes</strong></p>
+              
+              <div class="warning">
+                <strong>⚠️ Security Notice:</strong><br>
+                • Never share this code with anyone<br>
+                • German Car Medic will never ask for this code<br>
+                • If you didn't request this, please ignore this email
+              </div>
+              
+              <p>If you didn't request a password reset, you can safely ignore this email.</p>
+              
+              <p>Best regards,<br><strong>German Car Medic Team</strong></p>
+            </div>
+            <div class="footer">
+              <p>© ${new Date().getFullYear()} German Car Medic. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      const transporter = this.createTransporter();
+
+      const info = await transporter.sendMail({
+        from: process.env.EMAIL_FROM || 'German Car Medic <noreply@germancarmedic.com>',
+        to: user.email,
+        subject: 'Your Password Reset Code - German Car Medic',
+        html,
+        text: `Your password reset code is: ${otp}\n\nThis code will expire in 15 minutes.\n\nIf you didn't request this, please ignore this email.`
+      });
+
+      // Log email delivery
+      await this.logEmailDelivery({
+        userId: user.id,
+        emailType: 'PASSWORD_RESET_OTP',
+        recipient: user.email,
+        messageId: info.messageId,
+        status: 'SENT'
+      });
+
+      return {
+        success: true,
+        messageId: info.messageId,
+        message: 'Password reset OTP sent successfully'
+      };
+    } catch (error) {
+      console.error('Error sending password reset OTP:', error);
+
+      // Log failed delivery
+      await this.logEmailDelivery({
+        userId: user.id,
+        emailType: 'PASSWORD_RESET_OTP',
+        recipient: user.email,
+        status: 'FAILED',
+        error: error.message
+      });
+
+      throw new Error('Failed to send password reset OTP');
+    }
+  }
+
+  /**   * Send password reset link to user
    * @param {Object} user - User object from database
    * @param {string} token - Password reset token
    * @returns {Promise<Object>} Email send result

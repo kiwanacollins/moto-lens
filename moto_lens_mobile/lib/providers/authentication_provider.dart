@@ -219,6 +219,30 @@ class AuthenticationProvider with ChangeNotifier {
     }
   }
 
+  /// Reset password with OTP code
+  Future<bool> resetPassword(
+    String email,
+    String otp,
+    String newPassword,
+  ) async {
+    try {
+      _updateState(_state.copyWith(isLoading: true, clearError: true));
+
+      final authService = AuthService();
+      final success = await authService.resetPassword(email, otp, newPassword);
+
+      _updateState(_state.copyWith(isLoading: false, error: null));
+      return success;
+    } catch (e) {
+      // Use ErrorHandler to translate technical errors to user-friendly messages
+      final userFriendlyMessage = ErrorHandler.getUserFriendlyMessage(e);
+      _updateState(
+        _state.copyWith(isLoading: false, error: userFriendlyMessage),
+      );
+      return false;
+    }
+  }
+
   /// Refresh authentication tokens
   Future<bool> refreshTokens() async {
     try {

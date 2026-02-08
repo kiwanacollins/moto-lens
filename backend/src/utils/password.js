@@ -175,6 +175,16 @@ class PasswordUtil {
   }
 
   /**
+   * Generate a 6-digit OTP code for password reset
+   * @returns {string} 6-digit OTP code
+   */
+  static generateOTP() {
+    // Generate a random 6-digit number
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    return otp;
+  }
+
+  /**
    * Check if user's password is in their password history
    * @param {string} userId - User ID
    * @param {string} newPassword - New password to check

@@ -91,6 +91,10 @@ extension AuthenticationContext on BuildContext {
   Future<bool> requestPasswordReset(String email) =>
       auth.requestPasswordReset(email);
 
+  /// Reset password with OTP code
+  Future<bool> resetPassword(String email, String otp, String newPassword) =>
+      auth.resetPassword(email, otp, newPassword);
+
   /// Update user profile
   Future<bool> updateProfile(Map<String, dynamic> profileData) =>
       auth.updateProfile(profileData);

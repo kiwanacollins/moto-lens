@@ -100,13 +100,6 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const RegisterScreen());
       case '/password-reset':
         return MaterialPageRoute(builder: (_) => const PasswordResetScreen());
-      case '/reset-password':
-        // Extract token from arguments
-        final args = settings.arguments as Map<String, dynamic>?;
-        final token = args?['token'] as String? ?? '';
-        return MaterialPageRoute(
-          builder: (_) => ResetPasswordScreen(token: token),
-        );
       case '/vin-scanner':
         return MaterialPageRoute(builder: (_) => const VinScannerScreen());
       case '/ai-assistant':

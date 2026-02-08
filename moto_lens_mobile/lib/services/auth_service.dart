@@ -293,10 +293,14 @@ class AuthService {
     }
   }
 
-  /// Reset password using reset token
+  /// Reset password using OTP code
   ///
   /// Returns true if password was successfully reset.
-  Future<bool> resetPassword(String token, String newPassword) async {
+  Future<bool> resetPassword(
+    String email,
+    String otp,
+    String newPassword,
+  ) async {
     // Validate password before sending to API
     if (!User.isValidPassword(newPassword)) {
       throw AuthValidationException(
@@ -307,7 +311,7 @@ class AuthService {
     try {
       final response = await _apiService.postPublic(
         '/auth/reset-password',
-        body: {'token': token, 'newPassword': newPassword},
+        body: {'email': email, 'otp': otp, 'newPassword': newPassword},
       );
 
       return response.statusCode == 200;

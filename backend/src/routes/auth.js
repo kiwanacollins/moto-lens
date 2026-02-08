@@ -798,7 +798,7 @@ router.put('/change-password', authenticate, validatePasswordChange, async (req,
 
 /**
  * POST /api/auth/forgot-password
- * Request password reset email
+ * Request password reset OTP code via email
  */
 router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
   try {
@@ -820,7 +820,7 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
     // Always return success to prevent email enumeration
     const successResponse = {
       success: true,
-      message: 'If that email exists, a password reset link has been sent'
+      message: 'If that email exists, a password reset code has been sent'
     };
 
     if (!user) {
@@ -834,25 +834,25 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
       where: { userId: user.id }
     });
 
-    // Generate reset token
-    const resetToken = PasswordUtil.generateSecureToken();
-    const tokenHash = PasswordUtil.hashToken(resetToken);
+    // Generate 6-digit OTP code
+    const otpCode = PasswordUtil.generateOTP();
+    const tokenHash = PasswordUtil.hashToken(otpCode);
 
     await prisma.passwordResetToken.create({
       data: {
         userId: user.id,
-        token: resetToken,
+        token: otpCode,
         tokenHash,
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
       }
     });
 
-    // Send reset email (non-blocking)
-    EmailService.sendPasswordResetEmail(user, resetToken)
-      .catch(err => console.error('Failed to send password reset email:', err));
+    // Send OTP email (non-blocking)
+    EmailService.sendPasswordResetOTP(user, otpCode)
+      .catch(err => console.error('Failed to send password reset OTP:', err));
 
     // Log password reset request
-    await logSecurityEvent(user.id, 'PASSWORD_RESET_REQUEST', 'INFO', `Password reset requested for: ${user.email}`);
+    await logSecurityEvent(user.id, 'PASSWORD_RESET_REQUEST', 'INFO', `Password reset OTP requested for: ${user.email}`);
 
     res.json(successResponse);
   } catch (error) {
@@ -867,7 +867,8 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
 
 /**
  * POST /api/auth/reset-password
- * Reset password using token
+ * Reset password using OTP code
+ * Expected body: { email, otp, newPassword }
  */
 router.post('/reset-password', passwordResetLimiter, validatePasswordReset, async (req, res) => {
   try {
@@ -881,17 +882,28 @@ router.post('/reset-password', passwordResetLimiter, validatePasswordReset, asyn
       });
     }
 
-    const { token, newPassword } = req.body;
+    const { email, otp, newPassword } = req.body;
 
-    // Hash the token to find it in database
-    const tokenHash = PasswordUtil.hashToken(token);
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields',
+        message: 'Email and OTP code are required'
+      });
+    }
 
-    // Find valid reset token
+    // Hash the OTP to find it in database
+    const tokenHash = PasswordUtil.hashToken(otp);
+
+    // Find valid reset token for this email
     const resetToken = await prisma.passwordResetToken.findFirst({
       where: {
         tokenHash,
         expiresAt: {
           gt: new Date() // Token not expired
+        },
+        user: {
+          email: email
         }
       },
       include: {
@@ -908,8 +920,8 @@ router.post('/reset-password', passwordResetLimiter, validatePasswordReset, asyn
     if (!resetToken) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid or expired token',
-        message: 'Password reset token is invalid or has expired'
+        error: 'Invalid or expired code',
+        message: 'Password reset code is invalid or has expired'
       });
     }
 
