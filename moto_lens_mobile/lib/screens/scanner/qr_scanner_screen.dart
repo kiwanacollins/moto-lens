@@ -7,13 +7,21 @@ import '../../models/part_scan_entry.dart';
 import '../../providers/qr_scan_provider.dart';
 import '../../styles/styles.dart';
 
-/// Full QR Code Scanner screen with two modes:
+/// Full Barcode Scanner screen with two modes:
 ///
-/// 1. **Camera mode** — live QR / barcode scanning via `mobile_scanner`
+/// 1. **Camera mode** — live barcode scanning via `mobile_scanner`
+///    Supports Code 128, Code 39, EAN-13, UPC-A, and DataMatrix
+///    formats commonly used on automotive parts.
 /// 2. **Manual mode** — text-field entry for part numbers
 ///
 /// After a code is captured (or typed) the provider performs a backend
 /// lookup and the user is navigated to the part detail page.
+///
+/// **What automotive part barcodes contain:**
+/// - OEM Part Number (e.g., 11-42-7-953-129 for BMW)
+/// - Manufacturer identification code
+/// - Batch/lot numbers for traceability
+/// - Serial numbers for warranty tracking
 class QrScannerScreen extends StatefulWidget {
   const QrScannerScreen({super.key});
 
@@ -98,7 +106,17 @@ class _QrScannerScreenState extends State<QrScannerScreen>
       detectionSpeed: DetectionSpeed.normal,
       facing: CameraFacing.back,
       torchEnabled: false,
-      formats: [BarcodeFormat.qrCode, BarcodeFormat.dataMatrix],
+      // Barcode formats commonly used on automotive parts
+      formats: [
+        BarcodeFormat.code128, // Most common for auto parts
+        BarcodeFormat.code39, // Widely used in automotive industry
+        BarcodeFormat.ean13, // Retail parts
+        BarcodeFormat.ean8, // Smaller retail parts
+        BarcodeFormat.upcA, // North American parts
+        BarcodeFormat.upcE, // Compact UPC
+        BarcodeFormat.dataMatrix, // Small/dense labels
+        BarcodeFormat.qrCode, // Some modern parts still use QR
+      ],
     );
     setState(() => _isInitializing = false);
   }
@@ -272,7 +290,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                 borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
               ),
               child: const Icon(
-                Icons.qr_code_scanner,
+                Icons.barcode_reader,
                 color: AppColors.electricBlue,
                 size: 40,
               ),
@@ -289,7 +307,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
             ),
             const SizedBox(height: AppSpacing.sm),
             const Text(
-              'German Car Medic needs camera access to scan QR codes '
+              'Moto Lens needs camera access to scan barcodes '
               'on vehicle parts. You can also enter part numbers manually.',
               style: TextStyle(
                 color: Colors.white70,
@@ -400,13 +418,15 @@ class _QrScannerScreenState extends State<QrScannerScreen>
   Widget _buildScanOverlay(QrScanProvider provider) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final scanSize = constraints.maxWidth * 0.7;
-        final left = (constraints.maxWidth - scanSize) / 2;
-        final top = (constraints.maxHeight - scanSize) / 2 - 40;
+        // Horizontal rectangle for barcode scanning
+        final scanWidth = constraints.maxWidth * 0.85;
+        const scanHeight = 140.0;
+        final left = (constraints.maxWidth - scanWidth) / 2;
+        final top = (constraints.maxHeight - scanHeight) / 2 - 40;
 
         return Stack(
           children: [
-            // Semi-transparent overlay with square cutout
+            // Semi-transparent overlay with horizontal cutout
             ColorFiltered(
               colorFilter: ColorFilter.mode(
                 Colors.black.withValues(alpha: 0.55),
@@ -424,8 +444,8 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                     left: left,
                     top: top,
                     child: Container(
-                      width: scanSize,
-                      height: scanSize,
+                      width: scanWidth,
+                      height: scanHeight,
                       decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(
@@ -438,28 +458,42 @@ class _QrScannerScreenState extends State<QrScannerScreen>
               ),
             ),
 
-            // Corner markers
+            // Corner markers for barcode area
             Positioned(
               left: left,
               top: top,
-              child: _ScanAreaBorder(size: scanSize, isScanned: _scanProcessed),
+              child: _ScanAreaBorder(
+                width: scanWidth,
+                height: scanHeight,
+                isScanned: _scanProcessed,
+              ),
             ),
 
             // Instruction text
             Positioned(
               left: AppSpacing.lg,
               right: AppSpacing.lg,
-              top: top + scanSize + AppSpacing.lg,
-              child: Text(
-                _scanProcessed
-                    ? 'QR Code Detected!'
-                    : 'Point the camera at a QR code',
-                style: TextStyle(
-                  color: _scanProcessed ? AppColors.success : Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
+              top: top + scanHeight + AppSpacing.lg,
+              child: Column(
+                children: [
+                  Text(
+                    _scanProcessed
+                        ? 'Barcode Detected!'
+                        : 'Align the barcode within the frame',
+                    style: TextStyle(
+                      color: _scanProcessed ? AppColors.success : Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  const Text(
+                    'Supports Code 128, Code 39, EAN-13, UPC & QR',
+                    style: TextStyle(color: Colors.white54, fontSize: 12),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           ],
@@ -496,7 +530,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
               ),
               child: Text(
-                _showManualEntry ? 'Enter Part Number' : 'Scan QR Code',
+                _showManualEntry ? 'Enter Part Number' : 'Scan Barcode',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -579,7 +613,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                   onPressed: () =>
                       setState(() => _showManualEntry = !_showManualEntry),
                   icon: Icon(
-                    _showManualEntry ? Icons.qr_code_scanner : Icons.keyboard,
+                    _showManualEntry ? Icons.barcode_reader : Icons.keyboard,
                     size: 20,
                   ),
                   label: Text(
@@ -650,7 +684,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
         child: Row(
           children: [
             Icon(
-              entry.isResolved ? Icons.check_circle : Icons.qr_code_2,
+              entry.isResolved ? Icons.check_circle : Icons.barcode_reader,
               color: entry.isResolved
                   ? AppColors.success
                   : AppColors.electricBlue,
@@ -715,7 +749,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
             ),
             const SizedBox(height: AppSpacing.xs),
             const Text(
-              'Type the part number, name, or any text from the QR code label.',
+              'Type the part number, name, or any text from the barcode label.',
               style: TextStyle(
                 color: Colors.white60,
                 fontSize: 14,
@@ -800,7 +834,9 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: Icon(
-                        entry.isResolved ? Icons.check_circle : Icons.qr_code_2,
+                        entry.isResolved
+                            ? Icons.check_circle
+                            : Icons.barcode_reader,
                         color: entry.isResolved
                             ? AppColors.success
                             : AppColors.electricBlue,
@@ -875,10 +911,15 @@ class _QrScannerScreenState extends State<QrScannerScreen>
 // =============================================================================
 
 class _ScanAreaBorder extends StatefulWidget {
-  final double size;
+  final double width;
+  final double height;
   final bool isScanned;
 
-  const _ScanAreaBorder({required this.size, this.isScanned = false});
+  const _ScanAreaBorder({
+    required this.width,
+    required this.height,
+    this.isScanned = false,
+  });
 
   @override
   State<_ScanAreaBorder> createState() => _ScanAreaBorderState();
@@ -913,8 +954,8 @@ class _ScanAreaBorderState extends State<_ScanAreaBorder>
     final color = widget.isScanned ? AppColors.success : AppColors.electricBlue;
 
     return SizedBox(
-      width: widget.size,
-      height: widget.size,
+      width: widget.width,
+      height: widget.height,
       child: Stack(
         children: [
           // Corners
@@ -923,7 +964,7 @@ class _ScanAreaBorderState extends State<_ScanAreaBorder>
           _buildCorner(Alignment.bottomLeft, color),
           _buildCorner(Alignment.bottomRight, color),
 
-          // Animated scan line
+          // Animated scan line (vertical for horizontal barcode)
           if (!widget.isScanned)
             AnimatedBuilder(
               animation: _scanLineAnimation,
@@ -931,7 +972,7 @@ class _ScanAreaBorderState extends State<_ScanAreaBorder>
                 return Positioned(
                   left: 8,
                   right: 8,
-                  top: _scanLineAnimation.value * (widget.size - 4),
+                  top: _scanLineAnimation.value * (widget.height - 4),
                   child: Container(
                     height: 2,
                     decoration: BoxDecoration(
