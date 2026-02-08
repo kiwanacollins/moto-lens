@@ -166,14 +166,28 @@ function getValidationErrors(req) {
 
 // Log security event
 async function logSecurityEvent(userId, eventType, severity, description) {
+  // Map valid severities (schema only allows INFO, WARNING, ERROR, CRITICAL)
+  const severityMap = { LOW: 'INFO', MEDIUM: 'WARNING' };
+  const safeSeverity = severityMap[severity] || severity;
+
+  // Convert object descriptions to a string + metadata
+  let descriptionStr;
+  let metadata = {};
+  if (typeof description === 'object' && description !== null) {
+    metadata = description;
+    descriptionStr = JSON.stringify(description);
+  } else {
+    descriptionStr = description || 'Security event logged';
+  }
+
   try {
     await prisma.securityEvent.create({
       data: {
         userId,
         eventType,
-        severity,
-        description: description || 'Security event logged',
-        metadata: {}
+        severity: safeSeverity,
+        description: descriptionStr,
+        metadata
       }
     });
   } catch (error) {
@@ -272,6 +286,8 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
     await prisma.emailVerificationToken.create({
       data: {
         userId: user.id,
+        email,
+        token: verificationToken,
         tokenHash,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
       }
@@ -282,10 +298,7 @@ router.post('/register', registerLimiter, validateRegistration, async (req, res)
       .catch(err => console.error('Failed to send verification email:', err));
 
     // Log registration event
-    await logSecurityEvent(user.id, 'USER_REGISTERED', 'INFO', {
-      email: user.email,
-      role: user.role
-    });
+    await logSecurityEvent(user.id, 'LOGIN_SUCCESS', 'INFO', `User registered: ${user.email}, role: ${user.role}`);
 
     // Auto-login: generate tokens and create session so user is immediately authenticated
     const tokens = JWTUtil.generateTokenPair(user);
@@ -528,7 +541,7 @@ router.post('/logout-all', authenticate, async (req, res) => {
     });
 
     // Log logout all event
-    await logSecurityEvent(req.user.id, 'USER_LOGOUT_ALL', 'INFO', {
+    await logSecurityEvent(req.user.id, 'LOGOUT_ALL_DEVICES', 'INFO', {
       deviceInfo: getDeviceInfo(req)
     });
 
@@ -689,9 +702,7 @@ router.put('/profile', authenticate, validateProfileUpdate, async (req, res) => 
     });
 
     // Log profile update
-    await logSecurityEvent(req.user.id, 'PROFILE_UPDATED', 'INFO', {
-      updatedFields: Object.keys(updateData)
-    });
+    await logSecurityEvent(req.user.id, 'LOGIN_SUCCESS', 'INFO', `Profile updated: ${Object.keys(updateData).join(', ')}`);
 
     res.json({
       success: true,
@@ -827,10 +838,7 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
 
     if (!user) {
       // Log attempted reset for non-existent email
-      await logSecurityEvent(null, 'PASSWORD_RESET_ATTEMPTED', 'LOW', {
-        email,
-        userExists: false
-      });
+      await logSecurityEvent(null, 'PASSWORD_RESET_REQUEST', 'INFO', `Password reset attempted for non-existent email: ${email}`);
       return res.json(successResponse);
     }
 
@@ -846,6 +854,7 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
     await prisma.passwordResetToken.create({
       data: {
         userId: user.id,
+        token: resetToken,
         tokenHash,
         expiresAt: new Date(Date.now() + 60 * 60 * 1000) // 1 hour
       }
@@ -856,9 +865,7 @@ router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
       .catch(err => console.error('Failed to send password reset email:', err));
 
     // Log password reset request
-    await logSecurityEvent(user.id, 'PASSWORD_RESET_REQUESTED', 'MEDIUM', {
-      email: user.email
-    });
+    await logSecurityEvent(user.id, 'PASSWORD_RESET_REQUEST', 'INFO', `Password reset requested for: ${user.email}`);
 
     res.json(successResponse);
   } catch (error) {
@@ -944,9 +951,7 @@ router.post('/reset-password', passwordResetLimiter, validatePasswordReset, asyn
       .catch(err => console.error('Failed to send notification:', err));
 
     // Log password reset
-    await logSecurityEvent(resetToken.userId, 'PASSWORD_RESET_COMPLETED', 'MEDIUM', {
-      email: resetToken.user.email
-    });
+    await logSecurityEvent(resetToken.userId, 'PASSWORD_RESET_SUCCESS', 'INFO', `Password reset completed for: ${resetToken.user.email}`);
 
     res.json({
       success: true,
@@ -1054,9 +1059,7 @@ router.post('/verify-email', emailVerificationLimiter, validateEmailToken, async
     });
 
     // Log email verification
-    await logSecurityEvent(verificationToken.userId, 'EMAIL_VERIFIED', 'INFO', {
-      email: verificationToken.user.email
-    });
+    await logSecurityEvent(verificationToken.userId, 'EMAIL_VERIFIED', 'INFO', `Email verified: ${verificationToken.user.email}`);
 
     res.json({
       success: true,
@@ -1123,6 +1126,8 @@ router.post('/resend-verification', emailVerificationLimiter, optionalAuth, asyn
     await prisma.emailVerificationToken.create({
       data: {
         userId: user.id,
+        email: user.email,
+        token: verificationToken,
         tokenHash,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
       }
@@ -1133,9 +1138,7 @@ router.post('/resend-verification', emailVerificationLimiter, optionalAuth, asyn
       .catch(err => console.error('Failed to send verification email:', err));
 
     // Log verification resend
-    await logSecurityEvent(user.id, 'EMAIL_VERIFICATION_RESENT', 'INFO', {
-      email: user.email
-    });
+    await logSecurityEvent(user.id, 'EMAIL_VERIFIED', 'INFO', `Verification email resent to: ${user.email}`);
 
     res.json({
       success: true,
@@ -1232,9 +1235,7 @@ router.delete('/sessions/:sessionId', authenticate, async (req, res) => {
     });
 
     // Log session deletion
-    await logSecurityEvent(req.user.id, 'SESSION_DELETED', 'INFO', {
-      sessionId
-    });
+    await logSecurityEvent(req.user.id, 'LOGOUT', 'INFO', `Session deleted: ${sessionId}`);
 
     res.json({
       success: true,
@@ -1282,9 +1283,7 @@ router.delete('/sessions', authenticate, async (req, res) => {
     });
 
     // Log sessions deletion
-    await logSecurityEvent(req.user.id, 'ALL_SESSIONS_DELETED', 'MEDIUM', {
-      deviceInfo: getDeviceInfo(req)
-    });
+    await logSecurityEvent(req.user.id, 'LOGOUT_ALL_DEVICES', 'WARNING', `All other sessions deleted`);
 
     res.json({
       success: true,

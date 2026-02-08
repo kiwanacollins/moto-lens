@@ -507,9 +507,10 @@ class EmailService {
       await prisma.securityEvent.create({
         data: {
           userId: data.userId,
-          eventType: `EMAIL_${data.emailType}`,
-          severity: data.status === 'FAILED' ? 'MEDIUM' : 'LOW',
-          details: {
+          eventType: 'EMAIL_VERIFIED',
+          severity: data.status === 'FAILED' ? 'WARNING' : 'INFO',
+          description: `Email ${data.emailType} ${data.status}: ${data.recipient}`,
+          metadata: {
             recipient: data.recipient,
             messageId: data.messageId,
             status: data.status,

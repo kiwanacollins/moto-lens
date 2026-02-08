@@ -138,31 +138,22 @@ class _RegisterScreenState extends State<RegisterScreen>
   /// Wraps a step's form content with the shared header and bottom nav
   /// inside a single scrollable column so the keyboard never obscures fields.
   Widget _buildStepPage(Widget stepContent) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: IntrinsicHeight(
-              child: Column(
-                children: [
-                  // Header (scrolls with content)
-                  _buildHeader(),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      child: Column(
+        children: [
+          // Header (scrolls with content)
+          _buildHeader(),
 
-                  // Step form content
-                  stepContent,
+          // Step form content
+          stepContent,
 
-                  const Spacer(),
+          const SizedBox(height: AppSpacing.xxs),
 
-                  // Bottom navigation
-                  _buildBottomNavigation(),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+          // Bottom navigation
+          _buildBottomNavigation(),
+        ],
+      ),
     );
   }
 
@@ -171,10 +162,9 @@ class _RegisterScreenState extends State<RegisterScreen>
     return Column(
       children: [
         // Logo
-        Container(
-          width: 150,
-          height: 80,
-          padding: const EdgeInsets.all(AppSpacing.sm),
+        SizedBox(
+          width: 140,
+          height: 140,
           child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
         ),
 
@@ -384,7 +374,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   /// Build bottom navigation buttons
   Widget _buildBottomNavigation() {
     return Container(
-      padding: const EdgeInsets.only(top: AppSpacing.xs),
+      padding: const EdgeInsets.only(top: AppSpacing.xxs),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
