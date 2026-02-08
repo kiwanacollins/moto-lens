@@ -67,7 +67,7 @@ void main() {
 
       expect(provider.isAuthenticated, isTrue);
       expect(provider.currentUser, isNotNull);
-      expect(provider.currentUser!.email, 'mechanic@motolens.com');
+      expect(provider.currentUser!.email, 'mechanic@germancarmedic.com');
     });
 
     test(
@@ -109,13 +109,13 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.login(
-        email: 'mechanic@motolens.com',
+        email: 'mechanic@germancarmedic.com',
         password: 'SecurePw123',
       );
 
       expect(result, isTrue);
       expect(provider.isAuthenticated, isTrue);
-      expect(provider.currentUser!.email, 'mechanic@motolens.com');
+      expect(provider.currentUser!.email, 'mechanic@germancarmedic.com');
       expect(provider.hasError, isFalse);
     });
 
@@ -136,7 +136,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.login(
-        email: 'mechanic@motolens.com',
+        email: 'mechanic@germancarmedic.com',
         password: '',
       );
 
@@ -154,7 +154,7 @@ void main() {
         provider = await createProvider();
 
         final result = await provider.login(
-          email: 'mechanic@motolens.com',
+          email: 'mechanic@germancarmedic.com',
           password: 'WrongPassword1',
         );
 
@@ -172,7 +172,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.login(
-        email: 'mechanic@motolens.com',
+        email: 'mechanic@germancarmedic.com',
         password: 'SecurePw123',
       );
 
@@ -190,7 +190,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.login(
-        email: 'mechanic@motolens.com',
+        email: 'mechanic@germancarmedic.com',
         password: 'SecurePw123',
       );
 
@@ -212,7 +212,7 @@ void main() {
       });
 
       await provider.login(
-        email: 'mechanic@motolens.com',
+        email: 'mechanic@germancarmedic.com',
         password: 'SecurePw123',
       );
 
@@ -230,7 +230,7 @@ void main() {
     test('successful registration updates state to authenticated', () async {
       final authResponse = TestData.createAuthResponse(
         user: TestData.createUser(
-          email: 'new.user@motolens.com',
+          email: 'new.user@germancarmedic.com',
           firstName: 'Anna',
           lastName: 'Schmidt',
         ),
@@ -240,7 +240,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.register(
-        email: 'new.user@motolens.com',
+        email: 'new.user@germancarmedic.com',
         password: 'SecurePw123',
         confirmPassword: 'SecurePw123',
         firstName: 'Anna',
@@ -257,7 +257,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.register(
-        email: 'new.user@motolens.com',
+        email: 'new.user@germancarmedic.com',
         password: 'SecurePw123',
         confirmPassword: 'SecurePw123',
         firstName: 'Anna',
@@ -273,7 +273,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.register(
-        email: 'new.user@motolens.com',
+        email: 'new.user@germancarmedic.com',
         password: 'SecurePw123',
         confirmPassword: 'DifferentPw456',
         firstName: 'Anna',
@@ -289,7 +289,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.register(
-        email: 'new.user@motolens.com',
+        email: 'new.user@germancarmedic.com',
         password: 'weak',
         confirmPassword: 'weak',
         firstName: 'Anna',
@@ -311,7 +311,7 @@ void main() {
         provider = await createProvider();
 
         final result = await provider.register(
-          email: 'existing@motolens.com',
+          email: 'existing@germancarmedic.com',
           password: 'SecurePw123',
           confirmPassword: 'SecurePw123',
           firstName: 'Anna',
@@ -328,7 +328,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.register(
-        email: 'new.user@motolens.com',
+        email: 'new.user@germancarmedic.com',
         password: 'SecurePw123',
         confirmPassword: 'SecurePw123',
         firstName: 'A',
@@ -394,7 +394,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.requestPasswordReset(
-        'mechanic@motolens.com',
+        'mechanic@germancarmedic.com',
       );
 
       expect(result, isTrue);
@@ -418,7 +418,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.requestPasswordReset(
-        'mechanic@motolens.com',
+        'mechanic@germancarmedic.com',
       );
 
       expect(result, isFalse);
@@ -484,7 +484,7 @@ void main() {
 
       provider = await createProvider();
       await provider.login(
-        email: 'mechanic@motolens.com',
+        email: 'mechanic@germancarmedic.com',
         password: 'Wrong1234',
       );
 
@@ -552,7 +552,7 @@ void main() {
       provider = await createProvider();
 
       final result = await provider.login(
-        email: 'mechanic@motolens.com',
+        email: 'mechanic@germancarmedic.com',
         password: 'SecurePw123',
       );
 
@@ -579,7 +579,7 @@ void main() {
         provider = await createProvider();
 
         final result = await provider.requestPasswordReset(
-          'mechanic@motolens.com',
+          'mechanic@germancarmedic.com',
         );
 
         expect(result, isFalse);

@@ -2,7 +2,7 @@
  * Camera Component for Part Scanning
  *
  * Provides camera capture functionality for analyzing spare parts
- * with professional MotoLens design
+ * with professional German Car Medic design
  *
  * Mobile-optimized for direct camera access on phones
  */

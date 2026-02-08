@@ -1,5 +1,5 @@
 name: moto_lens_mobile
-description: "MotoLens Mobile - Professional VIN decoding and automotive parts identification for German vehicles"
+description: "German Car Medic - Professional VIN decoding and automotive parts identification for German vehicles"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev

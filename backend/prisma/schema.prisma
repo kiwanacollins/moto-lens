@@ -1,4 +1,4 @@
-// This is your Prisma schema file for MotoLens
+// This is your Prisma schema file for German Car Medic
 // Documentation: https://pris.ly/d/prisma-schema
 
 generator client {

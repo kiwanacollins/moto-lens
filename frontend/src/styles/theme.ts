@@ -2,7 +2,7 @@ import { createTheme } from '@mantine/core';
 import type { MantineColorsTuple } from '@mantine/core';
 
 /**
- * MotoLens Design System - Professional Mobile-First PWA Theme
+ * German Car Medic Design System - Professional Mobile-First PWA Theme
  *
  * Core Brand Colors:
  * - Electric Blue (#0ea5e9) - Primary actions, CTAs, interactive elements

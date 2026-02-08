@@ -138,7 +138,7 @@ export function SparePartsDemo() {
             Spare Parts Components Demo
           </Title>
           <Text ff="Inter" size="md" c="#52525b">
-            Professional arrow/diagram aesthetic with MotoLens branding
+            Professional arrow/diagram aesthetic with German Car Medic branding
           </Text>
         </div>
 

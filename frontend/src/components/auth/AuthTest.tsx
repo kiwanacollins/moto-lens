@@ -62,7 +62,7 @@ export function AuthTest() {
             Authentication Test
           </Title>
           <Text c="dark.6" size="sm" ff="Inter" mt="xs">
-            Testing MotoLens dummy authentication system
+            Testing German Car Medic dummy authentication system
           </Text>
         </div>
 
@@ -185,7 +185,7 @@ export function AuthTest() {
                 localStorage Key:
               </Text>
               <Text c="zinc.2" size="xs" ff="JetBrains Mono">
-                motolens_auth
+                germancarmedic_auth
               </Text>
             </Group>
             <Group gap="xs">

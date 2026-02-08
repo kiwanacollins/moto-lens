@@ -31,7 +31,7 @@ class _ResponsiveTestWidget extends StatelessWidget {
           color: const Color(0xFF0A0A0A), // Carbon Black
           alignment: Alignment.center,
           child: Text(
-            'MotoLens',
+            'German Car Medic',
             key: const Key('app_title'),
             style: TextStyle(
               color: Colors.white,

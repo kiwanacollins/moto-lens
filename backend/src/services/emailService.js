@@ -1,5 +1,5 @@
 /**
- * Email Service for MotoLens Authentication
+ * Email Service for German Car Medic Authentication
  *
  * Provides email functionality using Nodemailer with Gmail SMTP.
  *
@@ -7,7 +7,7 @@
  * - Email verification emails
  * - Password reset emails
  * - Account notification emails
- * - Professional HTML templates with MotoLens branding
+ * - Professional HTML templates with German Car Medic branding
  * - Delivery tracking and error handling
  */
 
@@ -52,11 +52,11 @@ class EmailService {
       const transporter = this.createTransporter();
 
       const info = await transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'MotoLens <noreply@motolens.com>',
+        from: process.env.EMAIL_FROM || 'German Car Medic <noreply@germancarmedic.com>',
         to: user.email,
-        subject: 'Verify Your MotoLens Account',
+        subject: 'Verify Your German Car Medic Account',
         html,
-        text: `Welcome to MotoLens! Please verify your email by visiting: ${verificationUrl}`
+        text: `Your German Car Medic account is almost ready. Please verify your email by visiting: ${verificationUrl}`
       });
 
       // Log email delivery
@@ -108,9 +108,9 @@ class EmailService {
       const transporter = this.createTransporter();
 
       const info = await transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'MotoLens <noreply@motolens.com>',
+        from: process.env.EMAIL_FROM || 'German Car Medic <noreply@germancarmedic.com>',
         to: user.email,
-        subject: 'Reset Your MotoLens Password',
+        subject: 'Reset Your German Car Medic Password',
         html,
         text: `You requested a password reset. Click here to reset: ${resetUrl}`
       });
@@ -161,9 +161,9 @@ class EmailService {
       const transporter = this.createTransporter();
 
       const info = await transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'MotoLens <noreply@motolens.com>',
+        from: process.env.EMAIL_FROM || 'German Car Medic <noreply@germancarmedic.com>',
         to: user.email,
-        subject: 'Your MotoLens Password Was Changed',
+        subject: 'Your German Car Medic Password Was Changed',
         html,
         text: `Your password was recently changed. If you didn't make this change, contact support immediately.`
       });
@@ -221,9 +221,9 @@ class EmailService {
       const transporter = this.createTransporter();
 
       const info = await transporter.sendMail({
-        from: process.env.EMAIL_FROM || 'MotoLens <noreply@motolens.com>',
+        from: process.env.EMAIL_FROM || 'German Car Medic <noreply@germancarmedic.com>',
         to: user.email,
-        subject: 'New Login to Your MotoLens Account',
+        subject: 'New Login to Your German Car Medic Account',
         html,
         text: `A new login was detected on your account from ${deviceInfo.ipAddress || 'unknown IP'}.`
       });
@@ -262,7 +262,7 @@ class EmailService {
   }
 
   /**
-   * Generate HTML email template with MotoLens branding
+   * Generate HTML email template with German Car Medic branding
    * @param {string} type - Template type (verification, passwordReset, etc.)
    * @param {Object} data - Template data
    * @returns {string} HTML email template
@@ -339,13 +339,13 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1 class="logo">🔧 MotoLens</h1>
-            <p>Vehicle Intelligence for Mechanics</p>
+            <h1 class="logo">🔧 German Car Medic</h1>
+            <p>Your Diagnostic Assistant</p>
           </div>
           <div class="content">
-            <h2>Welcome to MotoLens, ${data.userName}!</h2>
-            <p>Thanks for signing up! We're excited to have you on board.</p>
-            <p>To get started, please verify your email address by clicking the button below:</p>
+            <h2>Welcome, ${data.userName}!</h2>
+            <p>Your German Car Medic account is almost ready.</p>
+            <p>Please verify your email address by clicking the button below to get started:</p>
             <center>
               <a href="${data.verificationUrl}" class="button">Verify Email Address</a>
             </center>
@@ -353,16 +353,16 @@ class EmailService {
               <strong>Why verify?</strong>
               <ul>
                 <li>Secure your account</li>
-                <li>Unlock all features</li>
+                <li>Access all diagnostic features</li>
                 <li>Receive important updates</li>
               </ul>
             </div>
             <p>This link will expire in ${data.expiryHours} hours.</p>
-            <p>If you didn't create a MotoLens account, you can safely ignore this email.</p>
+            <p>If you didn't create this account, you can safely ignore this email.</p>
           </div>
           <div class="footer">
-            <p>© 2026 MotoLens. All rights reserved.</p>
-            <p>You're receiving this because you signed up for MotoLens.</p>
+            <p>© 2026 German Car Medic. All rights reserved.</p>
+            <p>You're receiving this because you signed up for German Car Medic.</p>
           </div>
         </body>
         </html>
@@ -378,13 +378,13 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1 class="logo">🔧 MotoLens</h1>
-            <p>Vehicle Intelligence for Mechanics</p>
+            <h1 class="logo">🔧 German Car Medic</h1>
+            <p>Your Diagnostic Assistant</p>
           </div>
           <div class="content">
             <h2>Reset Your Password</h2>
             <p>Hi ${data.userName},</p>
-            <p>We received a request to reset your MotoLens password. Click the button below to create a new password:</p>
+            <p>A request was made to reset your password. Click the button below to create a new one:</p>
             <center>
               <a href="${data.resetUrl}" class="button">Reset Password</a>
             </center>
@@ -396,7 +396,7 @@ class EmailService {
             <p><strong>Didn't request this?</strong> Your account is still secure. Someone may have entered your email by mistake.</p>
           </div>
           <div class="footer">
-            <p>© 2026 MotoLens. All rights reserved.</p>
+            <p>© 2026 German Car Medic. All rights reserved.</p>
             <p>Never share your password or reset link with anyone.</p>
           </div>
         </body>
@@ -413,13 +413,13 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1 class="logo">🔧 MotoLens</h1>
-            <p>Vehicle Intelligence for Mechanics</p>
+            <h1 class="logo">🔧 German Car Medic</h1>
+            <p>Your Diagnostic Assistant</p>
           </div>
           <div class="content">
             <h2>Your Password Was Changed</h2>
             <p>Hi ${data.userName},</p>
-            <p>This is a confirmation that your MotoLens password was successfully changed on ${data.changeDate}.</p>
+            <p>Your password was successfully changed on ${data.changeDate}.</p>
             <div class="info">
               <strong>✅ Your account is secure</strong>
               <p>If you made this change, no further action is needed.</p>
@@ -439,7 +439,7 @@ class EmailService {
             </div>
           </div>
           <div class="footer">
-            <p>© 2026 MotoLens. All rights reserved.</p>
+            <p>© 2026 German Car Medic. All rights reserved.</p>
             <p>This is an automated security notification.</p>
           </div>
         </body>
@@ -456,13 +456,13 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1 class="logo">🔧 MotoLens</h1>
-            <p>Vehicle Intelligence for Mechanics</p>
+            <h1 class="logo">🔧 German Car Medic</h1>
+            <p>Your Diagnostic Assistant</p>
           </div>
           <div class="content">
             <h2>New Login Detected</h2>
             <p>Hi ${data.userName},</p>
-            <p>We detected a new login to your MotoLens account. Here are the details:</p>
+            <p>A new login to your account was detected. Here are the details:</p>
             <div class="info">
               <strong>Login Information</strong>
               <ul>
@@ -485,7 +485,7 @@ class EmailService {
             </div>
           </div>
           <div class="footer">
-            <p>© 2026 MotoLens. All rights reserved.</p>
+            <p>© 2026 German Car Medic. All rights reserved.</p>
             <p>This is an automated security notification.</p>
           </div>
         </body>

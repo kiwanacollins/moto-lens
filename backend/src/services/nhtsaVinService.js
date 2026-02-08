@@ -26,7 +26,7 @@ export async function decodeVIN(vin) {
         const response = await axios.get(`${NHTSA_API_BASE}/decodevin/${vin}?format=json`, {
             timeout: 8000, // 8 second timeout (reduced from 10)
             headers: {
-                'User-Agent': 'MotoLens/1.0.0 (Garage Management Tool)',
+                'User-Agent': 'GermanCarMedic/1.0.0 (Garage Management Tool)',
             },
         });
 

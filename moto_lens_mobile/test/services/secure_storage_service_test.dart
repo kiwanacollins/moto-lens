@@ -66,7 +66,7 @@ void main() {
         // Create test data
         final user = User(
           id: 'test_user_123',
-          email: 'test@motolens.com',
+          email: 'test@germancarmedic.com',
           firstName: 'John',
           lastName: 'Doe',
           role: UserRole.mechanic,
@@ -96,7 +96,7 @@ void main() {
         expect(accessToken, equals('test_access_token_123'));
         expect(refreshToken, equals('test_refresh_token_456'));
         expect(userId, equals('test_user_123'));
-        expect(userEmail, equals('test@motolens.com'));
+        expect(userEmail, equals('test@germancarmedic.com'));
       });
 
       test('should save and retrieve individual tokens', () async {
@@ -200,7 +200,7 @@ void main() {
         // First save some tokens
         final user = User(
           id: 'delete_test_user',
-          email: 'delete@motolens.com',
+          email: 'delete@germancarmedic.com',
           firstName: 'Jane',
           lastName: 'Smith',
           role: UserRole.customer,
@@ -284,7 +284,7 @@ void main() {
         // Save test data
         final user = User(
           id: 'export_test_user',
-          email: 'export@motolens.com',
+          email: 'export@germancarmedic.com',
           firstName: 'Export',
           lastName: 'User',
           role: UserRole.admin,
@@ -308,7 +308,7 @@ void main() {
         final exportedData = await secureStorage.exportNonSensitiveData();
 
         expect(exportedData['userId'], equals('export_test_user'));
-        expect(exportedData['userEmail'], equals('export@motolens.com'));
+        expect(exportedData['userEmail'], equals('export@germancarmedic.com'));
         expect(exportedData['biometricEnabled'], equals('true'));
         expect(exportedData['hasTokens'], equals('true'));
         expect(exportedData['tokenExpiry'], isNotNull);

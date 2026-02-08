@@ -17,10 +17,10 @@ async function main() {
 
     // Create Admin User
     const admin = await prisma.user.upsert({
-        where: { email: 'admin@motolens.com' },
+        where: { email: 'admin@germancarmedic.com' },
         update: {},
         create: {
-            email: 'admin@motolens.com',
+            email: 'admin@germancarmedic.com',
             username: 'admin',
             passwordHash: adminPasswordHash,
             firstName: 'Admin',
@@ -51,10 +51,10 @@ async function main() {
 
     // Create Test Mechanic User
     const mechanic = await prisma.user.upsert({
-        where: { email: 'mechanic@motolens.com' },
+        where: { email: 'mechanic@germancarmedic.com' },
         update: {},
         create: {
-            email: 'mechanic@motolens.com',
+            email: 'mechanic@germancarmedic.com',
             username: 'mechanic',
             passwordHash: mechanicPasswordHash,
             firstName: 'Test',
@@ -128,12 +128,12 @@ async function main() {
     console.log('📝 Test Credentials:');
     console.log('─'.repeat(50));
     console.log('Admin User:');
-    console.log('  Email: admin@motolens.com');
+    console.log('  Email: admin@germancarmedic.com');
     console.log('  Username: admin');
     console.log('  Password: Admin123');
     console.log('─'.repeat(50));
     console.log('Mechanic User:');
-    console.log('  Email: mechanic@motolens.com');
+    console.log('  Email: mechanic@germancarmedic.com');
     console.log('  Username: mechanic');
     console.log('  Password: Test123');
     console.log('─'.repeat(50));

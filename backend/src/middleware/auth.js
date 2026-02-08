@@ -1,5 +1,5 @@
 /**
- * Authentication Middleware for MotoLens API
+ * Authentication Middleware for German Car Medic API
  *
  * Provides JWT-based authentication and authorization middleware
  * for protecting API routes.

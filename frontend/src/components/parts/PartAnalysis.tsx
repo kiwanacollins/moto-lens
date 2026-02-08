@@ -2,7 +2,7 @@
  * Part Analysis Display Component
  *
  * Shows the results of Gemini vision analysis for spare parts
- * with professional MotoLens styling
+ * with professional German Car Medic styling
  */
 
 import { useState, useRef, useEffect } from 'react';

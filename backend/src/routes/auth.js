@@ -1,5 +1,5 @@
 /**
- * Authentication Routes for MotoLens API
+ * Authentication Routes for German Car Medic API
  *
  * Complete authentication system with registration, login, password management,
  * email verification, and session management.

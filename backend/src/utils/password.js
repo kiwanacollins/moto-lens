@@ -1,5 +1,5 @@
 /**
- * Password Security Utilities for MotoLens Authentication
+ * Password Security Utilities for German Car Medic Authentication
  *
  * Provides secure password hashing, verification, and validation
  * for the authentication system.

@@ -1,5 +1,5 @@
 /**
- * Security Middleware for MotoLens API
+ * Security Middleware for German Car Medic API
  *
  * Comprehensive security middleware including:
  * - Helmet.js security headers
@@ -91,9 +91,9 @@ export const productionCorsOptions = {
         const allowedOrigins = [
             process.env.FRONTEND_URL,
             process.env.MOBILE_APP_URL,
-            'https://motolens.com',
-            'https://www.motolens.com',
-            'https://app.motolens.com',
+            'https://germancarmedic.com',
+            'https://www.germancarmedic.com',
+            'https://app.germancarmedic.com',
         ].filter(Boolean);
 
         // Allow requests with no origin (mobile apps, Postman, etc.)

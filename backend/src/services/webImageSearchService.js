@@ -77,7 +77,7 @@ export async function searchVehicleImages(vehicleData) {
             console.log('📸 First thumbnail URL:', results[0].thumbnail);
         }
 
-        // Process results into MotoLens format - limit to 5 images for speed
+        // Process results into German Car Medic format - limit to 5 images for speed
         const images = results.slice(0, 5).map((result, index) => ({
             angle: getAngle(index),
             imageUrl: result.original || result.link,

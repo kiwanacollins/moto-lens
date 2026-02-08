@@ -73,7 +73,7 @@ export async function decodeVIN(vin) {
         const response = await axios.get(apiUrl, {
             timeout: 15000, // 15 second timeout
             headers: {
-                'User-Agent': 'MotoLens/1.0.0 (Professional Vehicle Diagnostics Tool)',
+                'User-Agent': 'GermanCarMedic/1.0.0 (Professional Vehicle Diagnostics Tool)',
                 'Accept': 'application/json',
                 'Cache-Control': 'no-cache'
             },

@@ -21,7 +21,7 @@ void main() {
       final user = User.fromJson(json);
 
       expect(user.id, 'user_123');
-      expect(user.email, 'mechanic@motolens.com');
+      expect(user.email, 'mechanic@germancarmedic.com');
       expect(user.firstName, 'Max');
       expect(user.lastName, 'Mueller');
       expect(user.role, UserRole.mechanic);
@@ -235,7 +235,7 @@ void main() {
 
       expect(response.accessToken, 'test_access_token_abc123');
       expect(response.refreshToken, 'test_refresh_token_xyz456');
-      expect(response.user.email, 'mechanic@motolens.com');
+      expect(response.user.email, 'mechanic@germancarmedic.com');
       expect(response.message, 'Login successful');
     });
 
@@ -315,10 +315,10 @@ void main() {
 
     test('toJson lowercases and trims email', () {
       final request = TestData.createLoginRequest(
-        email: '  Test@MotoLens.com  ',
+        email: '  Test@GermanCarMedic.com  ',
       );
       final json = request.toJson();
-      expect(json['email'], 'test@motolens.com');
+      expect(json['email'], 'test@germancarmedic.com');
     });
   });
 
@@ -362,10 +362,10 @@ void main() {
 
     test('toJson lowercases and trims email', () {
       final request = TestData.createRegisterRequest(
-        email: '  New.User@MotoLens.com  ',
+        email: '  New.User@GermanCarMedic.com  ',
       );
       final json = request.toJson();
-      expect(json['email'], 'new.user@motolens.com');
+      expect(json['email'], 'new.user@germancarmedic.com');
     });
   });
 

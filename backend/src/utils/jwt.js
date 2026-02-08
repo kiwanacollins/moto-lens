@@ -1,5 +1,5 @@
 /**
- * JWT Utilities for MotoLens Authentication
+ * JWT Utilities for German Car Medic Authentication
  *
  * Provides secure token generation, verification, and management
  * for the authentication system.
@@ -39,8 +39,8 @@ class JWTUtil {
       process.env.JWT_SECRET,
       {
         expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY || '15m',
-        issuer: 'motolens-api',
-        audience: 'motolens-app'
+        issuer: 'germancarmedic-api',
+        audience: 'germancarmedic-app'
       }
     );
   }
@@ -64,8 +64,8 @@ class JWTUtil {
       process.env.JWT_REFRESH_SECRET,
       {
         expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRY || '7d',
-        issuer: 'motolens-api',
-        audience: 'motolens-app'
+        issuer: 'germancarmedic-api',
+        audience: 'germancarmedic-app'
       }
     );
   }
@@ -90,8 +90,8 @@ class JWTUtil {
 
       // Verify token signature and expiration
       const decoded = jwt.verify(token, process.env.JWT_SECRET, {
-        issuer: 'motolens-api',
-        audience: 'motolens-app'
+        issuer: 'germancarmedic-api',
+        audience: 'germancarmedic-app'
       });
 
       // Verify token type
@@ -131,8 +131,8 @@ class JWTUtil {
 
       // Verify token signature and expiration
       const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET, {
-        issuer: 'motolens-api',
-        audience: 'motolens-app'
+        issuer: 'germancarmedic-api',
+        audience: 'germancarmedic-app'
       });
 
       // Verify token type

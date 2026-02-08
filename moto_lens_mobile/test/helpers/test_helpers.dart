@@ -60,7 +60,7 @@ class TestData {
   /// Create a test [User] with sensible defaults.
   static User createUser({
     String id = 'user_123',
-    String email = 'mechanic@motolens.com',
+    String email = 'mechanic@germancarmedic.com',
     String firstName = 'Max',
     String lastName = 'Mueller',
     UserRole role = UserRole.mechanic,
@@ -103,7 +103,7 @@ class TestData {
 
   /// Create a test [LoginRequest].
   static LoginRequest createLoginRequest({
-    String email = 'mechanic@motolens.com',
+    String email = 'mechanic@germancarmedic.com',
     String password = 'SecurePw123',
     bool rememberMe = false,
   }) {
@@ -116,7 +116,7 @@ class TestData {
 
   /// Create a test [RegisterRequest].
   static RegisterRequest createRegisterRequest({
-    String email = 'new.user@motolens.com',
+    String email = 'new.user@germancarmedic.com',
     String password = 'SecurePw123',
     String confirmPassword = 'SecurePw123',
     String firstName = 'Anna',
@@ -220,7 +220,7 @@ class TestData {
   /// Valid JSON payload for a User (as returned by the backend).
   static Map<String, dynamic> userJson({
     String id = 'user_123',
-    String email = 'mechanic@motolens.com',
+    String email = 'mechanic@germancarmedic.com',
   }) {
     return {
       'id': id,

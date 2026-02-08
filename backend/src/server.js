@@ -147,7 +147,7 @@ app.use('/api/vehicle', vinDecodeRateLimit);
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'ok',
-        message: 'MotoLens API is running',
+        message: 'German Car Medic API is running',
         timestamp: new Date().toISOString(),
     });
 });
@@ -1108,7 +1108,7 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`🚗 MotoLens API running on http://localhost:${PORT}`);
+    console.log(`🚗 German Car Medic API running on http://localhost:${PORT}`);
     console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
     console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
 });

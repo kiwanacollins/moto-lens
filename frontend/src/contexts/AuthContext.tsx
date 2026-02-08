@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
 /**
- * MotoLens Authentication Context
+ * German Car Medic Authentication Context
  *
  * Dummy authentication system for MVP
  * Hardcoded credentials: admin/admin
@@ -11,7 +11,7 @@ import type { ReactNode } from 'react';
  */
 
 // LocalStorage key for auth state persistence
-const AUTH_STORAGE_KEY = 'motolens_auth';
+const AUTH_STORAGE_KEY = 'germancarmedic_auth';
 
 // Hardcoded credentials for MVP (DO NOT use in production)
 const VALID_CREDENTIALS = {
