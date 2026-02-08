@@ -147,11 +147,17 @@ class _RegisterScreenState extends State<RegisterScreen>
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.electricBlue,
             ),
-            child: const Text('Continue'),
+            child: const Text('Go to Sign In'),
           ),
         ],
       ),
     );
+
+    // Log out and redirect to login so the user signs in after verifying
+    if (mounted) {
+      await context.logout();
+      _navigateToLogin();
+    }
   }
 
   /// Navigate to next step
