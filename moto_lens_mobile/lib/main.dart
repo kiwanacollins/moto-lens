@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'config/environment.dart';
 import 'styles/styles.dart';
@@ -275,23 +276,16 @@ class MainApp extends StatelessWidget {
                   Container(
                     width: 100,
                     height: 100,
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.electricBlue,
+                      color: AppColors.electricBlue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(
                         AppSpacing.radiusLarge,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.electricBlue.withValues(alpha: 0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
                     ),
-                    child: const Icon(
-                      Icons.directions_car,
-                      size: 50,
-                      color: Colors.white,
+                    child: SvgPicture.asset(
+                      'assets/logo.svg',
+                      fit: BoxFit.contain,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
@@ -314,7 +308,7 @@ class MainApp extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xl),
 
-                  // VIN Scanner — primary action card
+                  // VIN Scanner card
                   _buildFeatureCard(
                     context,
                     icon: Icons.search,
@@ -332,6 +326,7 @@ class MainApp extends StatelessWidget {
                     title: 'AI Assistant',
                     subtitle: 'Get intelligent vehicle diagnostics help',
                     onTap: () => Navigator.pushNamed(context, '/ai-assistant'),
+                    isPrimary: true,
                   ),
                   const SizedBox(height: AppSpacing.md),
 
@@ -342,6 +337,7 @@ class MainApp extends StatelessWidget {
                     title: 'Barcode Scanner',
                     subtitle: 'Scan parts and component barcodes',
                     onTap: () => Navigator.pushNamed(context, '/qr-scanner'),
+                    isPrimary: true,
                   ),
                 ],
               ),
@@ -360,39 +356,39 @@ class MainApp extends StatelessWidget {
     required VoidCallback onTap,
     bool isPrimary = false,
   }) {
+    // Use a lighter, more subtle blue for all cards
+    final cardColor = AppColors.electricBlue.withValues(alpha: 0.12);
+    
     return Material(
-      color: isPrimary ? AppColors.electricBlue : AppColors.surface,
+      color: cardColor,
       borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-      elevation: isPrimary ? 4 : 1,
-      shadowColor: isPrimary
-          ? AppColors.electricBlue.withValues(alpha: 0.3)
-          : AppColors.carbonBlack.withValues(alpha: 0.1),
+      elevation: 1,
+      shadowColor: AppColors.electricBlue.withValues(alpha: 0.1),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: isPrimary
-              ? null
-              : BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-                  border: Border.all(color: AppColors.border),
-                ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+            border: Border.all(
+              color: AppColors.electricBlue.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
           child: Row(
             children: [
               Container(
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: isPrimary
-                      ? Colors.white.withValues(alpha: 0.2)
-                      : AppColors.electricBlue.withValues(alpha: 0.1),
+                  color: AppColors.electricBlue.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
                 ),
                 child: Icon(
                   icon,
-                  color: isPrimary ? Colors.white : AppColors.electricBlue,
+                  color: AppColors.electricBlue,
                   size: 28,
                 ),
               ),
@@ -404,7 +400,7 @@ class MainApp extends StatelessWidget {
                     Text(
                       title,
                       style: AppTypography.h5.copyWith(
-                        color: isPrimary ? Colors.white : AppColors.textPrimary,
+                        color: AppColors.textPrimary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -412,9 +408,7 @@ class MainApp extends StatelessWidget {
                     Text(
                       subtitle,
                       style: AppTypography.bodySmall.copyWith(
-                        color: isPrimary
-                            ? Colors.white.withValues(alpha: 0.8)
-                            : AppColors.textSecondary,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -423,9 +417,7 @@ class MainApp extends StatelessWidget {
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: isPrimary
-                    ? Colors.white.withValues(alpha: 0.7)
-                    : AppColors.textSecondary,
+                color: AppColors.electricBlue.withValues(alpha: 0.6),
               ),
             ],
           ),
