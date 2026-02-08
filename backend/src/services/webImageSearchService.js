@@ -28,7 +28,7 @@ export async function searchVehicleImages(vehicleData) {
     // Check cache first (instant response if cached)
     // TEMPORARILY DISABLED: Force fresh image searches
     const cached = null; // searchCache.get(cacheKey);
-    
+
     /* Original cache logic (re-enable later)
     const cached = searchCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
