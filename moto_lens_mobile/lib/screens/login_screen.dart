@@ -292,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
               TextSpan(
                 text: 'CAR MEDIC',
                 style: GoogleFonts.anton(
-                  color: AppColors.electricBlue,
+                  color: AppColors.logoBlue,
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),

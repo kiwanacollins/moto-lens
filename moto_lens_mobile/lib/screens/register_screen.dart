@@ -228,7 +228,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               TextSpan(
                 text: 'CAR MEDIC',
                 style: GoogleFonts.anton(
-                  color: AppColors.electricBlue,
+                  color: AppColors.logoBlue,
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),

@@ -241,7 +241,7 @@ class _SplashScreenState extends State<SplashScreen>
               TextSpan(
                 text: 'CAR MEDIC',
                 style: GoogleFonts.anton(
-                  color: AppColors.electricBlue,
+                  color: AppColors.logoBlue,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                   letterSpacing: -1,

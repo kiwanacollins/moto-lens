@@ -10,13 +10,17 @@ class AppColors {
 
   /// ==================== BRAND CORE COLORS ====================
 
-  /// Navy Blue (#3c558f) - Primary brand color (from logo)
+  /// Electric Blue (#19A7CE) - Primary brand color (from logo)
   /// Used for: CTAs, primary buttons, interactive elements, highlights
-  static const Color electricBlue = Color(0xFF3C558F);
+  static const Color electricBlue = Color(0xFF19A7CE);
 
   /// Racing Red (#d82f37) - Accent brand color (from logo)
   /// Used for: Secondary CTAs, highlights, status indicators, accents
   static const Color racingRed = Color(0xFFD82F37);
+
+  /// Logo Blue (#3C558F) - Logo text color
+  /// Used for: "CAR MEDIC" text in logo to match logo design
+  static const Color logoBlue = Color(0xFF3C558F);
 
   /// Auth Button Gray (#393E46) - Authentication button background
   /// Used for: Login, register, signin buttons
