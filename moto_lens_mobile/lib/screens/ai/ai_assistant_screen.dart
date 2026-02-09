@@ -17,7 +17,7 @@ class AiAssistantScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.electricBlue,
+        backgroundColor: AppColors.headerBar,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
