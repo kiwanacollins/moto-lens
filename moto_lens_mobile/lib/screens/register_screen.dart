@@ -206,7 +206,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
         ),
 
-        const SizedBox(height: 5),
+        const SizedBox(height: 2),
 
         // App Name
         RichText(

@@ -189,7 +189,7 @@ class _SplashScreenState extends State<SplashScreen>
                   // Logo Section
                   _buildLogo(),
 
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 2),
 
                   // Tagline
                   _buildTagline(),
