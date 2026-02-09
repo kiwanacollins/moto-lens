@@ -76,8 +76,9 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         images = [];
       }
 
-      final validImages =
-          images.where((i) => i.success && i.imageUrl.isNotEmpty).toList();
+      final validImages = images
+          .where((i) => i.success && i.imageUrl.isNotEmpty)
+          .toList();
 
       if (mounted && validImages.isNotEmpty) {
         setState(() {
@@ -192,10 +193,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                           widget.vehicle.powerKw!,
                         ),
                       if (widget.vehicle.power != null)
-                        _SectionRow(
-                          'Engine Power (HP)',
-                          widget.vehicle.power!,
-                        ),
+                        _SectionRow('Engine Power (HP)', widget.vehicle.power!),
                       if (widget.vehicle.cylinders != null)
                         _SectionRow('Cylinders', widget.vehicle.cylinders!),
                       if (widget.vehicle.fuelType != null)
@@ -204,17 +202,11 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                           widget.vehicle.fuelType!,
                         ),
                       if (widget.vehicle.engineCode != null)
-                        _SectionRow(
-                          'Engine Code',
-                          widget.vehicle.engineCode!,
-                        ),
+                        _SectionRow('Engine Code', widget.vehicle.engineCode!),
                       if (widget.vehicle.engineType != null)
                         _SectionRow('Engine', widget.vehicle.engineType!),
                       if (widget.vehicle.engineHead != null)
-                        _SectionRow(
-                          'Engine Head',
-                          widget.vehicle.engineHead!,
-                        ),
+                        _SectionRow('Engine Head', widget.vehicle.engineHead!),
                       if (widget.vehicle.engineValves != null)
                         _SectionRow(
                           'Engine Valves',
@@ -234,20 +226,11 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                     title: 'Dimensions & Weight',
                     rows: [
                       if (widget.vehicle.length != null)
-                        _SectionRow(
-                          'Length',
-                          '${widget.vehicle.length} mm',
-                        ),
+                        _SectionRow('Length', '${widget.vehicle.length} mm'),
                       if (widget.vehicle.width != null)
-                        _SectionRow(
-                          'Width',
-                          '${widget.vehicle.width} mm',
-                        ),
+                        _SectionRow('Width', '${widget.vehicle.width} mm'),
                       if (widget.vehicle.height != null)
-                        _SectionRow(
-                          'Height',
-                          '${widget.vehicle.height} mm',
-                        ),
+                        _SectionRow('Height', '${widget.vehicle.height} mm'),
                       if (widget.vehicle.wheelbase != null)
                         _SectionRow(
                           'Wheelbase',
@@ -264,10 +247,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                           '${widget.vehicle.maxWeight} kg',
                         ),
                       if (widget.vehicle.wheelSize != null)
-                        _SectionRow(
-                          'Wheel Size',
-                          widget.vehicle.wheelSize!,
-                        ),
+                        _SectionRow('Wheel Size', widget.vehicle.wheelSize!),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.lg),
@@ -282,10 +262,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                           '${widget.vehicle.maxSpeed} km/h',
                         ),
                       if (widget.vehicle.torque != null)
-                        _SectionRow(
-                          'Torque',
-                          widget.vehicle.torque!,
-                        ),
+                        _SectionRow('Torque', widget.vehicle.torque!),
                       if (widget.vehicle.co2Emission != null)
                         _SectionRow(
                           'CO2 Emission',
@@ -315,10 +292,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                           widget.vehicle.manufacturerAddress!,
                         ),
                       if (widget.vehicle.plantCity != null)
-                        _SectionRow(
-                          'Plant City',
-                          widget.vehicle.plantCity!,
-                        ),
+                        _SectionRow('Plant City', widget.vehicle.plantCity!),
                       if (widget.vehicle.plantCountry != null ||
                           widget.vehicle.countryOfOrigin != null)
                         _SectionRow(
@@ -377,9 +351,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
       child: Container(
         width: double.infinity,
         height: 220,
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-        ),
+        decoration: const BoxDecoration(color: AppColors.surface),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -437,8 +409,9 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius:
-                          BorderRadius.circular(AppSpacing.radiusMedium),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusMedium,
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -581,9 +554,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
             ),
             child: Text(
               title,
-              style: AppTypography.h3.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTypography.h3.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
 
