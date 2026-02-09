@@ -283,7 +283,7 @@ class _VinScannerScreenState extends State<VinScannerScreen>
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: AppColors.electricBlue,
+        backgroundColor: AppColors.headerBar,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),

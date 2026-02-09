@@ -76,7 +76,7 @@ class _VehicleViewScreenState extends State<VehicleViewScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.carbonBlack,
+        backgroundColor: AppColors.headerBar,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),

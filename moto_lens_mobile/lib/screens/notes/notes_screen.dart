@@ -118,7 +118,7 @@ class _NotesScreenState extends State<NotesScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: AppColors.electricBlue,
+        backgroundColor: AppColors.headerBar,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -366,7 +366,7 @@ class _NoteEditorScreenState extends State<_NoteEditorScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: AppColors.electricBlue,
+        backgroundColor: AppColors.headerBar,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [

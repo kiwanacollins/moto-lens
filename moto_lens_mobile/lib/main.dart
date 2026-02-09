@@ -223,7 +223,7 @@ class MainApp extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            backgroundColor: AppColors.electricBlue,
+            backgroundColor: AppColors.headerBar,
             elevation: 0,
             actions: [
               IconButton(

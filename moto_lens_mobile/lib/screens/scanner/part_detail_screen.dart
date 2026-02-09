@@ -22,7 +22,7 @@ class PartDetailScreen extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: const Text('Part Details'),
-              backgroundColor: AppColors.electricBlue,
+              backgroundColor: AppColors.headerBar,
               foregroundColor: Colors.white,
             ),
             body: const Center(child: Text('No part data available.')),
@@ -176,7 +176,7 @@ class PartDetailScreen extends StatelessWidget {
     return SliverAppBar(
       expandedHeight: hasImage ? 260 : 0,
       pinned: true,
-      backgroundColor: AppColors.electricBlue,
+      backgroundColor: AppColors.headerBar,
       foregroundColor: Colors.white,
       title: Text(
         details.partName,
