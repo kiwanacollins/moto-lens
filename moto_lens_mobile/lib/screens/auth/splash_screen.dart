@@ -189,7 +189,7 @@ class _SplashScreenState extends State<SplashScreen>
                   // Logo Section
                   _buildLogo(),
 
-                  const SizedBox(height: AppSpacing.xl),
+                  const SizedBox(height: 5),
 
                   // Tagline
                   _buildTagline(),
@@ -214,10 +214,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   /// Build German Car Medic logo
   Widget _buildLogo() {
-    return Container(
-      width: 160,
+    return SizedBox(
+      width: 280, // Match title width
       height: 160,
-      padding: const EdgeInsets.all(AppSpacing.md),
       child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
     );
   }
@@ -227,14 +226,30 @@ class _SplashScreenState extends State<SplashScreen>
     return Column(
       children: [
         // Brand Name
-        Text(
-          'GERMAN CAR MEDIC',
-          style: GoogleFonts.anton(
-            color: Colors.white,
-            fontSize: 36,
-            fontWeight: FontWeight.bold,
-            letterSpacing: -1,
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'GERMAN ',
+                style: GoogleFonts.anton(
+                  color: AppColors.racingRed,
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -1,
+                ),
+              ),
+              TextSpan(
+                text: 'CAR MEDIC',
+                style: GoogleFonts.anton(
+                  color: AppColors.electricBlue,
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -1,
+                ),
+              ),
+            ],
           ),
+          textAlign: TextAlign.center,
         ),
 
         const SizedBox(height: AppSpacing.xs),

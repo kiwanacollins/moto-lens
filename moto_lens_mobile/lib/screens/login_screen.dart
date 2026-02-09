@@ -264,21 +264,35 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
     return Column(
       children: [
         // German Car Medic Logo
-        Container(
-          width: 140,
+        SizedBox(
+          width: 240, // Match title width
           height: 140,
           child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
         ),
 
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: 5),
 
         // App Name
-        Text(
-          'GERMAN CAR MEDIC',
-          style: GoogleFonts.anton(
-            fontWeight: FontWeight.bold,
-            color: AppColors.electricBlue,
-            fontSize: 32,
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: 'GERMAN ',
+                style: GoogleFonts.anton(
+                  color: AppColors.racingRed,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextSpan(
+                text: 'CAR MEDIC',
+                style: GoogleFonts.anton(
+                  color: AppColors.electricBlue,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
           textAlign: TextAlign.center,
         ),
