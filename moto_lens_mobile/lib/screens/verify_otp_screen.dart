@@ -204,7 +204,7 @@ class _VerifyOTPScreenState extends State<VerifyOTPScreen>
                 CustomButton(
                   text: _isLoading ? 'Resetting Password...' : 'Reset Password',
                   onPressed: _isLoading ? null : _handleResetPassword,
-                  variant: CustomButtonVariant.primary,
+                  variant: CustomButtonVariant.auth,
                   size: CustomButtonSize.large,
                   isFullWidth: true,
                   isLoading: _isLoading,

@@ -420,7 +420,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             CustomButton(
               text: 'Continue',
               onPressed: _nextStep,
-              variant: CustomButtonVariant.primary,
+              variant: CustomButtonVariant.auth,
               size: CustomButtonSize.large,
               isFullWidth: true,
               prefixIcon: Icons.arrow_forward,
@@ -429,7 +429,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             CustomButton(
               text: _isLoading ? 'Creating Account...' : 'Create Account',
               onPressed: _isLoading ? null : _handleRegister,
-              variant: CustomButtonVariant.primary,
+              variant: CustomButtonVariant.auth,
               size: CustomButtonSize.large,
               isFullWidth: true,
               isLoading: _isLoading,

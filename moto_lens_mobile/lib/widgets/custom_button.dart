@@ -153,6 +153,28 @@ class CustomButton extends StatelessWidget {
          suffixIcon: suffixIcon,
        );
 
+  /// Auth button constructor
+  const CustomButton.auth({
+    Key? key,
+    required String text,
+    required VoidCallback? onPressed,
+    CustomButtonSize size = CustomButtonSize.medium,
+    bool isFullWidth = false,
+    bool isLoading = false,
+    IconData? prefixIcon,
+    IconData? suffixIcon,
+  }) : this(
+         key: key,
+         text: text,
+         onPressed: onPressed,
+         variant: CustomButtonVariant.auth,
+         size: size,
+         isFullWidth: isFullWidth,
+         isLoading: isLoading,
+         prefixIcon: prefixIcon,
+         suffixIcon: suffixIcon,
+       );
+
   @override
   Widget build(BuildContext context) {
     final bool isDisabled = onPressed == null || isLoading;
@@ -229,6 +251,13 @@ class CustomButton extends StatelessWidget {
           style: _getDestructiveButtonStyle(context),
           child: buttonContent,
         );
+
+      case CustomButtonVariant.auth:
+        return ElevatedButton(
+          onPressed: isDisabled ? null : onPressed,
+          style: _getAuthButtonStyle(context),
+          child: buttonContent,
+        );
     }
   }
 
@@ -261,6 +290,7 @@ class CustomButton extends StatelessWidget {
     switch (variant) {
       case CustomButtonVariant.primary:
       case CustomButtonVariant.destructive:
+      case CustomButtonVariant.auth:
         return Colors.white;
       case CustomButtonVariant.secondary:
       case CustomButtonVariant.outline:
@@ -364,10 +394,34 @@ class CustomButton extends StatelessWidget {
       shadowColor: AppColors.error.withOpacity(0.3),
     );
   }
+
+  /// Button style for auth variant
+  ButtonStyle _getAuthButtonStyle(BuildContext context) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: AppColors.authButton,
+      foregroundColor: Colors.white,
+      disabledBackgroundColor: AppColors.zinc300,
+      disabledForegroundColor: AppColors.textDisabled,
+      textStyle: _getTextStyle(),
+      padding: _getPadding(),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+      ),
+      elevation: AppSpacing.elevationLow,
+      shadowColor: AppColors.authButton.withOpacity(0.3),
+    );
+  }
 }
 
 /// Button variant enum
-enum CustomButtonVariant { primary, secondary, outline, text, destructive }
+enum CustomButtonVariant {
+  primary,
+  secondary,
+  outline,
+  text,
+  destructive,
+  auth,
+}
 
 /// Button size enum
 enum CustomButtonSize { small, medium, large }

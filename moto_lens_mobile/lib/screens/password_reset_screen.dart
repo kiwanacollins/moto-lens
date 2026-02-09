@@ -209,7 +209,7 @@ class _PasswordResetScreenState extends State<PasswordResetScreen>
                 ? 'Sending Instructions...'
                 : 'Send Reset Instructions',
             onPressed: _isLoading ? null : _handlePasswordReset,
-            variant: CustomButtonVariant.primary,
+            variant: CustomButtonVariant.auth,
             size: CustomButtonSize.large,
             isFullWidth: true,
             isLoading: _isLoading,

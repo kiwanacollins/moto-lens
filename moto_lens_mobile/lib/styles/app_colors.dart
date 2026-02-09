@@ -18,6 +18,10 @@ class AppColors {
   /// Used for: Secondary CTAs, highlights, status indicators, accents
   static const Color racingRed = Color(0xFFD82F37);
 
+  /// Auth Button Gray (#393E46) - Authentication button background
+  /// Used for: Login, register, signin buttons
+  static const Color authButton = Color(0xFF393E46);
+
   /// Carbon Black (#0a0a0a) - Main text and high-contrast elements
   /// Used for: Main text, headings, dark backgrounds
   static const Color carbonBlack = Color(0xFF0A0A0A);

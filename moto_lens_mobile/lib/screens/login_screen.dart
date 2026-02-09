@@ -389,7 +389,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
     return CustomButton(
       text: _isLoading ? 'Signing In...' : 'Sign In',
       onPressed: _isLoading ? null : _handleLogin,
-      variant: CustomButtonVariant.primary,
+      variant: CustomButtonVariant.auth,
       size: CustomButtonSize.large,
       isFullWidth: true,
       isLoading: _isLoading,
