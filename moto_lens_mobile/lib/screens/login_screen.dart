@@ -318,9 +318,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
 
         Text(
           'Sign in to continue',
-          style: AppTypography.bodyLarge.copyWith(
-            color: AppColors.textSecondary,
-          ),
+          style: AppTypography.h2.copyWith(fontWeight: FontWeight.w600),
           textAlign: TextAlign.center,
         ),
       ],
