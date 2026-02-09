@@ -255,7 +255,11 @@ class _RegisterScreenState extends State<RegisterScreen>
 
         Text(
           'Create Account',
-          style: AppTypography.h2.copyWith(fontWeight: FontWeight.w600),
+          style: GoogleFonts.archivoNarrow(
+            color: AppColors.textPrimary,
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+          ),
         ),
 
         const SizedBox(height: AppSpacing.xs),
