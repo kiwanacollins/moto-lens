@@ -269,17 +269,17 @@ class MainApp extends StatelessWidget {
                   // German Car Medic branding
                   SvgPicture.asset(
                     'assets/logo.svg',
-                    width: 150,
-                    height: 150,
+                    width: 260,
+                    height: 70,
                     fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: 3),
 
                   // Welcome message
                   Text(
                     'Welcome to German Car Medic!',
                     style: GoogleFonts.archivoNarrow(
-                      fontSize: 28,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
                     ),
@@ -288,7 +288,9 @@ class MainApp extends StatelessWidget {
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     'Professional Automobile diagnostics\' Tool',
-                    style: AppTypography.bodyLarge.copyWith(
+                    style: GoogleFonts.archivoNarrow(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
                       color: AppColors.textSecondary,
                     ),
                     textAlign: TextAlign.center,
