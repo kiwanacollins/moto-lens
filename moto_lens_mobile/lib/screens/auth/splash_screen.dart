@@ -215,8 +215,8 @@ class _SplashScreenState extends State<SplashScreen>
   /// Build German Car Medic logo
   Widget _buildLogo() {
     return SizedBox(
-      width: 280, // Match title width
-      height: 160,
+      width: 280,
+      height: 73, // Matches SVG aspect ratio (416:109)
       child: SvgPicture.asset('assets/logo.svg', fit: BoxFit.contain),
     );
   }
