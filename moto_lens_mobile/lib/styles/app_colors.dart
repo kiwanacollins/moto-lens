@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 
-/// German Car Medic Brand Colors
+/// MotoLens Brand Colors
 ///
-/// Professional automotive design system matching React PWA
-/// Core colors: Electric Blue, Carbon Black, Gunmetal Gray
+/// Professional automotive design system
+/// Core colors: Navy Blue, Racing Red, Carbon Black, Gunmetal Gray
 class AppColors {
   // Private constructor to prevent instantiation
   AppColors._();
 
   /// ==================== BRAND CORE COLORS ====================
 
-  /// Electric Blue (#0ea5e9) - Primary brand color
+  /// Navy Blue (#3c558f) - Primary brand color (from logo)
   /// Used for: CTAs, primary buttons, interactive elements, highlights
-  static const Color electricBlue = Color(0xFF0EA5E9);
+  static const Color electricBlue = Color(0xFF3C558F);
+
+  /// Racing Red (#d82f37) - Accent brand color (from logo)
+  /// Used for: Secondary CTAs, highlights, status indicators, accents
+  static const Color racingRed = Color(0xFFD82F37);
 
   /// Carbon Black (#0a0a0a) - Main text and high-contrast elements
   /// Used for: Main text, headings, dark backgrounds
@@ -49,7 +53,7 @@ class AppColors {
   /// Error/Destructive - Red 500
   static const Color error = Color(0xFFEF4444);
 
-  /// Info - Electric Blue (reuse primary)
+  /// Info - Navy Blue (reuse primary)
   static const Color info = electricBlue;
 
   /// ==================== UI BACKGROUNDS ====================
@@ -110,9 +114,14 @@ class AppColors {
 
   /// ==================== UTILITY METHODS ====================
 
-  /// Get shade of Electric Blue
+  /// Get shade of Navy Blue (primary)
   static Color electricBlueShade(double opacity) {
     return electricBlue.withOpacity(opacity);
+  }
+
+  /// Get shade of Racing Red (accent)
+  static Color racingRedShade(double opacity) {
+    return racingRed.withOpacity(opacity);
   }
 
   /// Get shade of Carbon Black
@@ -133,22 +142,22 @@ class AppColors {
   }
 }
 
-/// Material Color Swatch for Electric Blue (for use with MaterialApp)
+/// Material Color Swatch for Navy Blue (for use with MaterialApp)
 class ElectricBlueSwatch extends MaterialColor {
-  const ElectricBlueSwatch() : super(_electricBluePrimary, _electricBlueMap);
+  const ElectricBlueSwatch() : super(_navyBluePrimary, _navyBlueMap);
 
-  static const int _electricBluePrimary = 0xFF0EA5E9;
+  static const int _navyBluePrimary = 0xFF3C558F;
 
-  static const Map<int, Color> _electricBlueMap = {
-    50: Color(0xFFE0F2FE),
-    100: Color(0xFFBAE6FD),
-    200: Color(0xFF7DD3FC),
-    300: Color(0xFF38BDF8),
-    400: Color(0xFF0EA5E9), // Primary
-    500: Color(0xFF0284C7),
-    600: Color(0xFF0369A1),
-    700: Color(0xFF075985),
-    800: Color(0xFF0C4A6E),
-    900: Color(0xFF082F49),
+  static const Map<int, Color> _navyBlueMap = {
+    50: Color(0xFFEBEEF5),
+    100: Color(0xFFCDD4E4),
+    200: Color(0xFFACB8D1),
+    300: Color(0xFF8B9BBD),
+    400: Color(0xFF6A7FA9),
+    500: Color(0xFF3C558F), // Primary
+    600: Color(0xFF344B80),
+    700: Color(0xFF2C406E),
+    800: Color(0xFF24355C),
+    900: Color(0xFF1A2741),
   };
 }
