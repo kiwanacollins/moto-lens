@@ -107,6 +107,8 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const AiAssistantScreen());
       case '/qr-scanner':
         return MaterialPageRoute(builder: (_) => const QrScannerScreen());
+      case '/notes':
+        return MaterialPageRoute(builder: (_) => const NotesScreen());
       case '/part-detail':
         return MaterialPageRoute(builder: (_) => const PartDetailScreen());
       case '/vehicle-detail':
@@ -297,36 +299,56 @@ class MainApp extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xl),
 
-                  // VIN Scanner card
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.search,
-                    title: 'VIN Scanner',
-                    subtitle: 'Decode Vehicle Identification Numbers',
-                    onTap: () => Navigator.pushNamed(context, '/vin-scanner'),
-                    isPrimary: true,
+                  // 2x2 Feature Grid
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildGridCard(
+                          context,
+                          icon: Icons.search,
+                          title: 'VIN Scanner',
+                          subtitle: 'Decode VINs',
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/vin-scanner'),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: _buildGridCard(
+                          context,
+                          icon: Icons.psychology_outlined,
+                          title: 'AI Assistant',
+                          subtitle: 'Vehicle diagnostics',
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/ai-assistant'),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.md),
-
-                  // AI Assistant card
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.psychology_outlined,
-                    title: 'AI Assistant',
-                    subtitle: 'Get intelligent vehicle diagnostics help',
-                    onTap: () => Navigator.pushNamed(context, '/ai-assistant'),
-                    isPrimary: true,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-
-                  // Barcode Scanner card
-                  _buildFeatureCard(
-                    context,
-                    icon: Icons.barcode_reader,
-                    title: 'Barcode Scanner',
-                    subtitle: 'Scan parts and component barcodes',
-                    onTap: () => Navigator.pushNamed(context, '/qr-scanner'),
-                    isPrimary: true,
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildGridCard(
+                          context,
+                          icon: Icons.barcode_reader,
+                          title: 'Barcode Scanner',
+                          subtitle: 'Scan parts',
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/qr-scanner'),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: _buildGridCard(
+                          context,
+                          icon: Icons.note_alt_outlined,
+                          title: 'Take Notes',
+                          subtitle: 'Save locally',
+                          onTap: () => Navigator.pushNamed(context, '/notes'),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -337,15 +359,13 @@ class MainApp extends StatelessWidget {
     );
   }
 
-  static Widget _buildFeatureCard(
+  static Widget _buildGridCard(
     BuildContext context, {
     required IconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
-    bool isPrimary = false,
   }) {
-    // Use a lighter, more subtle blue for all cards
     final cardColor = AppColors.electricBlue.withValues(alpha: 0.12);
 
     return Material(
@@ -357,8 +377,10 @@ class MainApp extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
         child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.lg,
+          ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
             border: Border.all(
@@ -366,7 +388,8 @@ class MainApp extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: Row(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
                 width: 48,
@@ -375,34 +398,30 @@ class MainApp extends StatelessWidget {
                   color: AppColors.electricBlue.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
                 ),
-                child: Icon(icon, color: AppColors.electricBlue, size: 28),
+                child: Icon(icon, color: AppColors.electricBlue, size: 26),
               ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: AppTypography.h5.copyWith(
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                title,
+                style: AppTypography.h5.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
                 ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: AppColors.electricBlue.withValues(alpha: 0.6),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

@@ -26,3 +26,6 @@ export 'scanner/part_detail_screen.dart';
 
 // Vehicle viewer screens
 export 'vehicle/vehicle_view_screen.dart';
+
+// Notes screens
+export 'notes/notes_screen.dart';

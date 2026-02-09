@@ -9,3 +9,6 @@ export 'auth/auth.dart';
 
 // Vehicle models
 export 'vehicle/vehicle.dart';
+
+// Note models
+export 'note.dart';
