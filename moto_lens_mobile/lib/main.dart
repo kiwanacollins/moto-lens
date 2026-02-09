@@ -216,13 +216,6 @@ class MainApp extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(
-              'German Car Medic',
-              style: AppTypography.h3.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
             backgroundColor: AppColors.headerBar,
             elevation: 0,
             actions: [
