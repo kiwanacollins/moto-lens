@@ -220,39 +220,42 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.sm),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: AppSpacing.xs),
-
-                  // German Car Medic Logo & Branding
-                  _buildHeader(),
-
-                  const SizedBox(height: AppSpacing.sm),
-
-                  // Login Form
-                  _buildLoginForm(),
-
-                  const SizedBox(height: AppSpacing.sm),
-
-                  // Login Button
-                  _buildLoginButton(),
-
-                  // Biometric Login Button
-                  if (_biometricAvailable) ...[
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 450),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                     const SizedBox(height: AppSpacing.xs),
-                    _buildBiometricButton(),
+
+                    // German Car Medic Logo & Branding
+                    _buildHeader(),
+
+                    const SizedBox(height: AppSpacing.sm),
+
+                    // Login Form
+                    _buildLoginForm(),
+
+                    const SizedBox(height: AppSpacing.sm),
+
+                    // Login Button
+                    _buildLoginButton(),
+
+                    // Biometric Login Button
+                    if (_biometricAvailable) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      _buildBiometricButton(),
+                    ],
+
+                    const SizedBox(height: AppSpacing.sm),
+
+                    // Register & Password Reset Links
+                    _buildBottomActions(),
                   ],
-
-                  const SizedBox(height: AppSpacing.sm),
-
-                  // Register & Password Reset Links
-                  _buildBottomActions(),
-                ],
+                ),
               ),
             ),
           ),

@@ -178,20 +178,23 @@ class _RegisterScreenState extends State<RegisterScreen>
   Widget _buildStepPage(Widget stepContent) {
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        child: Column(
-          children: [
-            // Header (scrolls with content)
-            _buildHeader(),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 450),
+          child: Column(
+            children: [
+              // Header (scrolls with content)
+              _buildHeader(),
 
-            // Step form content
-            stepContent,
+              // Step form content
+              stepContent,
 
-            const SizedBox(height: AppSpacing.xxs),
+              const SizedBox(height: AppSpacing.xxs),
 
-            // Bottom navigation
-            _buildBottomNavigation(),
-          ],
+              // Bottom navigation
+              _buildBottomNavigation(),
+            ],
+          ),
         ),
       ),
     );

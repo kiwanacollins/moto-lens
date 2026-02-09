@@ -284,7 +284,7 @@ class MainApp extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    'Professional German vehicle diagnostics',
+                    'Professional Automobile diagnostics\' Tool',
                     style: AppTypography.bodyLarge.copyWith(
                       color: AppColors.textSecondary,
                     ),

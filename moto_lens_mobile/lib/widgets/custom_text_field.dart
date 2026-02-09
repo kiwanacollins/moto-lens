@@ -275,6 +275,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       widget.isRequired ? '${widget.label} *' : widget.label!,
       style: AppTypography.inputLabel.copyWith(
         color: _isFocused ? AppColors.electricBlue : AppColors.textSecondary,
+        fontSize: 13,
       ),
     );
   }
@@ -308,6 +309,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         maxLines: widget.maxLines,
         maxLength: widget.maxLength,
         style: AppTypography.inputText.copyWith(
+          fontSize: 14,
           color: widget.isDisabled ? AppColors.textDisabled : null,
           fontFamily: _getFontFamily(),
         ),
@@ -323,9 +325,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
   InputDecoration _buildInputDecoration() {
     return InputDecoration(
       hintText: widget.hintText,
+      hintStyle: AppTypography.inputPlaceholder.copyWith(fontSize: 14),
       prefixIcon: widget.prefixIcon != null
           ? Icon(
               widget.prefixIcon,
+              size: 20,
               color: _isFocused
                   ? AppColors.electricBlue
                   : (widget.isDisabled
@@ -355,6 +359,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       return IconButton(
         icon: Icon(
           _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+          size: 20,
           color: _isFocused ? AppColors.electricBlue : AppColors.textSecondary,
         ),
         onPressed: () {
@@ -369,6 +374,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       return IconButton(
         icon: Icon(
           widget.suffixIcon,
+          size: 20,
           color: _isFocused ? AppColors.electricBlue : AppColors.textSecondary,
         ),
         onPressed: widget.onSuffixIconPressed,
