@@ -49,6 +49,7 @@ dependencies:
 
   # Additional utilities
   json_annotation: ^4.8.1 # JSON serialization
+  google_fonts: ^6.1.0 # Google Fonts integration
   crypto: ^3.0.3 # Cryptographic operations
   flutter_svg: ^2.0.10+1 # SVG rendering
   share_plus: ^10.1.4 # Share vehicle details

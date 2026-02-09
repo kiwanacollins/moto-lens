@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../styles/styles.dart';
 import '../widgets/widgets.dart';
 import '../widgets/error_alert.dart';
@@ -273,10 +274,11 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
 
         // App Name
         Text(
-          'German Car Medic',
-          style: AppTypography.h1.copyWith(
+          'GERMAN CAR MEDIC',
+          style: GoogleFonts.anton(
             fontWeight: FontWeight.bold,
             color: AppColors.electricBlue,
+            fontSize: 32,
           ),
           textAlign: TextAlign.center,
         ),
@@ -293,7 +295,7 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
         const SizedBox(height: AppSpacing.xs),
 
         Text(
-          'Sign in to continue to German Car Medic',
+          'Sign in to continue',
           style: AppTypography.bodyLarge.copyWith(
             color: AppColors.textSecondary,
           ),

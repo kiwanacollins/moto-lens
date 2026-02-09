@@ -63,13 +63,13 @@ class AppColors {
   /// ==================== UI BACKGROUNDS ====================
 
   /// Primary page background (light mode)
-  static const Color background = Colors.white;
+  static const Color background = Color(0xFFF7F7F7);
 
   /// Secondary background for sections
   static const Color backgroundSecondary = zinc50;
 
   /// Card and component backgrounds
-  static const Color surface = Colors.white;
+  static const Color surface = Color(0xFFF7F7F7);
 
   /// Elevated surface (modals, dropdowns)
   static const Color surfaceElevated = Colors.white;

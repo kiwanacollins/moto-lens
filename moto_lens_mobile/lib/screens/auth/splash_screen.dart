@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../services/services.dart';
 import '../../styles/styles.dart';
 
@@ -227,11 +228,11 @@ class _SplashScreenState extends State<SplashScreen>
       children: [
         // Brand Name
         Text(
-          'German Car Medic',
-          style: AppTypography.h1.copyWith(
+          'GERMAN CAR MEDIC',
+          style: GoogleFonts.anton(
             color: Colors.white,
             fontSize: 36,
-            fontWeight: AppTypography.bold,
+            fontWeight: FontWeight.bold,
             letterSpacing: -1,
           ),
         ),

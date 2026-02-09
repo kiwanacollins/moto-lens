@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../styles/styles.dart';
 import '../widgets/widgets.dart';
 import '../widgets/error_alert.dart';
@@ -209,10 +210,11 @@ class _RegisterScreenState extends State<RegisterScreen>
 
         // App Name
         Text(
-          'German Car Medic',
-          style: AppTypography.h1.copyWith(
+          'GERMAN CAR MEDIC',
+          style: GoogleFonts.anton(
             fontWeight: FontWeight.bold,
             color: AppColors.electricBlue,
+            fontSize: 32,
           ),
           textAlign: TextAlign.center,
         ),
@@ -254,17 +256,6 @@ class _RegisterScreenState extends State<RegisterScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Personal Information', style: AppTypography.h3),
-
-          const SizedBox(height: AppSpacing.xs),
-
-          Text(
-            'Tell us about yourself',
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-
           const SizedBox(height: AppSpacing.sm),
 
           // Email Address
