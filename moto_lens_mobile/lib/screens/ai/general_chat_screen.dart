@@ -137,7 +137,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
       backgroundColor: AppColors.headerBar,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.pop(context),
       ),
       title: Row(
@@ -146,12 +146,12 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.black.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
             ),
             child: const Icon(
               Icons.chat_outlined,
-              color: Colors.white,
+              color: Colors.black,
               size: 20,
             ),
           ),
@@ -162,7 +162,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
               Text(
                 'General Chat',
                 style: AppTypography.h5.copyWith(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -178,7 +178,7 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
                         ? 'Online'
                         : 'Offline',
                     style: AppTypography.bodySmall.copyWith(
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: Colors.black.withValues(alpha: 0.5),
                     ),
                   );
                 },
@@ -190,18 +190,18 @@ class _GeneralChatScreenState extends State<GeneralChatScreen> {
       actions: [
         // New chat button
         IconButton(
-          icon: const Icon(Icons.add_comment_outlined, color: Colors.white),
+          icon: const Icon(Icons.add_comment_outlined, color: Colors.black),
           tooltip: 'New Chat',
           onPressed: _startNewChat,
         ),
         // History button
         IconButton(
-          icon: const Icon(Icons.history, color: Colors.white),
+          icon: const Icon(Icons.history, color: Colors.black),
           tooltip: 'Chat History',
           onPressed: _showChatHistory,
         ),
         PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert, color: Colors.white),
+          icon: const Icon(Icons.more_vert, color: Colors.black),
           onSelected: (value) {
             switch (value) {
               case 'clear':

@@ -79,7 +79,7 @@ class _VehicleViewScreenState extends State<VehicleViewScreen> {
         backgroundColor: AppColors.headerBar,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
@@ -91,7 +91,7 @@ class _VehicleViewScreenState extends State<VehicleViewScreen> {
                 fontFamily: 'Inter',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Colors.black,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

@@ -355,7 +355,7 @@ class _ScanPartChatScreenState extends State<ScanPartChatScreen> {
       backgroundColor: AppColors.headerBar,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.pop(context),
       ),
       title: Row(
@@ -364,12 +364,12 @@ class _ScanPartChatScreenState extends State<ScanPartChatScreen> {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.black.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
             ),
             child: const Icon(
               Icons.camera_alt_outlined,
-              color: Colors.white,
+              color: Colors.black,
               size: 20,
             ),
           ),
@@ -380,7 +380,7 @@ class _ScanPartChatScreenState extends State<ScanPartChatScreen> {
               Text(
                 'Part Scanner',
                 style: AppTypography.h5.copyWith(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -391,7 +391,7 @@ class _ScanPartChatScreenState extends State<ScanPartChatScreen> {
                     ? 'Image captured'
                     : 'Waiting for image',
                 style: AppTypography.bodySmall.copyWith(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: Colors.black.withValues(alpha: 0.5),
                 ),
               ),
             ],
@@ -401,7 +401,7 @@ class _ScanPartChatScreenState extends State<ScanPartChatScreen> {
       actions: [
         // Re-scan button
         IconButton(
-          icon: const Icon(Icons.add_a_photo_outlined, color: Colors.white),
+          icon: const Icon(Icons.add_a_photo_outlined, color: Colors.black),
           tooltip: 'Scan another part',
           onPressed: _showImageSourceDialog,
         ),

@@ -23,7 +23,7 @@ class PartDetailScreen extends StatelessWidget {
             appBar: AppBar(
               title: const Text('Part Details'),
               backgroundColor: AppColors.headerBar,
-              foregroundColor: Colors.white,
+              foregroundColor: Colors.black,
             ),
             body: const Center(child: Text('No part data available.')),
           );
@@ -177,11 +177,11 @@ class PartDetailScreen extends StatelessWidget {
       expandedHeight: hasImage ? 260 : 0,
       pinned: true,
       backgroundColor: AppColors.headerBar,
-      foregroundColor: Colors.white,
+      foregroundColor: Colors.black,
       title: Text(
         details.partName,
         style: AppTypography.h4.copyWith(
-          color: Colors.white,
+          color: Colors.black,
           fontWeight: FontWeight.w600,
         ),
       ),

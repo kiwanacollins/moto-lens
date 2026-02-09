@@ -20,13 +20,13 @@ class AiAssistantScreen extends StatelessWidget {
         backgroundColor: AppColors.headerBar,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'AI Assistant',
           style: AppTypography.h5.copyWith(
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.w600,
           ),
         ),

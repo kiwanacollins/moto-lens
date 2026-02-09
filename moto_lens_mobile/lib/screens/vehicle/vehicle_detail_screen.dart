@@ -101,26 +101,26 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         title: Text(
           'Vehicle Details',
           style: AppTypography.h3.copyWith(
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: AppColors.headerBar,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
             icon: Icon(
               _isFavorite ? Icons.bookmark : Icons.bookmark_border,
-              color: Colors.white,
+              color: Colors.black,
             ),
             onPressed: _toggleFavorite,
           ),
           IconButton(
-            icon: const Icon(Icons.share, color: Colors.white),
+            icon: const Icon(Icons.share, color: Colors.black),
             onPressed: _shareVehicle,
           ),
         ],

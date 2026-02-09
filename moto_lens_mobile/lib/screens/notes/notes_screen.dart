@@ -114,13 +114,13 @@ class _NotesScreenState extends State<NotesScreen> {
         title: Text(
           'My Notes',
           style: AppTypography.h3.copyWith(
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: AppColors.headerBar,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton(
@@ -362,13 +362,13 @@ class _NoteEditorScreenState extends State<_NoteEditorScreen> {
         title: Text(
           _isEditing ? 'Edit Note' : 'New Note',
           style: AppTypography.h3.copyWith(
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: AppColors.headerBar,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.black),
         actions: [
           _isSaving
               ? const Padding(
@@ -378,12 +378,12 @@ class _NoteEditorScreenState extends State<_NoteEditorScreen> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                     ),
                   ),
                 )
               : IconButton(
-                  icon: const Icon(Icons.check, color: Colors.white),
+                  icon: const Icon(Icons.check, color: Colors.black),
                   onPressed: _save,
                   tooltip: 'Save',
                 ),

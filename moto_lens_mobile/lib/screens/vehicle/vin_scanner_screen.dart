@@ -279,21 +279,21 @@ class _VinScannerScreenState extends State<VinScannerScreen>
         title: Text(
           'VIN Scanner',
           style: AppTypography.h3.copyWith(
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: AppColors.headerBar,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
             icon: Icon(
               _showHistory ? Icons.edit : Icons.history,
-              color: Colors.white,
+              color: Colors.black,
             ),
             tooltip: _showHistory ? 'VIN Input' : 'Scan History',
             onPressed: () {

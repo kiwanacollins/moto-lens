@@ -143,7 +143,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       backgroundColor: AppColors.headerBar,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
         onPressed: () => Navigator.pop(context),
       ),
       title: Row(
@@ -152,12 +152,12 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: Colors.black.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
             ),
             child: const Icon(
               Icons.psychology_outlined,
-              color: Colors.white,
+              color: Colors.black,
               size: 20,
             ),
           ),
@@ -168,7 +168,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               Text(
                 'AI Assistant',
                 style: AppTypography.h5.copyWith(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -184,7 +184,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                         ? 'Online'
                         : 'Offline',
                     style: AppTypography.bodySmall.copyWith(
-                      color: Colors.white.withValues(alpha: 0.8),
+                      color: Colors.black.withValues(alpha: 0.5),
                     ),
                   );
                 },
@@ -195,7 +195,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       ),
       actions: [
         PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert, color: Colors.white),
+          icon: const Icon(Icons.more_vert, color: Colors.black),
           onSelected: (value) {
             switch (value) {
               case 'clear':
