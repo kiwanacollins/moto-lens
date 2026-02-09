@@ -220,7 +220,10 @@ class MainApp extends StatelessWidget {
             elevation: 0,
             actions: [
               IconButton(
-                icon: const Icon(Icons.account_circle, color: Colors.white),
+                icon: const Icon(
+                  Icons.account_circle,
+                  color: AppColors.gunmetalGray,
+                ),
                 onPressed: () {
                   // Show user menu
                   showModalBottomSheet(

@@ -26,9 +26,9 @@ class AppColors {
   /// Used for: Login, register, signin buttons
   static const Color authButton = Color(0xFF393E46);
 
-  /// Header Bar (#740A03) - App bar / header section background
+  /// Header Bar (#F7F7F7) - App bar / header section background
   /// Used for: AppBar backgrounds across all screens
-  static const Color headerBar = Color(0xFF740A03);
+  static const Color headerBar = Color(0xFFF7F7F7);
 
   /// Carbon Black (#0a0a0a) - Main text and high-contrast elements
   /// Used for: Main text, headings, dark backgrounds
