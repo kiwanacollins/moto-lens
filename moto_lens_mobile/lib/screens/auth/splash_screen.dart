@@ -252,6 +252,19 @@ class _SplashScreenState extends State<SplashScreen>
           textAlign: TextAlign.center,
         ),
 
+        const SizedBox(height: 4),
+
+        // Slogan
+        Text(
+          'Reliability meets Expertise',
+          style: GoogleFonts.playpenSans(
+            color: AppColors.zinc400,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
+          textAlign: TextAlign.center,
+        ),
+
         const SizedBox(height: AppSpacing.xs),
 
         // Tagline

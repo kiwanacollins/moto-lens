@@ -218,40 +218,42 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: AppSpacing.xs),
-
-                // German Car Medic Logo & Branding
-                _buildHeader(),
-
-                const SizedBox(height: AppSpacing.sm),
-
-                // Login Form
-                _buildLoginForm(),
-
-                const SizedBox(height: AppSpacing.sm),
-
-                // Login Button
-                _buildLoginButton(),
-
-                // Biometric Login Button
-                if (_biometricAvailable) ...[
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                   const SizedBox(height: AppSpacing.xs),
-                  _buildBiometricButton(),
+
+                  // German Car Medic Logo & Branding
+                  _buildHeader(),
+
+                  const SizedBox(height: AppSpacing.sm),
+
+                  // Login Form
+                  _buildLoginForm(),
+
+                  const SizedBox(height: AppSpacing.sm),
+
+                  // Login Button
+                  _buildLoginButton(),
+
+                  // Biometric Login Button
+                  if (_biometricAvailable) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    _buildBiometricButton(),
+                  ],
+
+                  const SizedBox(height: AppSpacing.sm),
+
+                  // Register & Password Reset Links
+                  _buildBottomActions(),
                 ],
-
-                const SizedBox(height: AppSpacing.sm),
-
-                // Register & Password Reset Links
-                _buildBottomActions(),
-              ],
+              ),
             ),
           ),
         ),
@@ -297,14 +299,20 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
           textAlign: TextAlign.center,
         ),
 
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: 4),
 
-        // Welcome Text
+        // Slogan
         Text(
-          'Welcome Back',
-          style: AppTypography.h2.copyWith(fontWeight: FontWeight.w600),
+          'Reliability meets Expertise',
+          style: GoogleFonts.playpenSans(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
           textAlign: TextAlign.center,
         ),
+
+        const SizedBox(height: AppSpacing.xs),
 
         const SizedBox(height: AppSpacing.xs),
 

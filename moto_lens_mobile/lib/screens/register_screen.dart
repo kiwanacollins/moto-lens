@@ -176,21 +176,23 @@ class _RegisterScreenState extends State<RegisterScreen>
   /// Wraps a step's form content with the shared header and bottom nav
   /// inside a single scrollable column so the keyboard never obscures fields.
   Widget _buildStepPage(Widget stepContent) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      child: Column(
-        children: [
-          // Header (scrolls with content)
-          _buildHeader(),
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        child: Column(
+          children: [
+            // Header (scrolls with content)
+            _buildHeader(),
 
-          // Step form content
-          stepContent,
+            // Step form content
+            stepContent,
 
-          const SizedBox(height: AppSpacing.xxs),
+            const SizedBox(height: AppSpacing.xxs),
 
-          // Bottom navigation
-          _buildBottomNavigation(),
-        ],
+            // Bottom navigation
+            _buildBottomNavigation(),
+          ],
+        ),
       ),
     );
   }
@@ -229,6 +231,19 @@ class _RegisterScreenState extends State<RegisterScreen>
                 ),
               ),
             ],
+          ),
+          textAlign: TextAlign.center,
+        ),
+
+        const SizedBox(height: 4),
+
+        // Slogan
+        Text(
+          'Reliability meets Expertise',
+          style: GoogleFonts.playpenSans(
+            color: AppColors.textSecondary,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
           ),
           textAlign: TextAlign.center,
         ),
