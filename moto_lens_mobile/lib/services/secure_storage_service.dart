@@ -24,7 +24,6 @@ class SecureStorageService {
   );
 
   static const IOSOptions _iosOptions = IOSOptions(
-    groupId: 'group.com.germancarmedic.app',
     accountName: 'GermanCarMedic',
     accessibility: KeychainAccessibility.first_unlock_this_device,
     synchronizable: false,

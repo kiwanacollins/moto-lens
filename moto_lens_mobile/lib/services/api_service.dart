@@ -312,12 +312,16 @@ class ApiService {
           print('[API] Login response body: ${response.body}');
         }
         try {
-          final authResponse = AuthResponse.fromJson(json.decode(response.body));
+          final authResponse = AuthResponse.fromJson(
+            json.decode(response.body),
+          );
           await _secureStorage.saveAuthTokens(authResponse);
           return authResponse;
         } catch (parseError) {
           if (Environment.isDebugMode) {
-            print('[API] Login parse error: ${parseError.runtimeType}: $parseError');
+            print(
+              '[API] Login parse error: ${parseError.runtimeType}: $parseError',
+            );
           }
           rethrow;
         }
