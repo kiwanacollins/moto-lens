@@ -207,7 +207,9 @@ class ApiService {
       return response;
     } on SocketException catch (e) {
       if (Environment.isDebugMode) {
-        print('[API] SocketException: ${e.message} (address: ${e.address}, port: ${e.port})');
+        print(
+          '[API] SocketException: ${e.message} (address: ${e.address}, port: ${e.port})',
+        );
       }
       throw NetworkException('Connection failed: ${e.message}');
     } on HandshakeException catch (e) {
@@ -306,9 +308,19 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final authResponse = AuthResponse.fromJson(json.decode(response.body));
-        await _secureStorage.saveAuthTokens(authResponse);
-        return authResponse;
+        if (Environment.isDebugMode) {
+          print('[API] Login response body: ${response.body}');
+        }
+        try {
+          final authResponse = AuthResponse.fromJson(json.decode(response.body));
+          await _secureStorage.saveAuthTokens(authResponse);
+          return authResponse;
+        } catch (parseError) {
+          if (Environment.isDebugMode) {
+            print('[API] Login parse error: ${parseError.runtimeType}: $parseError');
+          }
+          rethrow;
+        }
       } else if (response.statusCode == 401) {
         throw AuthenticationException('Invalid email or password');
       } else if (response.statusCode == 429) {
@@ -326,6 +338,9 @@ class ApiService {
     } on RateLimitException {
       rethrow;
     } catch (e) {
+      if (Environment.isDebugMode) {
+        print('[API] Login unexpected error: ${e.runtimeType}: $e');
+      }
       throw NetworkException('Login request failed: $e');
     }
   }
