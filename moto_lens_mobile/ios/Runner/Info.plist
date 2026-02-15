@@ -30,9 +30,13 @@
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>German Car Medic needs camera access to scan VIN barcodes on vehicles.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>German Car Medic needs network access to connect to the backend server.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

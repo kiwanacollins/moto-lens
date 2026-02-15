@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -14,8 +15,20 @@ import 'services/vin_history_service.dart';
 import 'models/vehicle/vin_decode_result.dart';
 import 'widgets/offline_banner.dart';
 
+/// Allow HTTP connections on iOS for development
+class MotoLensHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Enable HTTP connections on iOS
+  HttpOverrides.global = MotoLensHttpOverrides();
 
   // Validate environment configuration (warns if release build uses dev mode)
   Environment.validateEnvironment();

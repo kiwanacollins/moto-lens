@@ -187,6 +187,10 @@ class ApiService {
   }) async {
     final url = Uri.parse('$apiUrl$endpoint');
 
+    if (Environment.isDebugMode) {
+      print('[API] POST $url');
+    }
+
     try {
       final response = await _client
           .post(
@@ -196,18 +200,37 @@ class ApiService {
           )
           .timeout(timeout);
 
+      if (Environment.isDebugMode) {
+        print('[API] Response ${response.statusCode} from $url');
+      }
+
       return response;
     } on SocketException catch (e) {
+      if (Environment.isDebugMode) {
+        print('[API] SocketException: ${e.message} (address: ${e.address}, port: ${e.port})');
+      }
       throw NetworkException('Connection failed: ${e.message}');
     } on HandshakeException catch (e) {
+      if (Environment.isDebugMode) {
+        print('[API] HandshakeException: ${e.message}');
+      }
       throw NetworkException('Secure connection failed: ${e.message}');
     } on TimeoutException catch (_) {
+      if (Environment.isDebugMode) {
+        print('[API] TimeoutException after $timeout');
+      }
       throw NetworkException(
         'Connection timeout - please check your internet connection',
       );
     } on HttpException catch (e) {
+      if (Environment.isDebugMode) {
+        print('[API] HttpException: ${e.message}');
+      }
       throw NetworkException('Network error: ${e.message}');
     } catch (e) {
+      if (Environment.isDebugMode) {
+        print('[API] Unknown error: ${e.runtimeType}: $e');
+      }
       throw NetworkException('Network request failed: $e');
     }
   }
