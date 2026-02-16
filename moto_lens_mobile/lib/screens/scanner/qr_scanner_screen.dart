@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../models/part_scan_entry.dart';
 import '../../providers/qr_scan_provider.dart';
 import '../../styles/styles.dart';
+import '../../widgets/part_not_found_sheet.dart';
 
 /// Full Barcode Scanner screen with two modes:
 ///
@@ -174,7 +175,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
     if (provider.currentPartDetails != null) {
       Navigator.pushNamed(context, '/part-detail');
     } else if (provider.error != null) {
-      _showErrorSnackBar(provider.error!);
+      _showPartNotFoundSheet(value);
     }
   }
 
@@ -189,21 +190,24 @@ class _QrScannerScreenState extends State<QrScannerScreen>
     _performLookup(value);
   }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-        ),
-        action: SnackBarAction(
-          label: 'Dismiss',
-          textColor: Colors.white,
-          onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-        ),
-      ),
+  void _showPartNotFoundSheet(String scannedValue) {
+    PartNotFoundSheet.show(
+      context,
+      scannedValue: scannedValue,
+      onTryAgain: () {
+        // Reset and allow another scan
+        setState(() {
+          _scanProcessed = false;
+          _lastScannedValue = null;
+        });
+      },
+      onManualEntry: () {
+        // Open manual entry mode
+        setState(() => _showManualEntry = true);
+        Future.delayed(const Duration(milliseconds: 100), () {
+          _manualFocusNode.requestFocus();
+        });
+      },
     );
   }
 
