@@ -22,7 +22,7 @@ export function extractPartNumber(rawBarcode) {
     }
 
     const trimmed = rawBarcode.trim();
-    
+
     // 1. Try JSON format: {"partNumber":"X"} or {"pn":"X"} or {"part":"X"}
     if (trimmed.startsWith('{')) {
         try {

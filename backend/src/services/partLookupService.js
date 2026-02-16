@@ -157,11 +157,11 @@ export async function lookupPart(partNumber, vehicleData = null) {
     }
 
     const rawInput = partNumber.trim();
-    
+
     // Parse barcode to extract clean part number
     const extractedPartNumber = extractPartNumber(rawInput);
     const metadata = extractBarcodeMetadata(rawInput);
-    
+
     if (rawInput !== extractedPartNumber) {
         console.log(`🔍 Raw barcode: "${rawInput}"`);
         console.log(`📦 Extracted part number: "${extractedPartNumber}"`);
@@ -173,7 +173,7 @@ export async function lookupPart(partNumber, vehicleData = null) {
     }
 
     // Enrich vehicle data with manufacturer from barcode if available
-    const enrichedVehicleData = metadata.manufacturer && !vehicleData?.make 
+    const enrichedVehicleData = metadata.manufacturer && !vehicleData?.make
         ? { ...vehicleData, make: metadata.manufacturer }
         : vehicleData;
 
