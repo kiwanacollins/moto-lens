@@ -24,24 +24,44 @@ async function lookupViaSerpApi(partNumber, vehicleData) {
         ? `${vehicleData.year || ''} ${vehicleData.make || ''} ${vehicleData.model || ''}`.trim()
         : '';
 
-    const searchQuery = vehicleContext
+    const webQuery = vehicleContext
         ? `"${partNumber}" ${vehicleContext} auto part`
         : `"${partNumber}" automotive part OEM specifications`;
 
+    const imageQuery = vehicleContext
+        ? `${partNumber} ${vehicleContext} auto part`
+        : `${partNumber} automotive part`;
+
     try {
-        console.log(`🔎 SerpAPI: searching "${searchQuery}"`);
+        console.log(`🔎 SerpAPI: searching "${webQuery}"`);
 
-        const response = await axios.get('https://serpapi.com/search', {
-            params: {
-                engine: 'google',
-                q: searchQuery,
-                api_key: serpApiKey,
-                num: 5
-            },
-            timeout: 10000
-        });
+        // Run web search + image search in parallel for speed
+        const [webResponse, imageResponse] = await Promise.all([
+            axios.get('https://serpapi.com/search', {
+                params: {
+                    engine: 'google',
+                    q: webQuery,
+                    api_key: serpApiKey,
+                    num: 5
+                },
+                timeout: 10000
+            }),
+            axios.get('https://serpapi.com/search', {
+                params: {
+                    engine: 'google_images',
+                    q: imageQuery,
+                    api_key: serpApiKey,
+                    num: 3,
+                    safe: 'active'
+                },
+                timeout: 10000
+            }).catch(err => {
+                console.error('🖼️ Image search error:', err.message);
+                return null;
+            })
+        ]);
 
-        const results = response.data;
+        const results = webResponse.data;
         const organicResults = results.organic_results || [];
 
         if (organicResults.length === 0) {
@@ -57,11 +77,21 @@ async function lookupViaSerpApi(partNumber, vehicleData) {
         // Try to extract a meaningful part name from the top title
         const partName = extractPartName(topResult.title, partNumber);
 
-        // Check shopping results for images
-        const shoppingResults = results.shopping_results || [];
+        // Get image: prefer Google Images results, fall back to shopping thumbnails
         let imageUrl = null;
-        if (shoppingResults.length > 0 && shoppingResults[0].thumbnail) {
-            imageUrl = shoppingResults[0].thumbnail;
+        if (imageResponse?.data) {
+            const imageResults = imageResponse.data.images_results || [];
+            if (imageResults.length > 0) {
+                imageUrl = imageResults[0].original || imageResults[0].thumbnail;
+                console.log(`🖼️ Found part image from Google Images`);
+            }
+        }
+        if (!imageUrl) {
+            const shoppingResults = results.shopping_results || [];
+            if (shoppingResults.length > 0 && shoppingResults[0].thumbnail) {
+                imageUrl = shoppingResults[0].thumbnail;
+                console.log(`🖼️ Found part image from shopping results`);
+            }
         }
 
         return {
