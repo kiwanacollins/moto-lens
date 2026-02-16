@@ -108,6 +108,8 @@ class PartScanEntry {
 }
 
 /// Full part details returned from the backend `/api/parts/details` endpoint.
+///
+/// Data sourced from SerpAPI Google Search.
 class PartDetails {
   final String partId;
   final String partName;
@@ -119,6 +121,11 @@ class PartDetails {
   final Map<String, dynamic>? vehicle;
   final String generatedAt;
 
+  // --- Search result fields ---
+  final String? supplier;
+  final String? source;
+  final List<Map<String, String>>? searchResults;
+
   const PartDetails({
     required this.partId,
     required this.partName,
@@ -129,6 +136,9 @@ class PartDetails {
     this.imageUrl,
     this.vehicle,
     this.generatedAt = '',
+    this.supplier,
+    this.source,
+    this.searchResults,
   });
 
   /// Vehicle label e.g. "2020 BMW 3 Series".
@@ -164,7 +174,20 @@ class PartDetails {
       imageUrl: imgUrl,
       vehicle: json['vehicle'] as Map<String, dynamic>?,
       generatedAt: json['generatedAt'] as String? ?? '',
+      supplier: json['supplier'] as String?,
+      source: json['source'] as String?,
+      searchResults: json['searchResults'] != null
+          ? _parseStringMaps(json['searchResults'])
+          : null,
     );
+  }
+
+  static List<Map<String, String>> _parseStringMaps(dynamic list) {
+    if (list is! List) return [];
+    return list
+        .whereType<Map>()
+        .map((m) => m.map((k, v) => MapEntry(k.toString(), v.toString())))
+        .toList();
   }
 
   Map<String, dynamic> toJson() => {
@@ -177,5 +200,8 @@ class PartDetails {
     'image': imageUrl,
     'vehicle': vehicle,
     'generatedAt': generatedAt,
+    'supplier': supplier,
+    'source': source,
+    'searchResults': searchResults,
   };
 }

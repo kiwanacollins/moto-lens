@@ -38,6 +38,7 @@ import {
     clearSearchCache,
     getCacheStats
 } from './services/webImageSearchService.js';
+import partLookupService from './services/partLookupService.js';
 
 // Use Web Image Search instead of Gemini for images
 const imageService = {
@@ -635,7 +636,7 @@ app.post('/api/parts/spare-parts', async (req, res) => {
     }
 });
 
-// GET part details with image and description
+// Part details via 2-tier lookup: Auto Parts Catalog API → SerpAPI → "not found"
 app.post('/api/parts/details', async (req, res) => {
     const { partName, partId, vehicleData } = req.body || {};
 
@@ -647,113 +648,43 @@ app.post('/api/parts/details', async (req, res) => {
             });
         }
 
-        // Ensure we have valid vehicle data for context
-        const vehicle = vehicleData || { make: 'Generic', model: 'Vehicle', year: new Date().getFullYear() };
-        const vehicleContext = `${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim() || 'Generic Vehicle';
+        const vehicle = vehicleData || null;
+        console.log(`🔧 Part lookup: "${partName}"${vehicle ? ` for ${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim() : ''}`);
 
-        console.log(`🔧 Fetching part details: "${partName}" for ${vehicleContext}`);
+        // 2-tier lookup: Catalog API → SerpAPI → null
+        const result = await partLookupService.lookupPart(partName, vehicle);
 
-        // Step 1: Generate AI description first (this gives us context for better image search)
-        let partInfo = null;
-        let aiDescription = '';
-        let aiSymptoms = [];
-        let aiPartNumber = 'Universal';
-
-        try {
-            partInfo = await geminiAiService.identifyPart({
-                partName,
-                vehicleData: vehicle
+        if (!result) {
+            return res.status(404).json({
+                success: false,
+                error: 'PART_NOT_FOUND',
+                message: `No data found for part number "${partName}". Try a different part number or check the format.`,
+                partName
             });
-
-            // Parse AI response to extract structured data
-            if (partInfo && partInfo.information) {
-                // Clean stray $1/$2/etc. markers that Gemini sometimes injects
-                aiDescription = partInfo.information
-                    .replace(/^\$(\d+)\s+/gm, '')
-                    .replace(/^\\\$(\d+)\s+/gm, '');
-
-                // Try to extract symptoms from the AI response
-                const symptomsMatch = aiDescription.match(/symptoms?.*?:(.*?)(?=\n\n|installation|compatible|$)/is);
-                if (symptomsMatch) {
-                    aiSymptoms = symptomsMatch[1]
-                        .split(/[\n•\-]/)
-                        .map(s => s.trim())
-                        .filter(s => s.length > 5 && s.length < 200)
-                        .slice(0, 5);
-                }
-
-                // Try to extract part number
-                const partNumberMatch = aiDescription.match(/part\s*(?:number|#|no\.?).*?([A-Z0-9\-]{5,20})/i);
-                if (partNumberMatch) {
-                    aiPartNumber = partNumberMatch[1];
-                }
-            }
-        } catch (aiError) {
-            console.error('AI description error:', aiError.message);
-            aiDescription = `The ${partName} is an essential component of the ${vehicleContext}. Please consult your vehicle's service manual for specific details.`;
         }
 
-        // Step 2: Fetch part image using SerpApi with vehicle context
-        let imageResults = null;
-        let bestImage = null;
-
-        try {
-            imageResults = await imageService.searchPartImages(partName, vehicle);
-
-            if (imageResults && imageResults.images && imageResults.images.length > 0) {
-                // Get the first valid image
-                bestImage = {
-                    url: imageResults.images[0].imageUrl || imageResults.images[0].thumbnail,
-                    title: imageResults.images[0].title || `${partName} for ${vehicleContext}`,
-                    source: imageResults.images[0].source || 'google-images'
-                };
-            }
-        } catch (imageError) {
-            console.error('Image search error:', imageError.message);
-            // Continue without image
-        }
-
+        // Build response from SerpAPI results
         return res.json({
             success: true,
             partId: partId || partName.toLowerCase().replace(/\s+/g, '-'),
-            partName,
+            partName: result.partName,
             vehicle: vehicle,
-            // Image data
-            image: bestImage,
-            // AI-generated description
-            description: aiDescription || `The ${partName} is a component of the ${vehicleContext}.`,
-            function: `Essential component of the ${vehicle.make || 'vehicle'} ${partName.toLowerCase().includes('engine') ? 'powertrain' : 'system'}`,
-            symptoms: aiSymptoms.length > 0 ? aiSymptoms : [
-                'Unusual noises or vibrations',
-                'Reduced performance or efficiency',
-                'Warning lights on dashboard'
-            ],
+            image: result.imageUrl ? { url: result.imageUrl, title: result.partName, source: 'google-search' } : null,
+            description: result.description || '',
+            function: result.partName,
+            symptoms: [],
             spareParts: [],
-            partNumber: aiPartNumber,
-            // Include metadata
-            imageSource: bestImage ? 'serp-api' : 'none',
-            descriptionSource: 'gemini-ai',
+            partNumber: result.partNumber,
+            supplier: result.supplier || null,
+            source: result.source,
+            searchResults: result.searchResults || null,
+            imageSource: result.imageUrl ? 'google-search' : 'none',
+            descriptionSource: 'google-search',
             generatedAt: new Date().toISOString()
         });
 
     } catch (err) {
         console.error('Error fetching part details:', err);
-
-        // Handle specific error types
-        if (err && err.name === 'GeminiAiError') {
-            return res.status(err.statusCode || 500).json({
-                error: err.code || 'AI_ERROR',
-                message: err.message
-            });
-        }
-
-        if (err && err.name === 'PartImageSearchError') {
-            return res.status(err.statusCode || 500).json({
-                error: err.code || 'IMAGE_SEARCH_ERROR',
-                message: err.message
-            });
-        }
-
         return res.status(500).json({
             error: 'INTERNAL_ERROR',
             message: 'Failed to fetch part details'
