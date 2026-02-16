@@ -39,6 +39,36 @@
 	<string>German Car Medic needs network access to connect to the backend server.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>Icon-App-20x20</string>
+				<string>Icon-App-29x29</string>
+				<string>Icon-App-40x40</string>
+				<string>Icon-App-60x60</string>
+			</array>
+		</dict>
+	</dict>
+	<key>CFBundleIcons~ipad</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>Icon-App-20x20</string>
+				<string>Icon-App-29x29</string>
+				<string>Icon-App-40x40</string>
+				<string>Icon-App-60x60</string>
+				<string>Icon-App-76x76</string>
+				<string>Icon-App-83.5x83.5</string>
+			</array>
+		</dict>
+	</dict>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

@@ -19,4 +19,3 @@ open -a Simulator
 
 flutter run -d 00008101-001E10420C00801E
 
-
