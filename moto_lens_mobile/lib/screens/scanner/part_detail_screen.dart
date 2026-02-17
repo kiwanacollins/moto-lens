@@ -47,21 +47,6 @@ class PartDetailScreen extends StatelessWidget {
                       _buildHeader(context, details),
                       const SizedBox(height: AppSpacing.lg),
 
-                      // Vehicle context
-                      if (details.vehicleLabel.isNotEmpty) ...[
-                        _buildSection(
-                          icon: Icons.directions_car,
-                          title: 'Vehicle',
-                          child: Text(
-                            details.vehicleLabel,
-                            style: AppTypography.bodyLarge.copyWith(
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                      ],
-
                       // Description
                       if (details.description != null &&
                           details.description!.isNotEmpty) ...[
