@@ -96,20 +96,6 @@ class PartDetailScreen extends StatelessWidget {
                         const SizedBox(height: AppSpacing.md),
                       ],
 
-                      // Part number (copyable)
-                      if (details.partNumber != null &&
-                          details.partNumber!.isNotEmpty) ...[
-                        _buildSection(
-                          icon: Icons.tag,
-                          title: 'Part Number',
-                          child: _buildPartNumberChip(
-                            context,
-                            details.partNumber!,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                      ],
-
                       const SizedBox(height: AppSpacing.xl),
 
                       // Scan another button
@@ -293,54 +279,6 @@ class PartDetailScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Part number chip (copyable)
-  // ---------------------------------------------------------------------------
-
-  Widget _buildPartNumberChip(BuildContext context, String partNumber) {
-    return GestureDetector(
-      onTap: () {
-        Clipboard.setData(ClipboardData(text: partNumber));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Part number copied to clipboard'),
-            backgroundColor: AppColors.electricBlue,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.electricBlue.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-          border: Border.all(
-            color: AppColors.electricBlue.withValues(alpha: 0.2),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(partNumber, style: AppTypography.codeLarge),
-            const SizedBox(width: AppSpacing.sm),
-            Icon(
-              Icons.copy,
-              size: 16,
-              color: AppColors.electricBlue.withValues(alpha: 0.6),
-            ),
-          ],
-        ),
       ),
     );
   }
