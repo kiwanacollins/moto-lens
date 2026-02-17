@@ -169,7 +169,26 @@ class QrScanProvider extends ChangeNotifier {
   }
 
   /// Re-lookup details for an existing history entry.
+  ///
+  /// Tries the offline cache first so resolved entries load instantly
+  /// without hitting the backend again.
   Future<void> lookupFromHistory(PartScanEntry entry) async {
+    if (entry.isResolved) {
+      // Try serving from cache for instant display
+      final cached =
+          await _offlineCache.getCachedPartDetails(entry.scannedValue) ??
+              await _offlineCache.getStaleCachedPartDetails(entry.scannedValue);
+      if (cached != null) {
+        try {
+          _currentPartDetails = PartDetails.fromJson(cached);
+          _error = null;
+          notifyListeners();
+          return;
+        } catch (_) {
+          // Cache corrupt — fall through to network lookup
+        }
+      }
+    }
     await lookupPart(entry.scannedValue);
   }
 

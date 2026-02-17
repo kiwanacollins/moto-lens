@@ -288,9 +288,20 @@ class PartDetailScreen extends StatelessWidget {
         continue;
       }
 
-      // Check if it's a bold header (e.g., **Main Components:**)
-      if (line.startsWith('**') && line.endsWith('**')) {
-        final text = line.replaceAll('**', '').replaceAll('*', '');
+      // Strip leading bullet markers: "* ", "- ", "• "
+      var isBullet = false;
+      var stripped = line;
+      if (RegExp(r'^[•\-\*]\s+').hasMatch(stripped)) {
+        stripped = stripped.replaceFirst(RegExp(r'^[•\-\*]\s+'), '');
+        isBullet = true;
+      }
+
+      // Check if the (remaining) line is a bold header
+      // e.g. "**Main Components:**" or "**Function/Purpose:**"
+      final boldHeaderMatch =
+          RegExp(r'^\*\*(.+?)\*\*\s*$').firstMatch(stripped);
+      if (boldHeaderMatch != null) {
+        final text = boldHeaderMatch.group(1)!;
         widgets.add(
           Padding(
             padding: const EdgeInsets.only(
@@ -306,10 +317,16 @@ class PartDetailScreen extends StatelessWidget {
             ),
           ),
         );
+        continue;
       }
-      // Check if it's a bullet point
-      else if (line.startsWith('*')) {
-        final text = line.substring(1).trim();
+
+      // Strip any remaining inline ** markers from the text
+      final cleanText = stripped.replaceAll('**', '');
+
+      if (isBullet || line.startsWith('*')) {
+        // Bullet point
+        final bulletText =
+            isBullet ? cleanText : cleanText.replaceFirst(RegExp(r'^\*\s*'), '');
         widgets.add(
           Padding(
             padding: const EdgeInsets.only(
@@ -330,7 +347,7 @@ class PartDetailScreen extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    text,
+                    bulletText,
                     style: AppTypography.bodyMedium.copyWith(
                       color: AppColors.textPrimary,
                       height: 1.5,
@@ -341,14 +358,13 @@ class PartDetailScreen extends StatelessWidget {
             ),
           ),
         );
-      }
-      // Regular paragraph text
-      else {
+      } else {
+        // Regular paragraph text
         widgets.add(
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.xs),
             child: Text(
-              line,
+              cleanText,
               style: AppTypography.bodyMedium.copyWith(
                 color: AppColors.textPrimary,
                 height: 1.6,

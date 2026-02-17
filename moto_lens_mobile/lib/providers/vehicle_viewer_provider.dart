@@ -79,7 +79,7 @@ class VehicleViewerProvider extends ChangeNotifier {
     try {
       _images = await _service.getVehicleImages(vin);
     } catch (e) {
-      _imageError = e.toString().replaceFirst('VehicleViewerException: ', '');
+      _imageError = _friendlyImageError(e.toString());
     } finally {
       _isLoadingImages = false;
       notifyListeners();
@@ -105,11 +105,36 @@ class VehicleViewerProvider extends ChangeNotifier {
         year: year,
       );
     } catch (e) {
-      _imageError = e.toString().replaceFirst('VehicleViewerException: ', '');
+      _imageError = _friendlyImageError(e.toString());
     } finally {
       _isLoadingImages = false;
       notifyListeners();
     }
+  }
+
+  /// Convert raw API errors into user-friendly messages.
+  String _friendlyImageError(String raw) {
+    final lower = raw.toLowerCase();
+    if (lower.contains('vehicle data incomplete') ||
+        lower.contains('make, model, year required') ||
+        lower.contains('400')) {
+      return 'Vehicle images are unavailable. The VIN could not be '
+          'matched to a known vehicle.';
+    }
+    if (lower.contains('no images found') || lower.contains('404')) {
+      return 'No images found for this vehicle.';
+    }
+    if (lower.contains('timeout') || lower.contains('timed out')) {
+      return 'Image search timed out. Pull down to try again.';
+    }
+    if (lower.contains('offline') || lower.contains('socket')) {
+      return 'You\'re offline. Images will load when you reconnect.';
+    }
+    // Fallback: strip exception class name
+    return raw
+        .replaceFirst('VehicleViewerException: ', '')
+        .replaceFirst('ApiException: ', '')
+        .replaceFirst('Exception: ', '');
   }
 
   // ---------------------------------------------------------------------------
