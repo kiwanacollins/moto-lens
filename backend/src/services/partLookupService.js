@@ -25,49 +25,83 @@ async function lookupViaSerpApi(partNumber, vehicleData) {
         ? `${vehicleData.year || ''} ${vehicleData.make || ''} ${vehicleData.model || ''}`.trim()
         : '';
 
-    const webQuery = vehicleContext
-        ? `"${partNumber}" ${vehicleContext} auto part`
-        : `"${partNumber}" automotive part OEM specifications`;
+    // Try multiple search queries with decreasing specificity
+    const searchStrategies = [
+        // Strategy 1: With vehicle context (most specific)
+        vehicleContext
+            ? `${partNumber} ${vehicleContext} auto part`
+            : null,
+        // Strategy 2: Part number + generic automotive terms
+        `${partNumber} automotive part`,
+        // Strategy 3: Part number + car part
+        `${partNumber} car part`,
+        // Strategy 4: Just the part number (least restrictive)
+        partNumber
+    ].filter(Boolean);
 
     const imageQuery = vehicleContext
         ? `${partNumber} ${vehicleContext} auto part`
         : `${partNumber} automotive part`;
 
-    try {
-        console.log(`🔎 SerpAPI: searching "${webQuery}"`);
+    let webResponse = null;
+    let usedQuery = null;
 
-        // Run web search + image search in parallel for speed
-        const [webResponse, imageResponse] = await Promise.all([
-            axios.get('https://serpapi.com/search', {
+    // Try each search strategy until we get results
+    for (const webQuery of searchStrategies) {
+        try {
+            console.log(`🔎 SerpAPI: trying "${webQuery}"`);
+            
+            const response = await axios.get('https://serpapi.com/search', {
                 params: {
                     engine: 'google',
                     q: webQuery,
                     api_key: serpApiKey,
-                    num: 5
+                    num: 5,
+                    gl: 'us',
+                    hl: 'en'
                 },
                 timeout: 10000
-            }),
-            axios.get('https://serpapi.com/search', {
-                params: {
-                    engine: 'google_images',
-                    q: imageQuery,
-                    api_key: serpApiKey,
-                    num: 3,
-                    safe: 'active'
-                },
-                timeout: 10000
-            }).catch(err => {
-                console.error('🖼️ Image search error:', err.message);
-                return null;
-            })
-        ]);
+            });
+
+            const organicResults = response.data.organic_results || [];
+            
+            if (organicResults.length > 0) {
+                webResponse = response;
+                usedQuery = webQuery;
+                console.log(`✅ Found results with query: "${webQuery}"`);
+                break;
+            } else {
+                console.log(`  ⚠️ No results for "${webQuery}", trying next strategy...`);
+            }
+        } catch (err) {
+            console.error(`  ❌ Search error for "${webQuery}":`, err.message);
+            continue;
+        }
+    }
+
+    if (!webResponse) {
+        console.log('❌ No results found with any search strategy');
+        return null;
+    }
+
+    try {
+        // Get image in parallel (don't block on image failure)
+        const imageResponse = await axios.get('https://serpapi.com/search', {
+            params: {
+                engine: 'google_images',
+                q: imageQuery,
+                api_key: serpApiKey,
+                num: 3,
+                safe: 'active'
+            },
+            timeout: 10000
+        }).catch(err => {
+            console.error('🖼️ Image search error:', err.message);
+            return null;
+        });
 
         const results = webResponse.data;
         const organicResults = results.organic_results || [];
-
-        if (organicResults.length === 0) {
-            return null;
-        }
 
         // Collect snippets from top results
         const topResult = organicResults[0];
@@ -109,7 +143,7 @@ async function lookupViaSerpApi(partNumber, vehicleData) {
             }))
         };
     } catch (error) {
-        console.error('🔎 SerpAPI search error:', error.message);
+        console.error('🔎 SerpAPI result processing error:', error.message);
         return null;
     }
 }
