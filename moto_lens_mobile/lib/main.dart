@@ -343,7 +343,7 @@ class MainApp extends StatelessWidget {
                           context,
                           icon: Icons.barcode_reader,
                           title: 'Barcode Scanner',
-                          subtitle: 'Scan parts',
+                          subtitle: 'Scan Part Numbers',
                           onTap: () =>
                               Navigator.pushNamed(context, '/qr-scanner'),
                         ),
