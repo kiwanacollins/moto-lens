@@ -177,7 +177,7 @@ class QrScanProvider extends ChangeNotifier {
       // Try serving from cache for instant display
       final cached =
           await _offlineCache.getCachedPartDetails(entry.scannedValue) ??
-              await _offlineCache.getStaleCachedPartDetails(entry.scannedValue);
+          await _offlineCache.getStaleCachedPartDetails(entry.scannedValue);
       if (cached != null) {
         try {
           _currentPartDetails = PartDetails.fromJson(cached);

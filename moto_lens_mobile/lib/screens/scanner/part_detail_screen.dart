@@ -298,8 +298,9 @@ class PartDetailScreen extends StatelessWidget {
 
       // Check if the (remaining) line is a bold header
       // e.g. "**Main Components:**" or "**Function/Purpose:**"
-      final boldHeaderMatch =
-          RegExp(r'^\*\*(.+?)\*\*\s*$').firstMatch(stripped);
+      final boldHeaderMatch = RegExp(
+        r'^\*\*(.+?)\*\*\s*$',
+      ).firstMatch(stripped);
       if (boldHeaderMatch != null) {
         final text = boldHeaderMatch.group(1)!;
         widgets.add(
@@ -325,8 +326,9 @@ class PartDetailScreen extends StatelessWidget {
 
       if (isBullet || line.startsWith('*')) {
         // Bullet point
-        final bulletText =
-            isBullet ? cleanText : cleanText.replaceFirst(RegExp(r'^\*\s*'), '');
+        final bulletText = isBullet
+            ? cleanText
+            : cleanText.replaceFirst(RegExp(r'^\*\s*'), '');
         widgets.add(
           Padding(
             padding: const EdgeInsets.only(
