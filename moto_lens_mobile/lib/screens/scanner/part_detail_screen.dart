@@ -48,43 +48,43 @@ class PartDetailScreen extends StatelessWidget {
                       const SizedBox(height: AppSpacing.lg),
 
                       // Description
-                      if (details.description != null &&
-                          details.description!.isNotEmpty) ...[
-                        _buildSection(
-                          icon: Icons.description_outlined,
-                          title: 'Description',
-                          child: _buildFormattedDescription(
-                            details.description!,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                      ],
+                      _buildSection(
+                        icon: Icons.description_outlined,
+                        title: 'Description',
+                        child: _isGenericContent(details.description)
+                            ? _buildNoInfoText()
+                            : _buildFormattedDescription(details.description!),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
 
                       // Function
-                      if (details.function != null &&
-                          details.function!.isNotEmpty) ...[
-                        _buildSection(
-                          icon: Icons.build_outlined,
-                          title: 'Function',
-                          child: _buildFormattedDescription(details.function!),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                      ],
+                      _buildSection(
+                        icon: Icons.build_outlined,
+                        title: 'Function',
+                        child:
+                            _isMeaningfulFunction(
+                              details.function,
+                              details.partName,
+                            )
+                            ? _buildFormattedDescription(details.function!)
+                            : _buildNoInfoText(),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
 
                       // Symptoms
-                      if (details.symptoms.isNotEmpty) ...[
-                        _buildSection(
-                          icon: Icons.warning_amber_outlined,
-                          title: 'Common Symptoms',
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: details.symptoms
-                                .map((s) => _buildSymptomTile(s))
-                                .toList(),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                      ],
+                      _buildSection(
+                        icon: Icons.warning_amber_outlined,
+                        title: 'Common Symptoms',
+                        child: _hasMeaningfulSymptoms(details.symptoms)
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: details.symptoms
+                                    .map((s) => _buildSymptomTile(s))
+                                    .toList(),
+                              )
+                            : _buildNoInfoText(),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
 
                       const SizedBox(height: AppSpacing.xl),
 
@@ -269,6 +269,65 @@ class PartDetailScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Generic / meaningless content detection
+  // ---------------------------------------------------------------------------
+
+  /// Phrases that indicate the AI returned a generic response instead of
+  /// real part information.
+  static final _genericPatterns = [
+    'i\'m your automotive',
+    'automotive assistant',
+    'automotive ai assistant',
+    'i can only help with',
+    'please ask me something',
+    'ask me something car-related',
+    'does not align with any known',
+    'does not correspond to',
+    'no specific information',
+    'unable to find',
+    'i don\'t have information',
+    'i couldn\'t find',
+    'not a recognized',
+    'not a valid part',
+  ];
+
+  /// Returns true when the description is null, empty, or contains a generic
+  /// AI filler response that provides no real information.
+  bool _isGenericContent(String? text) {
+    if (text == null || text.trim().isEmpty) return true;
+    final lower = text.toLowerCase();
+    return _genericPatterns.any((p) => lower.contains(p));
+  }
+
+  /// Returns true only when function text is different from the part name
+  /// and is not generic filler.
+  bool _isMeaningfulFunction(String? function, String partName) {
+    if (function == null || function.trim().isEmpty) return false;
+    if (_isGenericContent(function)) return false;
+    // If the function is just the part name repeated, it's not useful
+    if (function.trim().toLowerCase() == partName.trim().toLowerCase()) {
+      return false;
+    }
+    return true;
+  }
+
+  /// Returns true when symptoms list has at least one non-empty entry.
+  bool _hasMeaningfulSymptoms(List<String> symptoms) {
+    return symptoms.any((s) => s.trim().isNotEmpty && !_isGenericContent(s));
+  }
+
+  /// Widget shown when no meaningful content is available.
+  Widget _buildNoInfoText() {
+    return Text(
+      'No information found',
+      style: AppTypography.bodyMedium.copyWith(
+        color: AppColors.textSecondary,
+        fontStyle: FontStyle.italic,
       ),
     );
   }
