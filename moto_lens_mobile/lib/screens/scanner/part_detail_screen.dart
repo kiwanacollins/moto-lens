@@ -66,9 +66,7 @@ class PartDetailScreen extends StatelessWidget {
                         _buildSection(
                           icon: Icons.build_outlined,
                           title: 'Function',
-                          child: _buildFormattedDescription(
-                            details.function!,
-                          ),
+                          child: _buildFormattedDescription(details.function!),
                         ),
                         const SizedBox(height: AppSpacing.md),
                       ],
