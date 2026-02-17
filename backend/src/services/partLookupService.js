@@ -50,7 +50,7 @@ async function lookupViaSerpApi(partNumber, vehicleData) {
     for (const webQuery of searchStrategies) {
         try {
             console.log(`🔎 SerpAPI: trying "${webQuery}"`);
-            
+
             const response = await axios.get('https://serpapi.com/search', {
                 params: {
                     engine: 'google',
@@ -64,7 +64,7 @@ async function lookupViaSerpApi(partNumber, vehicleData) {
             });
 
             const organicResults = response.data.organic_results || [];
-            
+
             if (organicResults.length > 0) {
                 webResponse = response;
                 usedQuery = webQuery;
