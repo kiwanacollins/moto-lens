@@ -53,12 +53,8 @@ class PartDetailScreen extends StatelessWidget {
                         _buildSection(
                           icon: Icons.description_outlined,
                           title: 'Description',
-                          child: Text(
+                          child: _buildFormattedDescription(
                             details.description!,
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.textPrimary,
-                              height: 1.6,
-                            ),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.md),
@@ -70,12 +66,8 @@ class PartDetailScreen extends StatelessWidget {
                         _buildSection(
                           icon: Icons.build_outlined,
                           title: 'Function',
-                          child: Text(
+                          child: _buildFormattedDescription(
                             details.function!,
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.textPrimary,
-                              height: 1.6,
-                            ),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.md),
@@ -280,6 +272,98 @@ class PartDetailScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Formatted description with markdown parsing
+  // ---------------------------------------------------------------------------
+
+  Widget _buildFormattedDescription(String description) {
+    final lines = description.split('\n');
+    final widgets = <Widget>[];
+
+    for (var line in lines) {
+      line = line.trim();
+      if (line.isEmpty) {
+        widgets.add(const SizedBox(height: AppSpacing.sm));
+        continue;
+      }
+
+      // Check if it's a bold header (e.g., **Main Components:**)
+      if (line.startsWith('**') && line.endsWith('**')) {
+        final text = line.replaceAll('**', '').replaceAll('*', '');
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(
+              top: AppSpacing.md,
+              bottom: AppSpacing.xs,
+            ),
+            child: Text(
+              text,
+              style: AppTypography.bodyLarge.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        );
+      }
+      // Check if it's a bullet point
+      else if (line.startsWith('*')) {
+        final text = line.substring(1).trim();
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(
+              bottom: AppSpacing.xs,
+              left: AppSpacing.sm,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 5,
+                  height: 5,
+                  margin: const EdgeInsets.only(top: 7, right: AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: AppColors.electricBlue.withValues(alpha: 0.6),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    text,
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.textPrimary,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      // Regular paragraph text
+      else {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+            child: Text(
+              line,
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.textPrimary,
+                height: 1.6,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets,
     );
   }
 }
