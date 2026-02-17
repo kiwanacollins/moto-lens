@@ -120,9 +120,11 @@ class _VinScannerScreenState extends State<VinScannerScreen>
       // Try cache first (works offline or online)
       final cached = await _historyService.getCachedResult(vin);
       if (cached != null) {
-        // Save to history before navigating
-        await _historyService.addDecodeResult(cached);
-        await _loadHistory();
+        // Only save valid decodes to history
+        if (cached.isValidDecode) {
+          await _historyService.addDecodeResult(cached);
+          await _loadHistory();
+        }
 
         if (mounted) {
           setState(() {
@@ -162,10 +164,12 @@ class _VinScannerScreenState extends State<VinScannerScreen>
       final response = await _apiService.decodeVin(vin);
       final result = VinDecodeResult.fromJson(response);
 
-      // Cache and add to history BEFORE navigating
+      // Cache result, but only add to history if valid
       await _historyService.cacheResult(result);
-      await _historyService.addDecodeResult(result);
-      await _loadHistory();
+      if (result.isValidDecode) {
+        await _historyService.addDecodeResult(result);
+        await _loadHistory();
+      }
 
       if (mounted) {
         setState(() {
@@ -710,32 +714,37 @@ class _VinScannerScreenState extends State<VinScannerScreen>
   }
 
   Widget _buildDecodingIndicator() {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: AppColors.backgroundSecondary,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        children: [
-          const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(AppColors.electricBlue),
-            strokeWidth: 3,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            'Decoding VIN...',
-            style: AppTypography.h5.copyWith(color: AppColors.textPrimary),
-          ),
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            'Fetching vehicle information from database',
-            style: AppTypography.bodySmall.copyWith(
-              color: AppColors.textSecondary,
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        decoration: BoxDecoration(
+          color: AppColors.backgroundSecondary,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.electricBlue),
+              strokeWidth: 3,
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              'Decoding VIN...',
+              style: AppTypography.h5.copyWith(color: AppColors.textPrimary),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.xxs),
+            Text(
+              'Fetching vehicle information from database',
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -56,6 +56,9 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
   }
 
   Future<void> _loadVehicleImage() async {
+    // Skip loading images for invalid VINs — no useful results possible
+    if (!widget.vehicle.isValidDecode) return;
+
     setState(() => _isLoadingImage = true);
 
     try {
@@ -342,12 +345,16 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
 
   /// Hero section with vehicle image from SERP API
   Widget _buildHeroSection() {
+    final isValid = widget.vehicle.isValidDecode;
+
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(
-        context,
-        '/vehicle-view',
-        arguments: {'vehicle': widget.vehicle},
-      ),
+      onTap: isValid
+          ? () => Navigator.pushNamed(
+              context,
+              '/vehicle-view',
+              arguments: {'vehicle': widget.vehicle},
+            )
+          : null,
       child: Container(
         width: double.infinity,
         height: 220,
@@ -401,38 +408,40 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(
-                        AppSpacing.radiusMedium,
+                  if (isValid) ...[
+                    const SizedBox(width: AppSpacing.sm),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusMedium,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.view_in_ar,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '360° & Parts',
+                            style: AppTypography.bodySmall.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.view_in_ar,
-                          size: 16,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '360° & Parts',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  ],
                 ],
               ),
             ),

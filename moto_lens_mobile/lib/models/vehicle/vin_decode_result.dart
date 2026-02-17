@@ -274,4 +274,18 @@ class VinDecodeResult {
     if (model != null) parts.add(model!);
     return parts.isNotEmpty ? parts.join(' ') : vin;
   }
+
+  /// Whether the VIN decoded to meaningful vehicle data.
+  ///
+  /// Returns false when key fields are all null or "Unknown",
+  /// which happens when the user enters an invalid VIN.
+  bool get isValidDecode {
+    bool _isKnown(String? value) =>
+        value != null &&
+        value.isNotEmpty &&
+        value.toLowerCase() != 'unknown' &&
+        value.toLowerCase() != 'n/a';
+
+    return _isKnown(manufacturer) || _isKnown(model) || _isKnown(year);
+  }
 }
