@@ -19,7 +19,7 @@ import '../../widgets/part_not_found_sheet.dart';
 /// lookup and the user is navigated to the part detail page.
 ///
 /// **What automotive part barcodes contain:**
-/// - OEM Part Number (e.g., 11-42-7-953-129 for BMW)
+/// - OEM Part Number (e.g., 11427953129 for BMW)
 /// - Manufacturer identification code
 /// - Batch/lot numbers for traceability
 /// - Serial numbers for warranty tracking
@@ -828,7 +828,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                 letterSpacing: 0.5,
               ),
               decoration: InputDecoration(
-                hintText: 'e.g. 11-42-7-953-129',
+                hintText: 'e.g. 11427953129',
                 hintStyle: TextStyle(
                   color: Colors.white.withValues(alpha: 0.3),
                   fontSize: 18,

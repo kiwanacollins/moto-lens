@@ -64,7 +64,7 @@ export function extractPartNumber(rawBarcode) {
     }
 
     // 4. Try to identify OEM-style part numbers (alphanumeric with dashes/dots)
-    // Common patterns: 11-42-7-953-129, 04E115561H, 90915-YZZD1, 15400-PLM-A02
+    // Common patterns: 11427953129, 04E115561H, 90915-YZZD1, 15400-PLM-A02
     const oemPattern = /\b([A-Z0-9]{2,}[-\.][A-Z0-9\-\.]{3,18})\b/i;
     const oemMatch = trimmed.match(oemPattern);
     if (oemMatch) {
