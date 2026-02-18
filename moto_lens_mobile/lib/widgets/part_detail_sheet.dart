@@ -166,13 +166,7 @@ class PartDetailSheet extends StatelessWidget {
         if (details.function != null && details.function!.isNotEmpty) ...[
           _sectionTitle('How It Works'),
           const SizedBox(height: AppSpacing.xs),
-          Text(
-            details.function!,
-            style: AppTypography.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.6,
-            ),
-          ),
+          _buildParsedDescription(details.function!),
           const SizedBox(height: AppSpacing.lg),
         ],
 
