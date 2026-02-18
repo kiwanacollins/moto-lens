@@ -39,10 +39,6 @@ async function lookupViaSerpApi(partNumber, vehicleData) {
         partNumber
     ].filter(Boolean);
 
-    const imageQuery = vehicleContext
-        ? `${partNumber} ${vehicleContext} auto part`
-        : `${partNumber} automotive part`;
-
     let webResponse = null;
     let usedQuery = null;
 
@@ -85,21 +81,6 @@ async function lookupViaSerpApi(partNumber, vehicleData) {
     }
 
     try {
-        // Get image in parallel (don't block on image failure)
-        const imageResponse = await axios.get('https://serpapi.com/search', {
-            params: {
-                engine: 'google_images',
-                q: imageQuery,
-                api_key: serpApiKey,
-                num: 3,
-                safe: 'active'
-            },
-            timeout: 10000
-        }).catch(err => {
-            console.error('🖼️ Image search error:', err.message);
-            return null;
-        });
-
         const results = webResponse.data;
         const organicResults = results.organic_results || [];
 
@@ -112,21 +93,21 @@ async function lookupViaSerpApi(partNumber, vehicleData) {
         // Try to extract a meaningful part name from the top title
         const partName = extractPartName(topResult.title, partNumber);
 
-        // Get image: prefer Google Images results, fall back to shopping thumbnails
+        // Get image from the web search response itself (no separate image API call)
+        // Priority: shopping thumbnails → knowledge graph → inline images
         let imageUrl = null;
-        if (imageResponse?.data) {
-            const imageResults = imageResponse.data.images_results || [];
-            if (imageResults.length > 0) {
-                imageUrl = imageResults[0].original || imageResults[0].thumbnail;
-                console.log(`🖼️ Found part image from Google Images`);
-            }
+        const shoppingResults = results.shopping_results || [];
+        if (shoppingResults.length > 0 && shoppingResults[0].thumbnail) {
+            imageUrl = shoppingResults[0].thumbnail;
+            console.log(`🖼️ Found part image from shopping results`);
         }
-        if (!imageUrl) {
-            const shoppingResults = results.shopping_results || [];
-            if (shoppingResults.length > 0 && shoppingResults[0].thumbnail) {
-                imageUrl = shoppingResults[0].thumbnail;
-                console.log(`🖼️ Found part image from shopping results`);
-            }
+        if (!imageUrl && results.knowledge_graph?.header_images?.[0]?.image) {
+            imageUrl = results.knowledge_graph.header_images[0].image;
+            console.log(`🖼️ Found part image from knowledge graph`);
+        }
+        if (!imageUrl && results.inline_images?.[0]?.original) {
+            imageUrl = results.inline_images[0].original;
+            console.log(`🖼️ Found part image from inline images`);
         }
 
         return {
