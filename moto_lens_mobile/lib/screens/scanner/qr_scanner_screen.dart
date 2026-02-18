@@ -208,9 +208,9 @@ class _QrScannerScreenState extends State<QrScannerScreen>
               // Top bar
               _buildTopBar(),
 
-              // Scan overlay
+              // Scan overlay (purely visual, must not block touches)
               if (_hasPermission && !_isInitializing)
-                _buildScanOverlay(provider),
+                IgnorePointer(child: _buildScanOverlay(provider)),
 
               // Bottom controls
               _buildBottomControls(provider),
