@@ -8,14 +8,13 @@ import '../../providers/qr_scan_provider.dart';
 import '../../styles/styles.dart';
 import '../../widgets/part_not_found_sheet.dart';
 
-/// Full Barcode Scanner screen with two modes:
+/// Full Barcode Scanner screen with live camera scanning.
 ///
-/// 1. **Camera mode** — live barcode scanning via `mobile_scanner`
-///    Supports Code 128, Code 39, EAN-13, UPC-A, and DataMatrix
-///    formats commonly used on automotive parts.
-/// 2. **Manual mode** — text-field entry for part numbers
+/// Uses `mobile_scanner` for barcode detection.
+/// Supports Code 128, Code 39, EAN-13, UPC-A, and DataMatrix
+/// formats commonly used on automotive parts.
 ///
-/// After a code is captured (or typed) the provider performs a backend
+/// After a code is captured, the provider performs a backend
 /// lookup and the user is navigated to the part detail page.
 ///
 /// **What automotive part barcodes contain:**
@@ -41,11 +40,6 @@ class _QrScannerScreenState extends State<QrScannerScreen>
   bool _torchEnabled = false;
   String? _lastScannedValue;
 
-  // Manual entry
-  bool _showManualEntry = false;
-  final _manualController = TextEditingController();
-  final _manualFocusNode = FocusNode();
-
   @override
   void initState() {
     super.initState();
@@ -62,8 +56,6 @@ class _QrScannerScreenState extends State<QrScannerScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _controller?.dispose();
-    _manualController.dispose();
-    _manualFocusNode.dispose();
     super.dispose();
   }
 
@@ -179,17 +171,6 @@ class _QrScannerScreenState extends State<QrScannerScreen>
     }
   }
 
-  void _submitManualEntry() {
-    final value = _manualController.text.trim();
-    if (value.isEmpty) return;
-
-    _manualController.clear();
-    _manualFocusNode.unfocus();
-    setState(() => _showManualEntry = false);
-
-    _performLookup(value);
-  }
-
   void _showPartNotFoundSheet(String scannedValue) {
     PartNotFoundSheet.show(
       context,
@@ -199,13 +180,6 @@ class _QrScannerScreenState extends State<QrScannerScreen>
         setState(() {
           _scanProcessed = false;
           _lastScannedValue = null;
-        });
-      },
-      onManualEntry: () {
-        // Open manual entry mode
-        setState(() => _showManualEntry = true);
-        Future.delayed(const Duration(milliseconds: 100), () {
-          _manualFocusNode.requestFocus();
         });
       },
     );
@@ -223,10 +197,8 @@ class _QrScannerScreenState extends State<QrScannerScreen>
         builder: (context, provider, _) {
           return Stack(
             children: [
-              // Camera / permission / manual entry
-              if (_showManualEntry)
-                _buildManualEntry(provider)
-              else if (_isInitializing)
+              // Camera / permission
+              if (_isInitializing)
                 _buildLoadingState()
               else if (!_hasPermission)
                 _buildPermissionDeniedState()
@@ -237,11 +209,11 @@ class _QrScannerScreenState extends State<QrScannerScreen>
               _buildTopBar(),
 
               // Scan overlay
-              if (_hasPermission && !_isInitializing && !_showManualEntry)
+              if (_hasPermission && !_isInitializing)
                 _buildScanOverlay(provider),
 
               // Bottom controls
-              if (!_showManualEntry) _buildBottomControls(provider),
+              _buildBottomControls(provider),
 
               // Loading overlay
               if (provider.isLookingUp) _buildLookupOverlay(),
@@ -341,27 +313,6 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: OutlinedButton(
-                onPressed: () => setState(() => _showManualEntry = true),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.white38),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      AppSpacing.radiusMedium,
-                    ),
-                  ),
-                ),
-                child: const Text(
-                  'Enter Part Number Manually',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -398,14 +349,6 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                   error.errorDetails?.message ?? 'Failed to initialize camera',
                   style: const TextStyle(color: Colors.white70, fontSize: 14),
                   textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                ElevatedButton(
-                  onPressed: () => setState(() => _showManualEntry = true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.electricBlue,
-                  ),
-                  child: const Text('Enter Part Number Manually'),
                 ),
               ],
             ),
@@ -533,8 +476,8 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                 color: Colors.black54,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
               ),
-              child: Text(
-                _showManualEntry ? 'Enter Part Number' : 'Scan Barcode',
+              child: const Text(
+                'Scan Barcode',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -542,7 +485,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
                 ),
               ),
             ),
-            if (_hasPermission && !_isInitializing && !_showManualEntry)
+            if (_hasPermission && !_isInitializing)
               _buildCircleButton(
                 icon: _torchEnabled ? Icons.flash_on : Icons.flash_off,
                 onTap: _toggleTorch,
@@ -761,173 +704,6 @@ class _QrScannerScreenState extends State<QrScannerScreen>
               entry.formattedDate,
               style: const TextStyle(color: Colors.white38, fontSize: 12),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Manual entry view
-  // ---------------------------------------------------------------------------
-
-  Widget _buildManualEntry(QrScanProvider provider) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          80, // below top bar
-          AppSpacing.lg,
-          120, // above bottom controls
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: AppSpacing.xl),
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: AppColors.electricBlue.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-              ),
-              child: const Icon(
-                Icons.keyboard_alt_outlined,
-                color: AppColors.electricBlue,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            const Text(
-              'Enter Part Number',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            const Text(
-              'Type the part number, name, or any text from the barcode label.',
-              style: TextStyle(
-                color: Colors.white60,
-                fontSize: 14,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            // Input
-            TextField(
-              controller: _manualController,
-              focusNode: _manualFocusNode,
-              autofocus: true,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontFamily: 'JetBrains Mono',
-                letterSpacing: 0.5,
-              ),
-              decoration: InputDecoration(
-                hintText: 'e.g. 11427953129',
-                hintStyle: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.3),
-                  fontSize: 18,
-                  fontFamily: 'JetBrains Mono',
-                ),
-                filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.1),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-                  borderSide: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.2),
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-                  borderSide: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.2),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-                  borderSide: const BorderSide(
-                    color: AppColors.electricBlue,
-                    width: 2,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.md,
-                ),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.search, color: AppColors.electricBlue),
-                  onPressed: _submitManualEntry,
-                ),
-              ),
-              textInputAction: TextInputAction.search,
-              onSubmitted: (_) => _submitManualEntry(),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-
-            // History list in manual mode
-            if (provider.hasHistory) ...[
-              const Text(
-                'SCAN HISTORY',
-                style: TextStyle(
-                  color: Colors.white38,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: provider.history.length,
-                  separatorBuilder: (_, __) => Divider(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    height: 1,
-                  ),
-                  itemBuilder: (context, index) {
-                    final entry = provider.history[index];
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(
-                        entry.isResolved
-                            ? Icons.check_circle
-                            : Icons.barcode_reader,
-                        color: entry.isResolved
-                            ? AppColors.success
-                            : AppColors.electricBlue,
-                      ),
-                      title: Text(
-                        entry.displayLabel,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(
-                        entry.formattedDate,
-                        style: const TextStyle(
-                          color: Colors.white38,
-                          fontSize: 12,
-                        ),
-                      ),
-                      trailing: const Icon(
-                        Icons.arrow_forward_ios,
-                        size: 14,
-                        color: Colors.white24,
-                      ),
-                      onTap: () {
-                        _manualController.text = entry.scannedValue;
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
           ],
         ),
       ),
