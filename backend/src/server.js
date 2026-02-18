@@ -651,26 +651,15 @@ app.post('/api/parts/details', async (req, res) => {
         const vehicle = vehicleData || null;
         console.log(`🔧 Part lookup: "${partName}"${vehicle ? ` for ${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim() : ''}`);
 
-        // 2-tier lookup: Catalog API → SerpAPI → null
-        const result = await partLookupService.lookupPart(partName, vehicle);
-
-        if (!result) {
-            return res.status(404).json({
-                success: false,
-                error: 'PART_NOT_FOUND',
-                message: `No data found for part number "${partName}". Try a different part number or check the format.`,
-                partName
-            });
-        }
-
-        // Enrich with Gemini AI for description, function, and symptoms
-        let aiDescription = result.description || '';
+        // Use Gemini AI directly for part identification (no SerpAPI)
+        let aiDescription = '';
         let aiFunction = '';
         let aiSymptoms = [];
+        let resolvedPartName = partName;
 
         try {
             const aiResult = await geminiAiService.identifyPart({
-                partName: result.partName || partName,
+                partName,
                 vehicleData: vehicle,
             });
 
@@ -683,10 +672,8 @@ app.post('/api/parts/details', async (req, res) => {
                 let currentSection = 'description';
 
                 for (const line of lines) {
-                    const lower = line.toLowerCase();
                     if (/\*\*.*function|purpose/i.test(line) || /^\d+\.\s*(part\s+)?function/i.test(line)) {
                         currentSection = 'function';
-                        // If the line has inline content after the header, capture it
                         const inlineContent = line.replace(/^\*\*[^*]+\*\*:?\s*/, '').replace(/^\d+\.\s*[^:]+:\s*/, '').trim();
                         if (inlineContent) sections.function.push(inlineContent);
                         continue;
@@ -705,14 +692,12 @@ app.post('/api/parts/details', async (req, res) => {
                         continue;
                     }
 
-                    // Clean bullet markers
                     const cleaned = line.replace(/^[•\-\*]\s+/, '').replace(/^\d+\.\s+/, '').trim();
                     if (cleaned) {
                         sections[currentSection].push(cleaned);
                     }
                 }
 
-                // Use AI content, falling back to scraped data
                 if (sections.description.length > 0 || sections.function.length > 0) {
                     const allContent = [...sections.description, ...sections.function];
                     aiDescription = allContent.join('\n');
@@ -729,30 +714,42 @@ app.post('/api/parts/details', async (req, res) => {
                     aiDescription = info;
                 }
 
-                console.log(`🤖 AI enrichment successful for "${result.partName}"`);
+                resolvedPartName = aiResult.partName || partName;
+                console.log(`🤖 Gemini AI lookup successful for "${resolvedPartName}"`);
+            } else {
+                return res.status(404).json({
+                    success: false,
+                    error: 'PART_NOT_FOUND',
+                    message: `No data found for "${partName}". Try a different part number or check the format.`,
+                    partName
+                });
             }
         } catch (aiErr) {
-            console.warn(`⚠️ AI enrichment failed, using scraped data: ${aiErr.message}`);
-            // Continue with SerpAPI data as fallback
+            console.error(`❌ Gemini AI lookup failed: ${aiErr.message}`);
+            return res.status(404).json({
+                success: false,
+                error: 'PART_NOT_FOUND',
+                message: `Could not look up "${partName}". Please try again.`,
+                partName
+            });
         }
 
-        // Build response with AI-enriched data
         return res.json({
             success: true,
             partId: partId || partName.toLowerCase().replace(/\s+/g, '-'),
-            partName: result.partName,
+            partName: resolvedPartName,
             vehicle: vehicle,
-            image: result.imageUrl ? { url: result.imageUrl, title: result.partName, source: 'google-search' } : null,
+            image: null,
             description: aiDescription,
             function: aiFunction || null,
             symptoms: aiSymptoms,
             spareParts: [],
-            partNumber: result.partNumber,
-            supplier: result.supplier || null,
-            source: result.source,
-            searchResults: result.searchResults || null,
-            imageSource: result.imageUrl ? 'google-search' : 'none',
-            descriptionSource: aiFunction || aiSymptoms.length ? 'gemini-ai' : 'google-search',
+            partNumber: partName,
+            supplier: null,
+            source: 'gemini-ai',
+            searchResults: null,
+            imageSource: 'none',
+            descriptionSource: 'gemini-ai',
             generatedAt: new Date().toISOString()
         });
 
