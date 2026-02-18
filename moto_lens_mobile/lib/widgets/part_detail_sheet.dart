@@ -174,35 +174,37 @@ class PartDetailSheet extends StatelessWidget {
         if (details.symptoms.isNotEmpty) ...[
           _sectionTitle('Common Symptoms When Faulty'),
           const SizedBox(height: AppSpacing.xs),
-          ...details.symptoms.where((s) => !_isPricingLine(s)).map(
-            (s) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    margin: const EdgeInsets.only(top: 7),
-                    decoration: const BoxDecoration(
-                      color: AppColors.warning,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      _cleanMarkdown(s),
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
-                        height: 1.5,
+          ...details.symptoms
+              .where((s) => !_isPricingLine(s))
+              .map(
+                (s) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        margin: const EdgeInsets.only(top: 7),
+                        decoration: const BoxDecoration(
+                          color: AppColors.warning,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          _cleanMarkdown(s),
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.textSecondary,
+                            height: 1.5,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
           const SizedBox(height: AppSpacing.md),
         ],
       ],
@@ -343,9 +345,7 @@ class PartDetailSheet extends StatelessWidget {
       }
 
       // Numbered header without bold: "1. Title:" or "2. Title:"
-      final numberedHeader = RegExp(
-        r'^\d+\.\s+([^:]+):\s*$',
-      ).firstMatch(line);
+      final numberedHeader = RegExp(r'^\d+\.\s+([^:]+):\s*$').firstMatch(line);
       if (numberedHeader != null) {
         flush();
         currentHeader = _cleanMarkdown(numberedHeader.group(1)!);
