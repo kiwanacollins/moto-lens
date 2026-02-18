@@ -663,23 +663,96 @@ app.post('/api/parts/details', async (req, res) => {
             });
         }
 
-        // Build response from SerpAPI results
+        // Enrich with Gemini AI for description, function, and symptoms
+        let aiDescription = result.description || '';
+        let aiFunction = '';
+        let aiSymptoms = [];
+
+        try {
+            const aiResult = await geminiAiService.identifyPart({
+                partName: result.partName || partName,
+                vehicleData: vehicle,
+            });
+
+            if (aiResult.success && aiResult.information) {
+                const info = aiResult.information;
+
+                // Parse structured sections from AI response
+                const lines = info.split('\n').map(l => l.trim()).filter(Boolean);
+                const sections = { description: [], function: [], symptoms: [] };
+                let currentSection = 'description';
+
+                for (const line of lines) {
+                    const lower = line.toLowerCase();
+                    if (/\*\*.*function|purpose/i.test(line) || /^\d+\.\s*(part\s+)?function/i.test(line)) {
+                        currentSection = 'function';
+                        // If the line has inline content after the header, capture it
+                        const inlineContent = line.replace(/^\*\*[^*]+\*\*:?\s*/, '').replace(/^\d+\.\s*[^:]+:\s*/, '').trim();
+                        if (inlineContent) sections.function.push(inlineContent);
+                        continue;
+                    }
+                    if (/\*\*.*symptom|failure|issue/i.test(line) || /^\d+\.\s*symptom/i.test(line)) {
+                        currentSection = 'symptoms';
+                        continue;
+                    }
+                    if (/\*\*.*component|subpart|main/i.test(line) || /^\d+\.\s*main\s+component/i.test(line)) {
+                        currentSection = 'description';
+                        continue;
+                    }
+                    if (/\*\*.*(?:oem|part\s*number|compatible|alternative|aftermarket|installation|service\s+life|maintenance)/i.test(line)
+                        || /^\d+\.\s*(?:common\s+oem|expected\s+service|compatible|installation)/i.test(line)) {
+                        currentSection = 'description';
+                        continue;
+                    }
+
+                    // Clean bullet markers
+                    const cleaned = line.replace(/^[•\-\*]\s+/, '').replace(/^\d+\.\s+/, '').trim();
+                    if (cleaned) {
+                        sections[currentSection].push(cleaned);
+                    }
+                }
+
+                // Use AI content, falling back to scraped data
+                if (sections.description.length > 0 || sections.function.length > 0) {
+                    const allContent = [...sections.description, ...sections.function];
+                    aiDescription = allContent.join('\n');
+                }
+                if (sections.function.length > 0) {
+                    aiFunction = sections.function.join('\n');
+                }
+                if (sections.symptoms.length > 0) {
+                    aiSymptoms = sections.symptoms.map(s => s.replace(/^\*\*[^*]+\*\*:?\s*/, '').trim());
+                }
+
+                // If parsing didn't extract structured sections, use the full AI text
+                if (!aiFunction && !aiSymptoms.length) {
+                    aiDescription = info;
+                }
+
+                console.log(`🤖 AI enrichment successful for "${result.partName}"`);
+            }
+        } catch (aiErr) {
+            console.warn(`⚠️ AI enrichment failed, using scraped data: ${aiErr.message}`);
+            // Continue with SerpAPI data as fallback
+        }
+
+        // Build response with AI-enriched data
         return res.json({
             success: true,
             partId: partId || partName.toLowerCase().replace(/\s+/g, '-'),
             partName: result.partName,
             vehicle: vehicle,
             image: result.imageUrl ? { url: result.imageUrl, title: result.partName, source: 'google-search' } : null,
-            description: result.description || '',
-            function: result.partName,
-            symptoms: [],
+            description: aiDescription,
+            function: aiFunction || null,
+            symptoms: aiSymptoms,
             spareParts: [],
             partNumber: result.partNumber,
             supplier: result.supplier || null,
             source: result.source,
             searchResults: result.searchResults || null,
             imageSource: result.imageUrl ? 'google-search' : 'none',
-            descriptionSource: 'google-search',
+            descriptionSource: aiFunction || aiSymptoms.length ? 'gemini-ai' : 'google-search',
             generatedAt: new Date().toISOString()
         });
 
