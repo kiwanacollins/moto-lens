@@ -182,7 +182,8 @@ class _VinCameraScannerState extends State<VinCameraScanner>
           _buildTopBar(),
 
           // Scan overlay with viewfinder (purely visual, must not block touches)
-          if (_hasPermission && !_isInitializing) IgnorePointer(child: _buildScanOverlay()),
+          if (_hasPermission && !_isInitializing)
+            IgnorePointer(child: _buildScanOverlay()),
 
           // Bottom controls
           if (_hasPermission && !_isInitializing) _buildBottomControls(),
