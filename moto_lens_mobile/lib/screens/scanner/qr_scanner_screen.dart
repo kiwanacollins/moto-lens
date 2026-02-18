@@ -284,7 +284,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
             const SizedBox(height: AppSpacing.sm),
             const Text(
               'Moto Lens needs camera access to scan barcodes '
-              'on vehicle parts. You can also enter part numbers manually.',
+              'on vehicle parts.',
               style: TextStyle(
                 color: Colors.white70,
                 fontSize: 14,
@@ -478,7 +478,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
               ),
               child: const Text(
                 'Scan Barcode',
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -549,40 +549,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
               // Recent scans
               if (provider.hasHistory) ...[
                 _buildRecentScans(provider),
-                const SizedBox(height: AppSpacing.md),
               ],
-
-              // Manual entry toggle
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: OutlinedButton.icon(
-                  onPressed: () =>
-                      setState(() => _showManualEntry = !_showManualEntry),
-                  icon: Icon(
-                    _showManualEntry ? Icons.barcode_reader : Icons.keyboard,
-                    size: 20,
-                  ),
-                  label: Text(
-                    _showManualEntry
-                        ? 'Switch to Camera'
-                        : 'Enter Part Number Manually',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.white38),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppSpacing.radiusMedium,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         ),

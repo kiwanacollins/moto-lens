@@ -7,13 +7,11 @@ import '../styles/styles.dart';
 class PartNotFoundSheet extends StatelessWidget {
   final String scannedValue;
   final VoidCallback? onTryAgain;
-  final VoidCallback? onManualEntry;
 
   const PartNotFoundSheet({
     super.key,
     required this.scannedValue,
     this.onTryAgain,
-    this.onManualEntry,
   });
 
   /// Show the "Part Not Found" sheet as a modal bottom sheet.
@@ -21,17 +19,13 @@ class PartNotFoundSheet extends StatelessWidget {
     BuildContext context, {
     required String scannedValue,
     VoidCallback? onTryAgain,
-    VoidCallback? onManualEntry,
   }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => PartNotFoundSheet(
-        scannedValue: scannedValue,
-        onTryAgain: onTryAgain,
-        onManualEntry: onManualEntry,
-      ),
+      builder: (_) =>
+          PartNotFoundSheet(scannedValue: scannedValue, onTryAgain: onTryAgain),
     );
   }
 
@@ -158,18 +152,6 @@ class PartNotFoundSheet extends StatelessWidget {
                     onPressed: () {
                       Navigator.pop(context);
                       onTryAgain?.call();
-                    },
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-
-                  _buildActionButton(
-                    context,
-                    icon: Icons.keyboard_outlined,
-                    label: 'Enter Part Number Manually',
-                    color: AppColors.zinc700,
-                    onPressed: () {
-                      Navigator.pop(context);
-                      onManualEntry?.call();
                     },
                   ),
                   const SizedBox(height: AppSpacing.sm),
