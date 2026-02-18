@@ -547,9 +547,7 @@ class _QrScannerScreenState extends State<QrScannerScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               // Recent scans
-              if (provider.hasHistory) ...[
-                _buildRecentScans(provider),
-              ],
+              if (provider.hasHistory) ...[_buildRecentScans(provider)],
             ],
           ),
         ),
