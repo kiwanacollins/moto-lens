@@ -7,10 +7,7 @@ import '../../styles/styles.dart';
 class ArticleDetailScreen extends StatefulWidget {
   final TecDocArticle article;
 
-  const ArticleDetailScreen({
-    super.key,
-    required this.article,
-  });
+  const ArticleDetailScreen({super.key, required this.article});
 
   @override
   State<ArticleDetailScreen> createState() => _ArticleDetailScreenState();
@@ -96,8 +93,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
                 child: Center(
                   child: CircularProgressIndicator(
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(AppColors.electricBlue),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.electricBlue,
+                    ),
                   ),
                 ),
               ),
@@ -415,8 +413,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.electricBlue.withValues(alpha: 0.08),
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.radiusSmall),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
                     border: Border.all(
                       color: AppColors.electricBlue.withValues(alpha: 0.2),
                     ),

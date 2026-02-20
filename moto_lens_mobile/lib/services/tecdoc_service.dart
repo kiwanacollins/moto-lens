@@ -74,10 +74,7 @@ class TecDocService {
   }
 
   /// Get article details (media + category) by article ID.
-  Future<TecDocArticle> getArticleDetails(
-    int articleId, {
-    int? langId,
-  }) async {
+  Future<TecDocArticle> getArticleDetails(int articleId, {int? langId}) async {
     final qs = langId != null ? '?langId=$langId' : '';
     final response = await _api.get('/tecdoc/article/$articleId$qs');
     final body = json.decode(response.body) as Map<String, dynamic>;
@@ -109,13 +106,13 @@ class TecDocService {
     String? categoryName;
     final catRaw = body['category'];
     if (catRaw is Map<String, dynamic>) {
-      categoryName = catRaw['categoryName'] as String? ??
-          catRaw['name'] as String?;
+      categoryName =
+          catRaw['categoryName'] as String? ?? catRaw['name'] as String?;
     } else if (catRaw is List && catRaw.isNotEmpty) {
       final first = catRaw.first;
       if (first is Map<String, dynamic>) {
-        categoryName = first['categoryName'] as String? ??
-            first['name'] as String?;
+        categoryName =
+            first['categoryName'] as String? ?? first['name'] as String?;
       }
     }
 

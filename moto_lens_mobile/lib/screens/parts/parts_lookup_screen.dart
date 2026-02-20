@@ -105,11 +105,7 @@ class _PartsLookupScreenState extends State<PartsLookupScreen> {
   void _openArticle(TecDocArticle article) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => ArticleDetailScreen(
-          article: article,
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => ArticleDetailScreen(article: article)),
     );
   }
 
@@ -245,8 +241,9 @@ class _PartsLookupScreenState extends State<PartsLookupScreen> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : const Icon(Icons.search, size: 20),
@@ -260,8 +257,9 @@ class _PartsLookupScreenState extends State<PartsLookupScreen> {
                   backgroundColor: AppColors.electricBlue,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.radiusMedium),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.radiusMedium,
+                    ),
                   ),
                   elevation: 0,
                 ),
@@ -348,8 +346,7 @@ class _PartsLookupScreenState extends State<PartsLookupScreen> {
                 // Thumbnail
                 if (article.imageUrl != null && article.imageUrl!.isNotEmpty)
                   ClipRRect(
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.radiusSmall),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
                     child: Image.network(
                       article.imageUrl!,
                       width: 56,
@@ -507,8 +504,9 @@ class _PartsLookupScreenState extends State<PartsLookupScreen> {
                   backgroundColor: AppColors.electricBlue,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.radiusMedium),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.radiusMedium,
+                    ),
                   ),
                   elevation: 0,
                 ),
@@ -518,8 +516,9 @@ class _PartsLookupScreenState extends State<PartsLookupScreen> {
                         height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : Text(
@@ -558,8 +557,7 @@ class _PartsLookupScreenState extends State<PartsLookupScreen> {
                   height: 44,
                   decoration: BoxDecoration(
                     color: AppColors.electricBlue.withValues(alpha: 0.12),
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.radiusSmall),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
                   ),
                   child: const Icon(
                     Icons.directions_car_outlined,
@@ -583,14 +581,20 @@ class _PartsLookupScreenState extends State<PartsLookupScreen> {
             _vehicleDetail('Engine', v.engineType),
             _vehicleDetail('Fuel', v.fuelType),
             _vehicleDetail('Body', v.bodyType),
-            _vehicleDetail('Power', v.powerKw != null
-                ? '${v.powerKw} kW${v.powerHp != null ? ' / ${v.powerHp} HP' : ''}'
-                : v.powerHp != null
-                    ? '${v.powerHp} HP'
-                    : null),
-            _vehicleDetail('Displacement', v.engineDisplacement != null
-                ? '${v.engineDisplacement} cc'
-                : null),
+            _vehicleDetail(
+              'Power',
+              v.powerKw != null
+                  ? '${v.powerKw} kW${v.powerHp != null ? ' / ${v.powerHp} HP' : ''}'
+                  : v.powerHp != null
+                  ? '${v.powerHp} HP'
+                  : null,
+            ),
+            _vehicleDetail(
+              'Displacement',
+              v.engineDisplacement != null
+                  ? '${v.engineDisplacement} cc'
+                  : null,
+            ),
             _vehicleDetail('Manufacturer ID', v.manufacturerId?.toString()),
             _vehicleDetail('Vehicle ID', v.vehicleId?.toString()),
           ],

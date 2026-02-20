@@ -104,8 +104,7 @@ class TecDocArticle {
       supplierName:
           json['supplierName'] as String? ??
           json['dataSupplierName'] as String?,
-      supplierId:
-          json['supplierId'] as int? ?? json['dataSupplierId'] as int?,
+      supplierId: json['supplierId'] as int? ?? json['dataSupplierId'] as int?,
       imageUrl: json['s3image'] as String?,
       oemNumbers: oemList != null
           ? oemList.map((o) => o.toString()).toList()
