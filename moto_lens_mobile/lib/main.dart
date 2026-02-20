@@ -121,8 +121,8 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const AiAssistantScreen());
       case '/qr-scanner':
         return MaterialPageRoute(builder: (_) => const QrScannerScreen());
-      case '/notes':
-        return MaterialPageRoute(builder: (_) => const NotesScreen());
+      case '/parts-lookup':
+        return MaterialPageRoute(builder: (_) => const PartsLookupScreen());
       case '/part-detail':
         return MaterialPageRoute(builder: (_) => const PartDetailScreen());
       case '/vehicle-detail':
@@ -352,10 +352,11 @@ class MainApp extends StatelessWidget {
                       Expanded(
                         child: _buildGridCard(
                           context,
-                          icon: Icons.note_alt_outlined,
-                          title: 'Take Notes',
-                          subtitle: 'Save locally',
-                          onTap: () => Navigator.pushNamed(context, '/notes'),
+                          icon: Icons.build_outlined,
+                          title: 'Parts Lookup',
+                          subtitle: 'TecDoc catalog',
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/parts-lookup'),
                         ),
                       ),
                     ],

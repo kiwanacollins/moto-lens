@@ -39,6 +39,7 @@ import {
     getCacheStats
 } from './services/webImageSearchService.js';
 import partLookupService from './services/partLookupService.js';
+import tecdocService from './services/tecdocService.js';
 
 // Use Web Image Search instead of Gemini for images
 const imageService = {
@@ -1097,6 +1098,123 @@ app.post('/api/ai/chat', async (req, res) => {
 });
 
 // ==================== END AI CHAT ENDPOINT ====================
+
+// ==================== TECDOC PARTS CATALOG ENDPOINTS ====================
+
+/**
+ * GET /api/tecdoc/vin/:vin — Decode VIN via TecDoc catalog
+ * Returns manufacturer ID, vehicle ID, model series, engine type etc.
+ */
+app.get('/api/tecdoc/vin/:vin', async (req, res) => {
+    const { vin } = req.params;
+
+    try {
+        const validation = vinUtils.validateVIN(vin);
+        if (!validation.valid) {
+            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+        }
+
+        const data = await tecdocService.decodeVin(validation.vin);
+
+        return res.json({ success: true, vin: validation.vin, data });
+    } catch (err) {
+        console.error('TecDoc VIN decode error:', err);
+        const status = err.statusCode || 500;
+        return res.status(status).json({ error: err.code || 'TECDOC_ERROR', message: err.message });
+    }
+});
+
+/**
+ * GET /api/tecdoc/categories/:vehicleId/:manufacturerId
+ * Returns part categories for the given vehicle.
+ * Query: langId, countryFilterId, typeId (all optional)
+ */
+app.get('/api/tecdoc/categories/:vehicleId/:manufacturerId', async (req, res) => {
+    const { vehicleId, manufacturerId } = req.params;
+    const { langId, countryFilterId, typeId } = req.query;
+
+    try {
+        const opts = {};
+        if (langId) opts.langId = Number(langId);
+        if (countryFilterId) opts.countryFilterId = Number(countryFilterId);
+        if (typeId) opts.typeId = Number(typeId);
+
+        const data = await tecdocService.getCategories(vehicleId, manufacturerId, opts);
+
+        return res.json({ success: true, vehicleId, manufacturerId, data });
+    } catch (err) {
+        console.error('TecDoc categories error:', err);
+        const status = err.statusCode || 500;
+        return res.status(status).json({ error: err.code || 'TECDOC_ERROR', message: err.message });
+    }
+});
+
+/**
+ * GET /api/tecdoc/article/:articleId
+ * Returns full article (part) details.
+ * Query: langId, countryFilterId (optional)
+ */
+app.get('/api/tecdoc/article/:articleId', async (req, res) => {
+    const { articleId } = req.params;
+    const { langId, countryFilterId } = req.query;
+
+    try {
+        const opts = {};
+        if (langId) opts.langId = Number(langId);
+        if (countryFilterId) opts.countryFilterId = Number(countryFilterId);
+
+        const [details, media] = await Promise.all([
+            tecdocService.getArticleDetails(articleId, opts),
+            tecdocService.getArticleMedia(articleId, { langId: opts.langId }),
+        ]);
+
+        return res.json({ success: true, articleId, details, media });
+    } catch (err) {
+        console.error('TecDoc article error:', err);
+        const status = err.statusCode || 500;
+        return res.status(status).json({ error: err.code || 'TECDOC_ERROR', message: err.message });
+    }
+});
+
+/**
+ * GET /api/tecdoc/search/:articleNumber
+ * Search articles by OEM / article number.
+ * Query: langId (optional)
+ */
+app.get('/api/tecdoc/search/:articleNumber', async (req, res) => {
+    const { articleNumber } = req.params;
+    const { langId } = req.query;
+
+    try {
+        const opts = {};
+        if (langId) opts.langId = Number(langId);
+
+        const data = await tecdocService.searchByArticleNumber(articleNumber, opts);
+
+        return res.json({ success: true, articleNumber, data });
+    } catch (err) {
+        console.error('TecDoc search error:', err);
+        const status = err.statusCode || 500;
+        return res.status(status).json({ error: err.code || 'TECDOC_ERROR', message: err.message });
+    }
+});
+
+/**
+ * GET /api/tecdoc/cache — Cache stats
+ */
+app.get('/api/tecdoc/cache', (req, res) => {
+    return res.json({ success: true, cache: tecdocService.getCacheStats() });
+});
+
+/**
+ * DELETE /api/tecdoc/cache — Clear cache
+ */
+app.delete('/api/tecdoc/cache', (req, res) => {
+    tecdocService.clearCache();
+    return res.json({ success: true, message: 'TecDoc cache cleared' });
+});
+
+// ==================== END TECDOC ENDPOINTS ====================
 
 // 404 handler
 app.use((req, res) => {
