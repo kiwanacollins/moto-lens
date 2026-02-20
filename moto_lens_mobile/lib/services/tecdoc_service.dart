@@ -50,15 +50,20 @@ class TecDocService {
   }) async {
     final queryParts = <String>[];
     if (langId != null) queryParts.add('langId=$langId');
-    if (countryFilterId != null) queryParts.add('countryFilterId=$countryFilterId');
+    if (countryFilterId != null)
+      queryParts.add('countryFilterId=$countryFilterId');
     if (typeId != null) queryParts.add('typeId=$typeId');
     final qs = queryParts.isNotEmpty ? '?${queryParts.join('&')}' : '';
 
-    final response = await _api.get('/tecdoc/categories/$vehicleId/$manufacturerId$qs');
+    final response = await _api.get(
+      '/tecdoc/categories/$vehicleId/$manufacturerId$qs',
+    );
     final body = json.decode(response.body) as Map<String, dynamic>;
 
     if (body['success'] != true) {
-      throw TecDocException(body['message'] as String? ?? 'Failed to load categories');
+      throw TecDocException(
+        body['message'] as String? ?? 'Failed to load categories',
+      );
     }
 
     final data = body['data'];
@@ -69,7 +74,8 @@ class TecDocService {
     }
     if (data is Map<String, dynamic>) {
       // Might be wrapped in a key
-      final categories = data['categories'] ?? data['array'] ?? data.values.first;
+      final categories =
+          data['categories'] ?? data['array'] ?? data.values.first;
       if (categories is List) {
         return categories
             .map((e) => TecDocCategory.fromJson(e as Map<String, dynamic>))
@@ -81,17 +87,24 @@ class TecDocService {
   }
 
   /// Get full article (part) details + media.
-  Future<TecDocArticle> getArticleDetails(int articleId, {int? langId, int? countryFilterId}) async {
+  Future<TecDocArticle> getArticleDetails(
+    int articleId, {
+    int? langId,
+    int? countryFilterId,
+  }) async {
     final queryParts = <String>[];
     if (langId != null) queryParts.add('langId=$langId');
-    if (countryFilterId != null) queryParts.add('countryFilterId=$countryFilterId');
+    if (countryFilterId != null)
+      queryParts.add('countryFilterId=$countryFilterId');
     final qs = queryParts.isNotEmpty ? '?${queryParts.join('&')}' : '';
 
     final response = await _api.get('/tecdoc/article/$articleId$qs');
     final body = json.decode(response.body) as Map<String, dynamic>;
 
     if (body['success'] != true) {
-      throw TecDocException(body['message'] as String? ?? 'Failed to load article');
+      throw TecDocException(
+        body['message'] as String? ?? 'Failed to load article',
+      );
     }
 
     final details = body['details'] ?? {};
@@ -103,7 +116,8 @@ class TecDocService {
           .map((e) => TecDocMedia.fromJson(e as Map<String, dynamic>))
           .toList();
     } else if (mediaRaw is Map<String, dynamic>) {
-      final arr = mediaRaw['array'] ?? mediaRaw['media'] ?? mediaRaw.values.first;
+      final arr =
+          mediaRaw['array'] ?? mediaRaw['media'] ?? mediaRaw.values.first;
       if (arr is List) {
         mediaList = arr
             .map((e) => TecDocMedia.fromJson(e as Map<String, dynamic>))
@@ -112,12 +126,20 @@ class TecDocService {
     }
 
     if (details is Map<String, dynamic>) {
-      details['images'] = mediaList.map((m) => {'url': m.url, 'description': m.description, 'type': m.type}).toList();
+      details['images'] = mediaList
+          .map(
+            (m) => {'url': m.url, 'description': m.description, 'type': m.type},
+          )
+          .toList();
       return TecDocArticle.fromJson(details);
     }
     if (details is List && details.isNotEmpty) {
       final map = details.first as Map<String, dynamic>;
-      map['images'] = mediaList.map((m) => {'url': m.url, 'description': m.description, 'type': m.type}).toList();
+      map['images'] = mediaList
+          .map(
+            (m) => {'url': m.url, 'description': m.description, 'type': m.type},
+          )
+          .toList();
       return TecDocArticle.fromJson(map);
     }
 
@@ -125,9 +147,14 @@ class TecDocService {
   }
 
   /// Search articles by OEM / article number.
-  Future<List<TecDocArticle>> searchByArticleNumber(String articleNumber, {int? langId}) async {
+  Future<List<TecDocArticle>> searchByArticleNumber(
+    String articleNumber, {
+    int? langId,
+  }) async {
     final qs = langId != null ? '?langId=$langId' : '';
-    final response = await _api.get('/tecdoc/search/${Uri.encodeComponent(articleNumber)}$qs');
+    final response = await _api.get(
+      '/tecdoc/search/${Uri.encodeComponent(articleNumber)}$qs',
+    );
     final body = json.decode(response.body) as Map<String, dynamic>;
 
     if (body['success'] != true) {

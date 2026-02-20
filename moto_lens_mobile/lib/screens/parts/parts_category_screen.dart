@@ -32,7 +32,8 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
   }
 
   Future<void> _loadCategories() async {
-    if (widget.vehicle.vehicleId == null || widget.vehicle.manufacturerId == null) {
+    if (widget.vehicle.vehicleId == null ||
+        widget.vehicle.manufacturerId == null) {
       setState(() {
         _error = 'Missing vehicle or manufacturer ID';
         _isLoading = false;
@@ -120,8 +121,14 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
               style: AppTypography.bodyMedium,
               decoration: InputDecoration(
                 hintText: 'Filter categories...',
-                hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.textDisabled),
-                prefixIcon: const Icon(Icons.search, color: AppColors.gunmetalGray, size: 20),
+                hintStyle: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.textDisabled,
+                ),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: AppColors.gunmetalGray,
+                  size: 20,
+                ),
                 filled: true,
                 fillColor: AppColors.surfaceElevated,
                 border: OutlineInputBorder(
@@ -134,7 +141,10 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
-                  borderSide: BorderSide(color: AppColors.electricBlue, width: 2),
+                  borderSide: BorderSide(
+                    color: AppColors.electricBlue,
+                    width: 2,
+                  ),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.md,
@@ -162,7 +172,11 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
       color: AppColors.electricBlue.withValues(alpha: 0.08),
       child: Row(
         children: [
-          Icon(Icons.directions_car_outlined, color: AppColors.electricBlue, size: 20),
+          Icon(
+            Icons.directions_car_outlined,
+            color: AppColors.electricBlue,
+            size: 20,
+          ),
           const SizedBox(width: AppSpacing.xs),
           Expanded(
             child: Text(
@@ -200,7 +214,9 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 _error!,
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -221,7 +237,9 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
           _searchQuery.isEmpty
               ? 'No categories found for this vehicle.'
               : 'No categories match your search.',
-          style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+          style: AppTypography.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
       );
     }
@@ -252,8 +270,8 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
         onTap: hasArticles
             ? () => _showArticleList(cat)
             : hasChildren
-                ? () => _drillDown(cat)
-                : null,
+            ? () => _drillDown(cat)
+            : null,
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
@@ -322,7 +340,9 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
       isScrollControlled: true,
       backgroundColor: AppColors.surfaceElevated,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXLarge)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.radiusXLarge),
+        ),
       ),
       builder: (context) => DraggableScrollableSheet(
         expand: false,
@@ -354,7 +374,8 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
                 controller: scrollController,
                 padding: const EdgeInsets.all(AppSpacing.md),
                 itemCount: cat.articleIds.length,
-                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.xs),
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppSpacing.xs),
                 itemBuilder: (context, index) {
                   final id = cat.articleIds[index];
                   return ListTile(
@@ -363,7 +384,9 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
                       height: 36,
                       decoration: BoxDecoration(
                         color: AppColors.electricBlue.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusSmall,
+                        ),
                       ),
                       child: Center(
                         child: Text(
@@ -381,9 +404,14 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
                         color: AppColors.textPrimary,
                       ),
                     ),
-                    trailing: const Icon(Icons.chevron_right, color: AppColors.textDisabled),
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      color: AppColors.textDisabled,
+                    ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusSmall,
+                      ),
                     ),
                     onTap: () {
                       Navigator.pop(context);
@@ -426,9 +454,11 @@ class _PartsCategoryScreenState extends State<PartsCategoryScreen> {
     if (n.contains('cool')) return Icons.thermostat_outlined;
     if (n.contains('fuel')) return Icons.local_gas_station_outlined;
     if (n.contains('steer')) return Icons.sports_esports_outlined;
-    if (n.contains('transm') || n.contains('gear')) return Icons.settings_input_composite_outlined;
+    if (n.contains('transm') || n.contains('gear'))
+      return Icons.settings_input_composite_outlined;
     if (n.contains('filter')) return Icons.filter_alt_outlined;
-    if (n.contains('light') || n.contains('lamp')) return Icons.lightbulb_outline;
+    if (n.contains('light') || n.contains('lamp'))
+      return Icons.lightbulb_outline;
     if (n.contains('wiper')) return Icons.water_drop_outlined;
     return Icons.category_outlined;
   }
@@ -478,9 +508,12 @@ class _SubCategoryScreen extends StatelessWidget {
             subtitle: cat.articleIds.isNotEmpty
                 ? Text('${cat.articleIds.length} parts')
                 : cat.children.isNotEmpty
-                    ? Text('${cat.children.length} subcategories')
-                    : null,
-            trailing: const Icon(Icons.chevron_right, color: AppColors.textDisabled),
+                ? Text('${cat.children.length} subcategories')
+                : null,
+            trailing: const Icon(
+              Icons.chevron_right,
+              color: AppColors.textDisabled,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
             ),
