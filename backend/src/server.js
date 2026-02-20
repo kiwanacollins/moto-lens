@@ -58,7 +58,8 @@ const PORT = process.env.PORT || 3001;
 // Enable trust proxy for apps behind reverse proxy (nginx)
 // This allows express-rate-limit to correctly identify client IPs
 // from the X-Forwarded-For header set by nginx
-app.set('trust proxy', true);
+// Use 1 (single hop) since nginx is the only reverse proxy
+app.set('trust proxy', 1);
 
 // ========================================
 // SECURITY MIDDLEWARE (Applied First)
