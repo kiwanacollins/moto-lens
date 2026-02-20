@@ -1103,7 +1103,6 @@ app.post('/api/ai/chat', async (req, res) => {
 
 /**
  * GET /api/tecdoc/vin/:vin — Decode VIN via TecDoc catalog
- * Returns manufacturer ID, vehicle ID, model series, engine type etc.
  */
 app.get('/api/tecdoc/vin/:vin', async (req, res) => {
     const { vin } = req.params;
@@ -1125,61 +1124,9 @@ app.get('/api/tecdoc/vin/:vin', async (req, res) => {
 });
 
 /**
- * GET /api/tecdoc/categories/:vehicleId/:manufacturerId
- * Returns part categories for the given vehicle.
- * Query: langId, countryFilterId, typeId (all optional)
- */
-app.get('/api/tecdoc/categories/:vehicleId/:manufacturerId', async (req, res) => {
-    const { vehicleId, manufacturerId } = req.params;
-    const { langId, countryFilterId, typeId } = req.query;
-
-    try {
-        const opts = {};
-        if (langId) opts.langId = Number(langId);
-        if (countryFilterId) opts.countryFilterId = Number(countryFilterId);
-        if (typeId) opts.typeId = Number(typeId);
-
-        const data = await tecdocService.getCategories(vehicleId, manufacturerId, opts);
-
-        return res.json({ success: true, vehicleId, manufacturerId, data });
-    } catch (err) {
-        console.error('TecDoc categories error:', err);
-        const status = err.statusCode || 500;
-        return res.status(status).json({ error: err.code || 'TECDOC_ERROR', message: err.message });
-    }
-});
-
-/**
- * GET /api/tecdoc/article/:articleId
- * Returns full article (part) details.
- * Query: langId, countryFilterId (optional)
- */
-app.get('/api/tecdoc/article/:articleId', async (req, res) => {
-    const { articleId } = req.params;
-    const { langId, countryFilterId } = req.query;
-
-    try {
-        const opts = {};
-        if (langId) opts.langId = Number(langId);
-        if (countryFilterId) opts.countryFilterId = Number(countryFilterId);
-
-        const [details, media] = await Promise.all([
-            tecdocService.getArticleDetails(articleId, opts),
-            tecdocService.getArticleMedia(articleId, { langId: opts.langId }),
-        ]);
-
-        return res.json({ success: true, articleId, details, media });
-    } catch (err) {
-        console.error('TecDoc article error:', err);
-        const status = err.statusCode || 500;
-        return res.status(status).json({ error: err.code || 'TECDOC_ERROR', message: err.message });
-    }
-});
-
-/**
  * GET /api/tecdoc/search/:articleNumber
- * Search articles by OEM / article number.
- * Query: langId (optional)
+ * Search articles by part / article number.
+ * Query: langId (optional, default 4 = English)
  */
 app.get('/api/tecdoc/search/:articleNumber', async (req, res) => {
     const { articleNumber } = req.params;
@@ -1194,6 +1141,63 @@ app.get('/api/tecdoc/search/:articleNumber', async (req, res) => {
         return res.json({ success: true, articleNumber, data });
     } catch (err) {
         console.error('TecDoc search error:', err);
+        const status = err.statusCode || 500;
+        return res.status(status).json({ error: err.code || 'TECDOC_ERROR', message: err.message });
+    }
+});
+
+/**
+ * GET /api/tecdoc/article/:articleId
+ * Returns article media + category info.
+ * Query: langId (optional)
+ */
+app.get('/api/tecdoc/article/:articleId', async (req, res) => {
+    const { articleId } = req.params;
+    const { langId } = req.query;
+
+    try {
+        const opts = {};
+        if (langId) opts.langId = Number(langId);
+
+        const [media, category] = await Promise.all([
+            tecdocService.getArticleMedia(articleId, opts),
+            tecdocService.getArticleCategory(articleId, opts),
+        ]);
+
+        return res.json({ success: true, articleId, media, category });
+    } catch (err) {
+        console.error('TecDoc article error:', err);
+        const status = err.statusCode || 500;
+        return res.status(status).json({ error: err.code || 'TECDOC_ERROR', message: err.message });
+    }
+});
+
+/**
+ * GET /api/tecdoc/manufacturer/:manufacturerId
+ * Get manufacturer details by ID.
+ */
+app.get('/api/tecdoc/manufacturer/:manufacturerId', async (req, res) => {
+    const { manufacturerId } = req.params;
+
+    try {
+        const data = await tecdocService.getManufacturer(manufacturerId);
+        return res.json({ success: true, data });
+    } catch (err) {
+        console.error('TecDoc manufacturer error:', err);
+        const status = err.statusCode || 500;
+        return res.status(status).json({ error: err.code || 'TECDOC_ERROR', message: err.message });
+    }
+});
+
+/**
+ * GET /api/tecdoc/suppliers — List all suppliers
+ */
+app.get('/api/tecdoc/suppliers', async (req, res) => {
+    try {
+        const data = await tecdocService.getSuppliers();
+        return res.json({ success: true, data });
+    } catch (err) {
+        console.error('TecDoc suppliers error:', err);
         const status = err.statusCode || 500;
         return res.status(status).json({ error: err.code || 'TECDOC_ERROR', message: err.message });
     }

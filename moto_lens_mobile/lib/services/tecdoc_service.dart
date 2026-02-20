@@ -40,113 +40,7 @@ class TecDocService {
     throw TecDocException('Unexpected VIN decode response format');
   }
 
-  /// Get part categories for a decoded vehicle.
-  Future<List<TecDocCategory>> getCategories({
-    required int vehicleId,
-    required int manufacturerId,
-    int? langId,
-    int? countryFilterId,
-    int? typeId,
-  }) async {
-    final queryParts = <String>[];
-    if (langId != null) queryParts.add('langId=$langId');
-    if (countryFilterId != null)
-      queryParts.add('countryFilterId=$countryFilterId');
-    if (typeId != null) queryParts.add('typeId=$typeId');
-    final qs = queryParts.isNotEmpty ? '?${queryParts.join('&')}' : '';
-
-    final response = await _api.get(
-      '/tecdoc/categories/$vehicleId/$manufacturerId$qs',
-    );
-    final body = json.decode(response.body) as Map<String, dynamic>;
-
-    if (body['success'] != true) {
-      throw TecDocException(
-        body['message'] as String? ?? 'Failed to load categories',
-      );
-    }
-
-    final data = body['data'];
-    if (data is List) {
-      return data
-          .map((e) => TecDocCategory.fromJson(e as Map<String, dynamic>))
-          .toList();
-    }
-    if (data is Map<String, dynamic>) {
-      // Might be wrapped in a key
-      final categories =
-          data['categories'] ?? data['array'] ?? data.values.first;
-      if (categories is List) {
-        return categories
-            .map((e) => TecDocCategory.fromJson(e as Map<String, dynamic>))
-            .toList();
-      }
-    }
-
-    return [];
-  }
-
-  /// Get full article (part) details + media.
-  Future<TecDocArticle> getArticleDetails(
-    int articleId, {
-    int? langId,
-    int? countryFilterId,
-  }) async {
-    final queryParts = <String>[];
-    if (langId != null) queryParts.add('langId=$langId');
-    if (countryFilterId != null)
-      queryParts.add('countryFilterId=$countryFilterId');
-    final qs = queryParts.isNotEmpty ? '?${queryParts.join('&')}' : '';
-
-    final response = await _api.get('/tecdoc/article/$articleId$qs');
-    final body = json.decode(response.body) as Map<String, dynamic>;
-
-    if (body['success'] != true) {
-      throw TecDocException(
-        body['message'] as String? ?? 'Failed to load article',
-      );
-    }
-
-    final details = body['details'] ?? {};
-    final mediaRaw = body['media'];
-
-    List<TecDocMedia> mediaList = [];
-    if (mediaRaw is List) {
-      mediaList = mediaRaw
-          .map((e) => TecDocMedia.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } else if (mediaRaw is Map<String, dynamic>) {
-      final arr =
-          mediaRaw['array'] ?? mediaRaw['media'] ?? mediaRaw.values.first;
-      if (arr is List) {
-        mediaList = arr
-            .map((e) => TecDocMedia.fromJson(e as Map<String, dynamic>))
-            .toList();
-      }
-    }
-
-    if (details is Map<String, dynamic>) {
-      details['images'] = mediaList
-          .map(
-            (m) => {'url': m.url, 'description': m.description, 'type': m.type},
-          )
-          .toList();
-      return TecDocArticle.fromJson(details);
-    }
-    if (details is List && details.isNotEmpty) {
-      final map = details.first as Map<String, dynamic>;
-      map['images'] = mediaList
-          .map(
-            (m) => {'url': m.url, 'description': m.description, 'type': m.type},
-          )
-          .toList();
-      return TecDocArticle.fromJson(map);
-    }
-
-    throw TecDocException('Unexpected article response format');
-  }
-
-  /// Search articles by OEM / article number.
+  /// Search articles by part/article number.
   Future<List<TecDocArticle>> searchByArticleNumber(
     String articleNumber, {
     int? langId,
@@ -162,6 +56,14 @@ class TecDocService {
     }
 
     final data = body['data'];
+    if (data is Map<String, dynamic>) {
+      final articles = data['articles'];
+      if (articles is List) {
+        return articles
+            .map((e) => TecDocArticle.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    }
     if (data is List) {
       return data
           .map((e) => TecDocArticle.fromJson(e as Map<String, dynamic>))
@@ -169,6 +71,61 @@ class TecDocService {
     }
 
     return [];
+  }
+
+  /// Get article details (media + category) by article ID.
+  Future<TecDocArticle> getArticleDetails(
+    int articleId, {
+    int? langId,
+  }) async {
+    final qs = langId != null ? '?langId=$langId' : '';
+    final response = await _api.get('/tecdoc/article/$articleId$qs');
+    final body = json.decode(response.body) as Map<String, dynamic>;
+
+    if (body['success'] != true) {
+      throw TecDocException(
+        body['message'] as String? ?? 'Failed to load article',
+      );
+    }
+
+    // Parse media array
+    List<TecDocMedia> mediaList = [];
+    final mediaRaw = body['media'];
+    if (mediaRaw is List) {
+      mediaList = mediaRaw
+          .map((e) => TecDocMedia.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } else if (mediaRaw is Map<String, dynamic>) {
+      final arr =
+          mediaRaw['array'] ?? mediaRaw['media'] ?? mediaRaw.values.first;
+      if (arr is List) {
+        mediaList = arr
+            .map((e) => TecDocMedia.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    }
+
+    // Parse category info
+    String? categoryName;
+    final catRaw = body['category'];
+    if (catRaw is Map<String, dynamic>) {
+      categoryName = catRaw['categoryName'] as String? ??
+          catRaw['name'] as String?;
+    } else if (catRaw is List && catRaw.isNotEmpty) {
+      final first = catRaw.first;
+      if (first is Map<String, dynamic>) {
+        categoryName = first['categoryName'] as String? ??
+            first['name'] as String?;
+      }
+    }
+
+    return TecDocArticle(
+      articleId: articleId,
+      articleNumber: '',
+      articleName: categoryName,
+      images: mediaList,
+      raw: body,
+    );
   }
 }
 

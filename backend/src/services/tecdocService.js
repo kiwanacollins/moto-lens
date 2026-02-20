@@ -4,19 +4,19 @@
  * Proxies requests to the TecDoc API on RapidAPI, with an in-memory cache
  * layer to minimise redundant calls and speed up repeat lookups.
  *
- * Flow:
- *   1. Decode VIN  → vehicle IDs
- *   2. Get categories for vehicle
- *   3. Get article (part) details + media
+ * Confirmed working endpoints (PRO plan):
+ *   - vin/decoder-v2/{vin}
+ *   - manufacturers/find-by-id/{id}
+ *   - articles/search-by-article-no/lang-id/{langId}/article-no/{articleNo}
+ *   - articles/article-all-media-info/article-id/{articleId}/lang-id/{langId}
+ *   - articles/get-article-category/article-id/{articleId}/lang-id/{langId}
+ *   - suppliers/list
  */
 
-const RAPIDAPI_HOST = 'tecdoc-catalog.p.rapidapi.com';
+const RAPIDAPI_HOST = 'auto-parts-catalog.p.rapidapi.com';
 const BASE_URL = `https://${RAPIDAPI_HOST}`;
 
-// Default language / country IDs (English, Germany)
-const DEFAULT_LANG_ID = 4;     // English
-const DEFAULT_COUNTRY_ID = 6;  // Germany
-const DEFAULT_TYPE_ID = 1;     // Passenger car
+const DEFAULT_LANG_ID = 4; // English
 
 // Cache TTL: 24 hours
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
@@ -95,7 +95,7 @@ async function tecdocFetch(path) {
 // ---------------------------------------------------------------------------
 
 /**
- * Decode a VIN and return vehicle identification IDs.
+ * Decode a VIN and return vehicle identification data.
  */
 async function decodeVin(vin) {
     const cacheKey = `vin:${vin}`;
@@ -108,58 +108,8 @@ async function decodeVin(vin) {
 }
 
 /**
- * Get part categories for a decoded vehicle.
- */
-async function getCategories(vehicleId, manufacturerId, {
-    langId = DEFAULT_LANG_ID,
-    countryFilterId = DEFAULT_COUNTRY_ID,
-    typeId = DEFAULT_TYPE_ID,
-} = {}) {
-    const cacheKey = `cat:${vehicleId}:${manufacturerId}:${langId}:${countryFilterId}:${typeId}`;
-    const cached = cacheGet(cacheKey);
-    if (cached) return cached;
-
-    const path = `/category/category-products-groups-variant-1/${vehicleId}/manufacturer-id/${manufacturerId}/lang-id/${langId}/country-filter-id/${countryFilterId}/type-id/${typeId}`;
-    const data = await tecdocFetch(path);
-    cacheSet(cacheKey, data);
-    return data;
-}
-
-/**
- * Get full article (part) details by article ID.
- */
-async function getArticleDetails(articleId, {
-    langId = DEFAULT_LANG_ID,
-    countryFilterId = DEFAULT_COUNTRY_ID,
-} = {}) {
-    const cacheKey = `art:${articleId}:${langId}:${countryFilterId}`;
-    const cached = cacheGet(cacheKey);
-    if (cached) return cached;
-
-    const path = `/articles/article-id-details/${articleId}/lang-id/${langId}/country-filter-id/${countryFilterId}`;
-    const data = await tecdocFetch(path);
-    cacheSet(cacheKey, data);
-    return data;
-}
-
-/**
- * Get media (images) for an article.
- */
-async function getArticleMedia(articleId, {
-    langId = DEFAULT_LANG_ID,
-} = {}) {
-    const cacheKey = `media:${articleId}:${langId}`;
-    const cached = cacheGet(cacheKey);
-    if (cached) return cached;
-
-    const path = `/articles/article-all-media-info/${articleId}/lang-id/${langId}`;
-    const data = await tecdocFetch(path);
-    cacheSet(cacheKey, data);
-    return data;
-}
-
-/**
- * Search articles by article number.
+ * Search articles by part/article number.
+ * Returns { articleNo, countArticles, articles: [...] }
  */
 async function searchByArticleNumber(articleNumber, {
     langId = DEFAULT_LANG_ID,
@@ -168,18 +118,77 @@ async function searchByArticleNumber(articleNumber, {
     const cached = cacheGet(cacheKey);
     if (cached) return cached;
 
-    const path = `/articles/search/lang-id/${langId}/article-search/${encodeURIComponent(articleNumber)}`;
+    const path = `/articles/search-by-article-no/lang-id/${langId}/article-no/${encodeURIComponent(articleNumber)}`;
     const data = await tecdocFetch(path);
+    cacheSet(cacheKey, data);
+    return data;
+}
+
+/**
+ * Get media (images) for an article by its ID.
+ */
+async function getArticleMedia(articleId, {
+    langId = DEFAULT_LANG_ID,
+} = {}) {
+    const cacheKey = `media:${articleId}:${langId}`;
+    const cached = cacheGet(cacheKey);
+    if (cached) return cached;
+
+    const path = `/articles/article-all-media-info/article-id/${articleId}/lang-id/${langId}`;
+    const data = await tecdocFetch(path);
+    cacheSet(cacheKey, data);
+    return data;
+}
+
+/**
+ * Get category info for an article by its ID.
+ */
+async function getArticleCategory(articleId, {
+    langId = DEFAULT_LANG_ID,
+} = {}) {
+    const cacheKey = `artcat:${articleId}:${langId}`;
+    const cached = cacheGet(cacheKey);
+    if (cached) return cached;
+
+    const path = `/articles/get-article-category/article-id/${articleId}/lang-id/${langId}`;
+    const data = await tecdocFetch(path);
+    cacheSet(cacheKey, data);
+    return data;
+}
+
+/**
+ * Get manufacturer details by ID.
+ */
+async function getManufacturer(manufacturerId) {
+    const cacheKey = `manu:${manufacturerId}`;
+    const cached = cacheGet(cacheKey);
+    if (cached) return cached;
+
+    const data = await tecdocFetch(`/manufacturers/find-by-id/${manufacturerId}`);
+    cacheSet(cacheKey, data);
+    return data;
+}
+
+/**
+ * List all suppliers.
+ */
+async function getSuppliers() {
+    const cacheKey = 'suppliers';
+    const cached = cacheGet(cacheKey);
+    if (cached) return cached;
+
+    const data = await tecdocFetch('/suppliers/list');
     cacheSet(cacheKey, data);
     return data;
 }
 
 export default {
     decodeVin,
-    getCategories,
-    getArticleDetails,
-    getArticleMedia,
     searchByArticleNumber,
+    getArticleMedia,
+    getArticleCategory,
+    getManufacturer,
+    getSuppliers,
     getCacheStats,
     clearCache,
 };

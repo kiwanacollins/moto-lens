@@ -5,13 +5,11 @@ import '../../styles/styles.dart';
 
 /// Displays full details and images for a single TecDoc article (part).
 class ArticleDetailScreen extends StatefulWidget {
-  final int articleId;
-  final String vehicleName;
+  final TecDocArticle article;
 
   const ArticleDetailScreen({
     super.key,
-    required this.articleId,
-    required this.vehicleName,
+    required this.article,
   });
 
   @override
@@ -23,24 +21,31 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
 
   bool _isLoading = true;
   String? _error;
-  TecDocArticle? _article;
+  List<TecDocMedia> _media = [];
+  String? _categoryName;
 
   @override
   void initState() {
     super.initState();
-    _loadArticle();
+    _loadExtra();
   }
 
-  Future<void> _loadArticle() async {
+  Future<void> _loadExtra() async {
+    if (widget.article.articleId == 0) {
+      setState(() => _isLoading = false);
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _error = null;
     });
 
     try {
-      final article = await _tecdoc.getArticleDetails(widget.articleId);
+      final details = await _tecdoc.getArticleDetails(widget.article.articleId);
       setState(() {
-        _article = article;
+        _media = details.images;
+        _categoryName = details.articleName;
         _isLoading = false;
       });
     } on TecDocException catch (e) {
@@ -50,7 +55,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
       });
     } catch (e) {
       setState(() {
-        _error = 'Failed to load part details';
+        _error = 'Could not load additional details';
         _isLoading = false;
       });
     }
@@ -58,10 +63,11 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final a = widget.article;
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _article?.articleName ?? 'Part Details',
+          a.articleName ?? 'Part Details',
           style: AppTypography.h3.copyWith(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -72,144 +78,138 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       backgroundColor: AppColors.background,
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.electricBlue),
-        ),
-      );
-    }
-
-    if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.error_outline, size: 48, color: AppColors.error),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                _error!,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              OutlinedButton(
-                onPressed: _loadArticle,
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    final a = _article!;
-
-    return RefreshIndicator(
-      onRefresh: _loadArticle,
-      color: AppColors.electricBlue,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Images
-            if (a.images.isNotEmpty) _buildImageGallery(a.images),
+            // Hero image from search results
+            if (a.imageUrl != null && a.imageUrl!.isNotEmpty)
+              _buildHeroImage(a.imageUrl!),
 
-            // Part name & article number
+            // Media gallery from article API
+            if (!_isLoading && _media.isNotEmpty) _buildMediaGallery(),
+
+            // Loading indicator for extra data
+            if (_isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(AppColors.electricBlue),
+                  ),
+                ),
+              ),
+
+            // Error (non-blocking)
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: Text(
+                  _error!,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+
+            // Part info card
             _buildInfoCard(a),
-
             const SizedBox(height: AppSpacing.sm),
 
-            // OEM numbers
-            if (a.oemNumbers.isNotEmpty) _buildOemNumbers(a.oemNumbers),
-
-            const SizedBox(height: AppSpacing.sm),
-
-            // Description / raw data
-            if (a.description != null && a.description!.isNotEmpty)
-              _buildDescriptionCard(a.description!),
-
-            const SizedBox(height: AppSpacing.sm),
+            // Category
+            if (_categoryName != null && _categoryName!.isNotEmpty)
+              _buildCategoryCard(_categoryName!),
+            if (_categoryName != null) const SizedBox(height: AppSpacing.sm),
 
             // Supplier
             if (a.supplierName != null) _buildSupplierCard(a.supplierName!),
 
-            const SizedBox(height: AppSpacing.lg),
+            // OEM numbers
+            if (a.oemNumbers.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.sm),
+              _buildOemNumbers(a.oemNumbers),
+            ],
 
-            // Vehicle context
-            _buildVehicleContext(),
+            const SizedBox(height: AppSpacing.lg),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildImageGallery(List<TecDocMedia> images) {
+  Widget _buildHeroImage(String url) {
     return Container(
       height: 220,
+      width: double.infinity,
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-        child: PageView.builder(
-          itemCount: images.length,
-          itemBuilder: (context, index) {
-            final img = images[index];
-            if (img.url.isEmpty) {
-              return Container(
-                color: AppColors.zinc100,
-                child: const Center(
-                  child: Icon(
-                    Icons.image_not_supported_outlined,
-                    size: 48,
-                    color: AppColors.textDisabled,
+        child: Container(
+          color: AppColors.zinc50,
+          child: Image.network(
+            url,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => const Center(
+              child: Icon(
+                Icons.broken_image_outlined,
+                size: 48,
+                color: AppColors.textDisabled,
+              ),
+            ),
+            loadingBuilder: (_, child, progress) {
+              if (progress == null) return child;
+              return Center(
+                child: CircularProgressIndicator(
+                  value: progress.expectedTotalBytes != null
+                      ? progress.cumulativeBytesLoaded /
+                            progress.expectedTotalBytes!
+                      : null,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppColors.electricBlue,
                   ),
                 ),
               );
-            }
-            return Container(
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMediaGallery() {
+    final validMedia = _media.where((m) => m.url.isNotEmpty).toList();
+    if (validMedia.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      height: 140,
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: validMedia.length,
+        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.xs),
+        itemBuilder: (context, index) {
+          final img = validMedia[index];
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
+            child: Container(
+              width: 140,
               color: AppColors.zinc50,
               child: Image.network(
                 img.url,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => Container(
-                  color: AppColors.zinc100,
-                  child: const Center(
-                    child: Icon(
-                      Icons.broken_image_outlined,
-                      size: 48,
-                      color: AppColors.textDisabled,
-                    ),
+                errorBuilder: (_, __, ___) => const Center(
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    size: 32,
+                    color: AppColors.textDisabled,
                   ),
                 ),
-                loadingBuilder: (_, child, progress) {
-                  if (progress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: progress.expectedTotalBytes != null
-                          ? progress.cumulativeBytesLoaded /
-                                progress.expectedTotalBytes!
-                          : null,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppColors.electricBlue,
-                      ),
-                    ),
-                  );
-                },
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -273,7 +273,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     );
   }
 
-  Widget _buildOemNumbers(List<String> oems) {
+  Widget _buildCategoryCard(String category) {
     return Material(
       color: AppColors.surfaceElevated,
       borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
@@ -285,76 +285,40 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
           borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
           border: Border.all(color: AppColors.border, width: 1),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              'OEM Numbers',
-              style: AppTypography.h6.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.electricBlue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
+              ),
+              child: const Icon(
+                Icons.category_outlined,
+                color: AppColors.electricBlue,
+                size: 20,
               ),
             ),
-            const SizedBox(height: AppSpacing.xs),
-            Wrap(
-              spacing: AppSpacing.xs,
-              runSpacing: AppSpacing.xxs,
-              children: oems.map((oem) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xxs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.electricBlue.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
-                    border: Border.all(
-                      color: AppColors.electricBlue.withValues(alpha: 0.2),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Category',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
                     ),
                   ),
-                  child: Text(
-                    oem,
-                    style: AppTypography.codeMedium.copyWith(
-                      color: AppColors.electricBlue,
+                  Text(
+                    category,
+                    style: AppTypography.bodyMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                );
-              }).toList(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDescriptionCard(String description) {
-    return Material(
-      color: AppColors.surfaceElevated,
-      borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-      elevation: 0.5,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-          border: Border.all(color: AppColors.border, width: 1),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Description',
-              style: AppTypography.h6.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              description,
-              style: AppTypography.bodyMedium.copyWith(
-                color: AppColors.textPrimary,
-                height: 1.5,
+                ],
               ),
             ),
           ],
@@ -417,33 +381,57 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
     );
   }
 
-  Widget _buildVehicleContext() {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.zinc50,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusSmall),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.directions_car_outlined,
-            size: 16,
-            color: AppColors.textSecondary,
-          ),
-          const SizedBox(width: AppSpacing.xs),
-          Expanded(
-            child: Text(
-              widget.vehicleName,
-              style: AppTypography.bodySmall.copyWith(
+  Widget _buildOemNumbers(List<String> oems) {
+    return Material(
+      color: AppColors.surfaceElevated,
+      borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+      elevation: 0.5,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+          border: Border.all(color: AppColors.border, width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'OEM Numbers',
+              style: AppTypography.h6.copyWith(
+                fontWeight: FontWeight.w600,
                 color: AppColors.textSecondary,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.xs),
+            Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xxs,
+              children: oems.map((oem) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xxs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.electricBlue.withValues(alpha: 0.08),
+                    borderRadius:
+                        BorderRadius.circular(AppSpacing.radiusSmall),
+                    border: Border.all(
+                      color: AppColors.electricBlue.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Text(
+                    oem,
+                    style: AppTypography.codeMedium.copyWith(
+                      color: AppColors.electricBlue,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -60,46 +60,14 @@ class TecDocVehicle {
   }
 }
 
-class TecDocCategory {
-  final int categoryId;
-  final String categoryName;
-  final List<TecDocCategory> children;
-  final List<int> articleIds;
-
-  TecDocCategory({
-    required this.categoryId,
-    required this.categoryName,
-    this.children = const [],
-    this.articleIds = const [],
-  });
-
-  factory TecDocCategory.fromJson(Map<String, dynamic> json) {
-    final childList = json['children'] as List?;
-    final articleList = json['articleIds'] as List?;
-    return TecDocCategory(
-      categoryId: json['categoryId'] as int? ?? json['id'] as int? ?? 0,
-      categoryName:
-          json['categoryName'] as String? ??
-          json['name'] as String? ??
-          'Unknown',
-      children: childList != null
-          ? childList
-                .map((c) => TecDocCategory.fromJson(c as Map<String, dynamic>))
-                .toList()
-          : [],
-      articleIds: articleList != null
-          ? articleList.map((a) => a as int).toList()
-          : [],
-    );
-  }
-}
-
 class TecDocArticle {
   final int articleId;
   final String articleNumber;
   final String? articleName;
   final String? description;
   final String? supplierName;
+  final int? supplierId;
+  final String? imageUrl;
   final List<String> oemNumbers;
   final List<TecDocMedia> images;
   final Map<String, dynamic> raw;
@@ -110,22 +78,25 @@ class TecDocArticle {
     this.articleName,
     this.description,
     this.supplierName,
+    this.supplierId,
+    this.imageUrl,
     this.oemNumbers = const [],
     this.images = const [],
     this.raw = const {},
   });
 
+  /// Parse from search-by-article-no response item.
   factory TecDocArticle.fromJson(Map<String, dynamic> json) {
     final oemList = json['oemNumbers'] as List?;
     final imageList = json['images'] as List?;
     return TecDocArticle(
-      articleId:
-          json['articleId'] as int? ?? json['dataSupplierId'] as int? ?? 0,
+      articleId: json['articleId'] as int? ?? 0,
       articleNumber:
-          json['articleNumber'] as String? ??
           json['articleNo'] as String? ??
+          json['articleNumber'] as String? ??
           '',
       articleName:
+          json['articleProductName'] as String? ??
           json['articleName'] as String? ??
           json['genericArticleName'] as String?,
       description:
@@ -133,6 +104,9 @@ class TecDocArticle {
       supplierName:
           json['supplierName'] as String? ??
           json['dataSupplierName'] as String?,
+      supplierId:
+          json['supplierId'] as int? ?? json['dataSupplierId'] as int?,
+      imageUrl: json['s3image'] as String?,
       oemNumbers: oemList != null
           ? oemList.map((o) => o.toString()).toList()
           : [],
