@@ -103,7 +103,7 @@ async function getModelTypes(modelId, { langId = '4', countryFilterId = '63' } =
 /**
  * Step 3 – Retrieve OEM parts for a specific vehicleId
  */
-async function getVehicleParts(vehicleId, { langId = '4', searchParam = 'filter' } = {}) {
+async function getVehicleParts(vehicleId, { langId = '4', searchParam = '-' } = {}) {
     const url =
         `https://${RAPIDAPI_HOST}/articles-oem` +
         `/selecting-oem-parts-vehicle-modification-description-product-group` +
