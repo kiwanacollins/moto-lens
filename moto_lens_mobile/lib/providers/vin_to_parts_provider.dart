@@ -218,7 +218,8 @@ class VinToPartsProvider extends ChangeNotifier {
 
   /// Lazily load an image for a single part category via SerpAPI
   Future<void> loadCategoryImage(String productName) async {
-    if (_categoryImages.containsKey(productName)) return; // already fetched or fetching
+    if (_categoryImages.containsKey(productName))
+      return; // already fetched or fetching
     _imageLoading.add(productName);
     _categoryImages[productName] = null; // mark as in-flight
     notifyListeners();

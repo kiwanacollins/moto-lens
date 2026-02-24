@@ -48,8 +48,10 @@ class TecDocService {
         if (year != null) 'year': year,
       };
       final query = params.entries
-          .map((e) =>
-              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .map(
+            (e) =>
+                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+          )
           .join('&');
       final response = await _api.get('/parts/images?$query');
       final data = json.decode(response.body);
