@@ -214,29 +214,6 @@ class _VinInputViewState extends State<_VinInputView> {
             onChanged: (_) => setState(() {}),
             onSubmitted: (_) => _submit(),
           ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Sample VIN chip
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ActionChip(
-              label: const Text('Try sample VIN'),
-              avatar: const Icon(
-                Icons.auto_fix_high,
-                size: 16,
-                color: AppColors.electricBlue,
-              ),
-              backgroundColor: AppColors.electricBlue.withValues(alpha: 0.08),
-              side: BorderSide.none,
-              labelStyle: AppTypography.bodySmall.copyWith(
-                color: AppColors.electricBlue,
-              ),
-              onPressed: () {
-                _controller.text = 'WDBFA68F42F202731';
-                setState(() {});
-              },
-            ),
-          ),
           const SizedBox(height: AppSpacing.xl),
 
           // Lookup button
