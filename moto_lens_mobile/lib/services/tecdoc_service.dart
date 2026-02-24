@@ -32,4 +32,34 @@ class TecDocService {
     final response = await _api.get('/tecdoc/vehicle-parts/$vehicleId');
     return json.decode(response.body);
   }
+
+  /// Fetch a part image via SerpAPI (uses existing /parts/images endpoint)
+  Future<String?> getPartImage({
+    required String partName,
+    String? make,
+    String? model,
+    String? year,
+  }) async {
+    try {
+      final params = <String, String>{
+        'partName': partName,
+        if (make != null) 'make': make,
+        if (model != null) 'model': model,
+        if (year != null) 'year': year,
+      };
+      final query = params.entries
+          .map((e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+      final response = await _api.get('/parts/images?$query');
+      final data = json.decode(response.body);
+      final images = data['images'] as List<dynamic>?;
+      if (images != null && images.isNotEmpty) {
+        return (images[0]['thumbnail'] ?? images[0]['imageUrl']) as String?;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 }

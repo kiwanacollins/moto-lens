@@ -25,8 +25,11 @@ class VinToPartsScreen extends StatelessWidget {
               backgroundColor: AppColors.headerBar,
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new,
-                    color: AppColors.carbonBlack, size: 20),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: AppColors.carbonBlack,
+                  size: 20,
+                ),
                 onPressed: () {
                   if (provider.step == VinToPartsStep.partsResult ||
                       provider.step == VinToPartsStep.vehicleSelect) {
@@ -47,8 +50,10 @@ class VinToPartsScreen extends StatelessWidget {
               actions: [
                 if (provider.step == VinToPartsStep.partsResult)
                   IconButton(
-                    icon: const Icon(Icons.restart_alt,
-                        color: AppColors.gunmetalGray),
+                    icon: const Icon(
+                      Icons.restart_alt,
+                      color: AppColors.gunmetalGray,
+                    ),
                     onPressed: provider.reset,
                     tooltip: 'New lookup',
                   ),
@@ -70,7 +75,9 @@ class VinToPartsScreen extends StatelessWidget {
         return _VinInputView(key: const ValueKey('input'));
       case VinToPartsStep.loading:
         return _LoadingView(
-            key: const ValueKey('loading'), message: provider.loadingMessage);
+          key: const ValueKey('loading'),
+          message: provider.loadingMessage,
+        );
       case VinToPartsStep.vehicleSelect:
         return _VehicleSelectView(key: const ValueKey('vehicleSelect'));
       case VinToPartsStep.partsResult:
@@ -114,7 +121,9 @@ class _VinInputViewState extends State<_VinInputView> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg, vertical: AppSpacing.xl),
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.xl,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -126,8 +135,11 @@ class _VinInputViewState extends State<_VinInputView> {
               color: AppColors.electricBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Icon(Icons.build_circle_outlined,
-                size: 36, color: AppColors.electricBlue),
+            child: const Icon(
+              Icons.build_circle_outlined,
+              size: 36,
+              color: AppColors.electricBlue,
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
 
@@ -139,8 +151,9 @@ class _VinInputViewState extends State<_VinInputView> {
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Enter a 17-character VIN to look up compatible OEM part numbers from the TecDoc catalog.',
-            style: AppTypography.bodyMedium
-                .copyWith(color: AppColors.gunmetalGray),
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.gunmetalGray,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AppSpacing.xl),
@@ -152,7 +165,9 @@ class _VinInputViewState extends State<_VinInputView> {
             textCapitalization: TextCapitalization.characters,
             maxLength: 17,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[A-HJ-NPR-Za-hj-npr-z0-9]')),
+              FilteringTextInputFormatter.allow(
+                RegExp(r'[A-HJ-NPR-Za-hj-npr-z0-9]'),
+              ),
               UpperCaseTextFormatter(),
             ],
             style: const TextStyle(
@@ -183,13 +198,18 @@ class _VinInputViewState extends State<_VinInputView> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-                borderSide:
-                    const BorderSide(color: AppColors.electricBlue, width: 2),
+                borderSide: const BorderSide(
+                  color: AppColors.electricBlue,
+                  width: 2,
+                ),
               ),
-              prefixIcon: const Icon(Icons.pin_outlined,
-                  color: AppColors.gunmetalGray),
-              counterStyle: AppTypography.bodySmall
-                  .copyWith(color: AppColors.gunmetalGray),
+              prefixIcon: const Icon(
+                Icons.pin_outlined,
+                color: AppColors.gunmetalGray,
+              ),
+              counterStyle: AppTypography.bodySmall.copyWith(
+                color: AppColors.gunmetalGray,
+              ),
             ),
             onChanged: (_) => setState(() {}),
             onSubmitted: (_) => _submit(),
@@ -201,12 +221,16 @@ class _VinInputViewState extends State<_VinInputView> {
             alignment: Alignment.centerLeft,
             child: ActionChip(
               label: const Text('Try sample VIN'),
-              avatar: const Icon(Icons.auto_fix_high,
-                  size: 16, color: AppColors.electricBlue),
+              avatar: const Icon(
+                Icons.auto_fix_high,
+                size: 16,
+                color: AppColors.electricBlue,
+              ),
               backgroundColor: AppColors.electricBlue.withValues(alpha: 0.08),
               side: BorderSide.none,
-              labelStyle: AppTypography.bodySmall
-                  .copyWith(color: AppColors.electricBlue),
+              labelStyle: AppTypography.bodySmall.copyWith(
+                color: AppColors.electricBlue,
+              ),
               onPressed: () {
                 _controller.text = 'WDBFA68F42F202731';
                 setState(() {});
@@ -228,11 +252,11 @@ class _VinInputViewState extends State<_VinInputView> {
                 disabledBackgroundColor: AppColors.zinc200,
                 disabledForegroundColor: AppColors.zinc400,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppSpacing.radiusMedium),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
                 ),
-                textStyle: AppTypography.bodyLarge
-                    .copyWith(fontWeight: FontWeight.w600),
+                textStyle: AppTypography.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
@@ -246,7 +270,9 @@ class _VinInputViewState extends State<_VinInputView> {
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     return TextEditingValue(
       text: newValue.text.toUpperCase(),
       selection: newValue.selection,
@@ -275,15 +301,17 @@ class _LoadingView extends StatelessWidget {
               height: 48,
               child: CircularProgressIndicator(
                 strokeWidth: 3,
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(AppColors.electricBlue),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppColors.electricBlue,
+                ),
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
               message,
-              style: AppTypography.bodyLarge
-                  .copyWith(color: AppColors.gunmetalGray),
+              style: AppTypography.bodyLarge.copyWith(
+                color: AppColors.gunmetalGray,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -311,18 +339,24 @@ class _VehicleSelectView extends StatelessWidget {
         // Header
         Container(
           padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
+            AppSpacing.lg,
+            AppSpacing.lg,
+            AppSpacing.lg,
+            AppSpacing.md,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Select Engine Variant',
-                  style: AppTypography.h4
-                      .copyWith(color: AppColors.carbonBlack)),
+              Text(
+                'Select Engine Variant',
+                style: AppTypography.h4.copyWith(color: AppColors.carbonBlack),
+              ),
               const SizedBox(height: 4),
               Text(
                 '${provider.manufacturer} ${provider.modelName} · ${vehicles.length} variants',
-                style: AppTypography.bodyMedium
-                    .copyWith(color: AppColors.gunmetalGray),
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.gunmetalGray,
+                ),
               ),
             ],
           ),
@@ -342,7 +376,9 @@ class _VehicleSelectView extends StatelessWidget {
 
               return ListTile(
                 contentPadding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.xs, horizontal: AppSpacing.sm),
+                  vertical: AppSpacing.xs,
+                  horizontal: AppSpacing.sm,
+                ),
                 leading: Container(
                   width: 40,
                   height: 40,
@@ -375,10 +411,16 @@ class _VehicleSelectView extends StatelessWidget {
                   ),
                 ),
                 trailing: isSelected
-                    ? const Icon(Icons.check_circle,
-                        color: AppColors.electricBlue, size: 22)
-                    : const Icon(Icons.chevron_right,
-                        color: AppColors.zinc400, size: 22),
+                    ? const Icon(
+                        Icons.check_circle,
+                        color: AppColors.electricBlue,
+                        size: 22,
+                      )
+                    : const Icon(
+                        Icons.chevron_right,
+                        color: AppColors.zinc400,
+                        size: 22,
+                      ),
                 onTap: () => provider.selectVehicle(v),
               );
             },
@@ -431,7 +473,9 @@ class _PartsResultViewState extends State<_PartsResultView> {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm, vertical: 4),
+                      horizontal: AppSpacing.sm,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.electricBlue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
@@ -455,7 +499,8 @@ class _PartsResultViewState extends State<_PartsResultView> {
                         foregroundColor: AppColors.electricBlue,
                         textStyle: AppTypography.bodySmall,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.sm),
+                          horizontal: AppSpacing.sm,
+                        ),
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
@@ -464,8 +509,7 @@ class _PartsResultViewState extends State<_PartsResultView> {
               ),
               const SizedBox(height: 6),
               Text(
-                provider.selectedVehicle?.typeEngineName ??
-                    provider.modelName,
+                provider.selectedVehicle?.typeEngineName ?? provider.modelName,
                 style: AppTypography.h5.copyWith(
                   color: AppColors.carbonBlack,
                   fontWeight: FontWeight.w600,
@@ -474,15 +518,18 @@ class _PartsResultViewState extends State<_PartsResultView> {
               const SizedBox(height: 2),
               Text(
                 '${provider.totalParts} parts · ${categories.length} categories',
-                style: AppTypography.bodySmall
-                    .copyWith(color: AppColors.gunmetalGray),
+                style: AppTypography.bodySmall.copyWith(
+                  color: AppColors.gunmetalGray,
+                ),
               ),
               const SizedBox(height: AppSpacing.sm),
 
               // VIN badge
               Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm, vertical: 4),
+                  horizontal: AppSpacing.sm,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.zinc100,
                   borderRadius: BorderRadius.circular(6),
@@ -504,20 +551,31 @@ class _PartsResultViewState extends State<_PartsResultView> {
         // Search bar
         Padding(
           padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.lg,
+            AppSpacing.xs,
+          ),
           child: TextField(
             controller: _searchController,
             onChanged: provider.setPartsSearchQuery,
             decoration: InputDecoration(
               hintText: 'Search parts or OEM numbers...',
-              hintStyle:
-                  AppTypography.bodyMedium.copyWith(color: AppColors.zinc400),
-              prefixIcon: const Icon(Icons.search,
-                  color: AppColors.gunmetalGray, size: 20),
+              hintStyle: AppTypography.bodyMedium.copyWith(
+                color: AppColors.zinc400,
+              ),
+              prefixIcon: const Icon(
+                Icons.search,
+                color: AppColors.gunmetalGray,
+                size: 20,
+              ),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.close,
-                          size: 18, color: AppColors.zinc400),
+                      icon: const Icon(
+                        Icons.close,
+                        size: 18,
+                        color: AppColors.zinc400,
+                      ),
                       onPressed: () {
                         _searchController.clear();
                         provider.setPartsSearchQuery('');
@@ -527,7 +585,9 @@ class _PartsResultViewState extends State<_PartsResultView> {
               filled: true,
               fillColor: Colors.white,
               contentPadding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
                 borderSide: const BorderSide(color: AppColors.zinc200),
@@ -538,8 +598,10 @@ class _PartsResultViewState extends State<_PartsResultView> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-                borderSide:
-                    const BorderSide(color: AppColors.electricBlue, width: 1.5),
+                borderSide: const BorderSide(
+                  color: AppColors.electricBlue,
+                  width: 1.5,
+                ),
               ),
             ),
           ),
@@ -551,13 +613,16 @@ class _PartsResultViewState extends State<_PartsResultView> {
               ? Center(
                   child: Text(
                     'No matching parts found',
-                    style: AppTypography.bodyLarge
-                        .copyWith(color: AppColors.zinc400),
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: AppColors.zinc400,
+                    ),
                   ),
                 )
               : ListView.builder(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.sm,
+                  ),
                   itemCount: categories.length,
                   itemBuilder: (context, index) {
                     final cat = categories[index];
@@ -593,17 +658,38 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
     if (lower.contains('engine')) return Icons.engineering;
     if (lower.contains('steering')) return Icons.swap_calls;
     if (lower.contains('hydraulic')) return Icons.water_drop;
-    if (lower.contains('gasket') || lower.contains('seal')) return Icons.radio_button_unchecked;
-    if (lower.contains('soot') || lower.contains('particulate')) return Icons.eco;
-    if (lower.contains('hose') || lower.contains('intake')) return Icons.linear_scale;
+    if (lower.contains('gasket') || lower.contains('seal'))
+      return Icons.radio_button_unchecked;
+    if (lower.contains('soot') || lower.contains('particulate'))
+      return Icons.eco;
+    if (lower.contains('hose') || lower.contains('intake'))
+      return Icons.linear_scale;
     if (lower.contains('sump')) return Icons.inventory_2_outlined;
-    if (lower.contains('rubber') || lower.contains('buffer') || lower.contains('holder')) return Icons.push_pin_outlined;
+    if (lower.contains('rubber') ||
+        lower.contains('buffer') ||
+        lower.contains('holder'))
+      return Icons.push_pin_outlined;
     return Icons.build_outlined;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Trigger lazy image load on first build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<VinToPartsProvider>().loadCategoryImage(
+        widget.category.productName,
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final cat = widget.category;
+    final provider = context.watch<VinToPartsProvider>();
+    final imageUrl = provider.getCategoryImage(cat.productName);
+    final isLoading = provider.isCategoryImageLoading(cat.productName);
+    final hasImage = imageUrl != null && imageUrl.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -626,18 +712,12 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
                   padding: const EdgeInsets.all(AppSpacing.md),
                   child: Row(
                     children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: AppColors.electricBlue.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          _iconForCategory(cat.productName),
-                          color: AppColors.electricBlue,
-                          size: 18,
-                        ),
+                      // Thumbnail or icon
+                      _buildThumbnail(
+                        hasImage,
+                        isLoading,
+                        imageUrl,
+                        cat.productName,
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
@@ -654,8 +734,9 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
                             const SizedBox(height: 2),
                             Text(
                               '${cat.count} OEM number${cat.count == 1 ? '' : 's'}',
-                              style: AppTypography.bodySmall
-                                  .copyWith(color: AppColors.gunmetalGray),
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.gunmetalGray,
+                              ),
                             ),
                           ],
                         ),
@@ -663,76 +744,162 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
                       AnimatedRotation(
                         turns: _expanded ? 0.5 : 0,
                         duration: const Duration(milliseconds: 200),
-                        child: const Icon(Icons.keyboard_arrow_down,
-                            color: AppColors.zinc400),
+                        child: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: AppColors.zinc400,
+                        ),
                       ),
                     ],
                   ),
                 ),
 
-                // Expanded OEM numbers
+                // Expanded content: image + OEM numbers
                 if (_expanded)
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0,
-                        AppSpacing.md, AppSpacing.md),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                          top: BorderSide(color: AppColors.zinc200)),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      0,
+                      AppSpacing.md,
+                      AppSpacing.md,
                     ),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(top: AppSpacing.sm),
-                      child: Wrap(
-                        spacing: AppSpacing.xs,
-                        runSpacing: AppSpacing.xs,
-                        children: cat.oemNumbers.map((oem) {
-                          return GestureDetector(
-                            onTap: () {
-                              Clipboard.setData(
-                                  ClipboardData(text: oem));
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(
-                                SnackBar(
-                                  content: Text('Copied $oem'),
-                                  duration: const Duration(
-                                      seconds: 1),
-                                  behavior:
-                                      SnackBarBehavior.floating,
-                                ),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.sm,
-                                  vertical: 5),
-                              decoration: BoxDecoration(
-                                color: AppColors.zinc50,
-                                borderRadius:
-                                    BorderRadius.circular(6),
-                                border: Border.all(
-                                    color: AppColors.zinc200),
+                    decoration: const BoxDecoration(
+                      border: Border(top: BorderSide(color: AppColors.zinc200)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Part image (larger) when expanded
+                        if (hasImage)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: AppSpacing.sm,
+                              bottom: AppSpacing.md,
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMedium,
                               ),
-                              child: Text(
-                                oem,
-                                style: const TextStyle(
-                                  fontFamily: AppTypography
-                                      .monoFontFamily,
-                                  fontSize: 12,
-                                  color: AppColors.carbonBlack,
-                                  letterSpacing: 0.5,
-                                ),
+                              child: Image.network(
+                                imageUrl,
+                                height: 160,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    const SizedBox.shrink(),
                               ),
                             ),
-                          );
-                        }).toList(),
-                      ),
+                          ),
+
+                        // OEM numbers
+                        Padding(
+                          padding: const EdgeInsets.only(top: AppSpacing.sm),
+                          child: Wrap(
+                            spacing: AppSpacing.xs,
+                            runSpacing: AppSpacing.xs,
+                            children: cat.oemNumbers.map((oem) {
+                              return GestureDetector(
+                                onTap: () {
+                                  Clipboard.setData(ClipboardData(text: oem));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Copied $oem'),
+                                      duration: const Duration(seconds: 1),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.sm,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.zinc50,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: AppColors.zinc200,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    oem,
+                                    style: const TextStyle(
+                                      fontFamily: AppTypography.monoFontFamily,
+                                      fontSize: 12,
+                                      color: AppColors.carbonBlack,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Builds the 38x38 leading widget: image thumbnail, loading shimmer, or icon fallback
+  Widget _buildThumbnail(
+    bool hasImage,
+    bool isLoading,
+    String? imageUrl,
+    String productName,
+  ) {
+    if (hasImage) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.network(
+          imageUrl!,
+          width: 42,
+          height: 42,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _iconFallback(productName),
+        ),
+      );
+    }
+    if (isLoading) {
+      return Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: AppColors.zinc100,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Center(
+          child: SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.electricBlue),
+            ),
+          ),
+        ),
+      );
+    }
+    return _iconFallback(productName);
+  }
+
+  Widget _iconFallback(String productName) {
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: BoxDecoration(
+        color: AppColors.electricBlue.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(
+        _iconForCategory(productName),
+        color: AppColors.electricBlue,
+        size: 18,
       ),
     );
   }
@@ -762,8 +929,11 @@ class _ErrorView extends StatelessWidget {
                 color: AppColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child:
-                  const Icon(Icons.error_outline, color: AppColors.error, size: 32),
+              child: const Icon(
+                Icons.error_outline,
+                color: AppColors.error,
+                size: 32,
+              ),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
@@ -773,8 +943,9 @@ class _ErrorView extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             Text(
               provider.errorMessage,
-              style: AppTypography.bodyMedium
-                  .copyWith(color: AppColors.gunmetalGray),
+              style: AppTypography.bodyMedium.copyWith(
+                color: AppColors.gunmetalGray,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xl),
@@ -788,7 +959,9 @@ class _ErrorView extends StatelessWidget {
                   backgroundColor: AppColors.electricBlue,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.radiusMedium,
+                    ),
                   ),
                 ),
               ),

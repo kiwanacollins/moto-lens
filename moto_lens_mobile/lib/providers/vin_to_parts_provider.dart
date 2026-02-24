@@ -203,6 +203,37 @@ class VinToPartsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ── Part category images ──────────────────────────────────
+
+  /// Maps productName → thumbnail URL (loaded lazily)
+  final Map<String, String?> _categoryImages = {};
+
+  /// null = not fetched, empty string = failed/no image
+  String? getCategoryImage(String productName) => _categoryImages[productName];
+
+  /// Whether an image fetch is in progress for this category
+  final Set<String> _imageLoading = {};
+  bool isCategoryImageLoading(String productName) =>
+      _imageLoading.contains(productName);
+
+  /// Lazily load an image for a single part category via SerpAPI
+  Future<void> loadCategoryImage(String productName) async {
+    if (_categoryImages.containsKey(productName)) return; // already fetched or fetching
+    _imageLoading.add(productName);
+    _categoryImages[productName] = null; // mark as in-flight
+    notifyListeners();
+
+    final url = await _service.getPartImage(
+      partName: productName,
+      make: _manufacturer.isNotEmpty ? _manufacturer : null,
+      model: _selectedVehicle?.modelName,
+    );
+
+    _categoryImages[productName] = url ?? '';
+    _imageLoading.remove(productName);
+    notifyListeners();
+  }
+
   /// Reset back to VIN input
   void reset() {
     _step = VinToPartsStep.input;
@@ -215,6 +246,8 @@ class VinToPartsProvider extends ChangeNotifier {
     _partCategories = [];
     _totalParts = 0;
     _partsSearchQuery = '';
+    _categoryImages.clear();
+    _imageLoading.clear();
     notifyListeners();
   }
 }
