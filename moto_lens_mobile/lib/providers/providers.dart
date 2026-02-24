@@ -20,3 +20,6 @@ export 'vehicle_viewer_provider.dart';
 
 // Connectivity / offline provider
 export 'connectivity_provider.dart';
+
+// VIN-to-Parts provider
+export 'vin_to_parts_provider.dart';

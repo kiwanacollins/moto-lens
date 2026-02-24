@@ -17,3 +17,6 @@ export 'vin_history_service.dart';
 export 'connectivity_service.dart';
 export 'offline_cache_service.dart';
 export 'sync_queue_service.dart';
+
+// TecDoc VIN-to-Parts service
+export 'tecdoc_service.dart';

@@ -123,6 +123,8 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(builder: (_) => const QrScannerScreen());
       case '/notes':
         return MaterialPageRoute(builder: (_) => const NotesScreen());
+      case '/vin-to-parts':
+        return MaterialPageRoute(builder: (_) => const VinToPartsScreen());
       case '/part-detail':
         return MaterialPageRoute(builder: (_) => const PartDetailScreen());
       case '/vehicle-detail':
@@ -359,6 +361,16 @@ class MainApp extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+
+                  // VIN-to-Parts full-width card
+                  _buildGridCard(
+                    context,
+                    icon: Icons.build_circle_outlined,
+                    title: 'VIN to Parts',
+                    subtitle: 'OEM catalog lookup',
+                    onTap: () => Navigator.pushNamed(context, '/vin-to-parts'),
                   ),
                 ],
               ),

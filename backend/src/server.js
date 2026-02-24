@@ -39,6 +39,7 @@ import {
     getCacheStats
 } from './services/webImageSearchService.js';
 import partLookupService from './services/partLookupService.js';
+import tecdocService from './services/tecdocService.js';
 
 // Use Web Image Search instead of Gemini for images
 const imageService = {
@@ -151,6 +152,7 @@ app.use('/api/auth', authRoutes);
 // Apply VIN decode rate limiting to VIN endpoints
 app.use('/api/vin', vinDecodeRateLimit);
 app.use('/api/vehicle', vinDecodeRateLimit);
+app.use('/api/tecdoc', vinDecodeRateLimit);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -1097,6 +1099,82 @@ app.post('/api/ai/chat', async (req, res) => {
 });
 
 // ==================== END AI CHAT ENDPOINT ====================
+
+// ==================== TECDOC VIN-TO-PARTS ENDPOINTS ====================
+
+// Full VIN-to-Parts chain (decode → model types → parts)
+app.get('/api/tecdoc/vin-to-parts/:vin', async (req, res) => {
+    const { vin } = req.params;
+
+    try {
+        const validation = vinUtils.validateVIN(vin);
+        if (!validation.valid) {
+            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+        }
+
+        const result = await tecdocService.vinToParts(validation.vin);
+        return res.json({ success: true, ...result });
+    } catch (err) {
+        if (err && err.name === 'TecDocError') {
+            return res.status(err.statusCode || 500).json({ error: 'TECDOC_ERROR', message: err.message });
+        }
+        console.error('Error in VIN-to-parts:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to lookup parts by VIN' });
+    }
+});
+
+// Step 1: Decode VIN via TecDoc
+app.get('/api/tecdoc/vin/decode/:vin', async (req, res) => {
+    const { vin } = req.params;
+
+    try {
+        const validation = vinUtils.validateVIN(vin);
+        if (!validation.valid) {
+            return res.status(400).json({ error: 'Invalid VIN', message: validation.error });
+        }
+
+        const result = await tecdocService.decodeVin(validation.vin);
+        return res.json({ success: true, ...result });
+    } catch (err) {
+        if (err && err.name === 'TecDocError') {
+            return res.status(err.statusCode || 500).json({ error: 'TECDOC_ERROR', message: err.message });
+        }
+        console.error('Error decoding VIN via TecDoc:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to decode VIN' });
+    }
+});
+
+// Step 2: Get model types by modelId
+app.get('/api/tecdoc/model-types/:modelId', async (req, res) => {
+    const { modelId } = req.params;
+
+    try {
+        const result = await tecdocService.getModelTypes(modelId);
+        return res.json({ success: true, ...result });
+    } catch (err) {
+        if (err && err.name === 'TecDocError') {
+            return res.status(err.statusCode || 500).json({ error: 'TECDOC_ERROR', message: err.message });
+        }
+        console.error('Error getting model types:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to get model types' });
+    }
+});
+
+// Step 3: Get parts by vehicleId
+app.get('/api/tecdoc/vehicle-parts/:vehicleId', async (req, res) => {
+    const { vehicleId } = req.params;
+
+    try {
+        const result = await tecdocService.getVehicleParts(vehicleId);
+        return res.json({ success: true, ...result });
+    } catch (err) {
+        if (err && err.name === 'TecDocError') {
+            return res.status(err.statusCode || 500).json({ error: 'TECDOC_ERROR', message: err.message });
+        }
+        console.error('Error getting vehicle parts:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to get vehicle parts' });
+    }
+});
 
 // 404 handler
 app.use((req, res) => {

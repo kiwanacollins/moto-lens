@@ -29,3 +29,6 @@ export 'vehicle/vehicle_view_screen.dart';
 
 // Notes screens
 export 'notes/notes_screen.dart';
+
+// VIN-to-Parts screen
+export 'vehicle/vin_to_parts_screen.dart';
