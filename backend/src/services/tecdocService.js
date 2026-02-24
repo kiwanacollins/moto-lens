@@ -11,22 +11,20 @@
 
 const RAPIDAPI_HOST = 'tecdoc-catalog.p.rapidapi.com';
 
+/** Helper – build headers for every request */
+function apiHeaders() {
+    const apiKey = process.env.TECDOC_RAPIDAPI_KEY;
+    if (!apiKey) throw new TecDocError('TECDOC_RAPIDAPI_KEY is not configured', 500);
+    return { 'x-rapidapi-host': RAPIDAPI_HOST, 'x-rapidapi-key': apiKey };
+}
+
 /**
  * Step 1 – Decode a VIN and return matching models / vehicles
  */
 async function decodeVin(vinNo) {
-    const apiKey = process.env.TECDOC_RAPIDAPI_KEY;
-    if (!apiKey) throw new TecDocError('TECDOC_RAPIDAPI_KEY is not configured', 500);
+    const url = `https://${RAPIDAPI_HOST}/vin/tecdoc-vin-check/${encodeURIComponent(vinNo)}`;
 
-    const url = `https://${RAPIDAPI_HOST}/vin/resolve?vinNo=${encodeURIComponent(vinNo)}`;
-
-    const res = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'x-rapidapi-host': RAPIDAPI_HOST,
-            'x-rapidapi-key': apiKey,
-        },
-    });
+    const res = await fetch(url, { method: 'GET', headers: apiHeaders() });
 
     if (!res.ok) {
         const text = await res.text().catch(() => '');
@@ -34,16 +32,14 @@ async function decodeVin(vinNo) {
     }
 
     const json = await res.json();
-
-    // The API wraps the useful data inside `data.dataSource[0]`
-    const dataSource = json?.data?.dataSource?.[0];
-    if (!dataSource) {
+    const data = json?.data;
+    if (!data) {
         throw new TecDocError('No vehicle data returned for this VIN', 404);
     }
 
-    const matchingVehicles = dataSource.matchingVehicles || [];
-    const matchingModels = dataSource.matchingModels || [];
-    const matchingManufacturers = dataSource.matchingManufacturers || [];
+    const matchingModels = data.matchingModels?.array || [];
+    const matchingVehicles = data.matchingVehicles?.array || [];
+    const matchingManufacturers = data.matchingManufacturers?.array || [];
 
     if (matchingModels.length === 0) {
         throw new TecDocError('VIN did not match any known model', 404);
@@ -66,22 +62,13 @@ async function decodeVin(vinNo) {
  * Step 2 – Retrieve all vehicle types for a given modelId
  */
 async function getModelTypes(modelId, { langId = '4', countryFilterId = '63' } = {}) {
-    const apiKey = process.env.TECDOC_RAPIDAPI_KEY;
-    if (!apiKey) throw new TecDocError('TECDOC_RAPIDAPI_KEY is not configured', 500);
-
     const url =
-        `https://${RAPIDAPI_HOST}/vehicle/types` +
-        `?typeId=1&modelId=${encodeURIComponent(modelId)}` +
-        `&langId=${encodeURIComponent(langId)}` +
-        `&countryFilterId=${encodeURIComponent(countryFilterId)}`;
+        `https://${RAPIDAPI_HOST}/types/type-id/1` +
+        `/list-vehicles-id/${encodeURIComponent(modelId)}` +
+        `/lang-id/${encodeURIComponent(langId)}` +
+        `/country-filter-id/${encodeURIComponent(countryFilterId)}`;
 
-    const res = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'x-rapidapi-host': RAPIDAPI_HOST,
-            'x-rapidapi-key': apiKey,
-        },
-    });
+    const res = await fetch(url, { method: 'GET', headers: apiHeaders() });
 
     if (!res.ok) {
         const text = await res.text().catch(() => '');
@@ -117,22 +104,14 @@ async function getModelTypes(modelId, { langId = '4', countryFilterId = '63' } =
  * Step 3 – Retrieve OEM parts for a specific vehicleId
  */
 async function getVehicleParts(vehicleId, { langId = '4', searchParam = 'filter' } = {}) {
-    const apiKey = process.env.TECDOC_RAPIDAPI_KEY;
-    if (!apiKey) throw new TecDocError('TECDOC_RAPIDAPI_KEY is not configured', 500);
-
     const url =
-        `https://${RAPIDAPI_HOST}/vehicle/parts` +
-        `?typeId=1&vehicleId=${encodeURIComponent(vehicleId)}` +
-        `&langId=${encodeURIComponent(langId)}` +
-        `&searchParam=${encodeURIComponent(searchParam)}`;
+        `https://${RAPIDAPI_HOST}/articles-oem` +
+        `/selecting-oem-parts-vehicle-modification-description-product-group` +
+        `/type-id/1/vehicle-id/${encodeURIComponent(vehicleId)}` +
+        `/lang-id/${encodeURIComponent(langId)}` +
+        `/search-param/${encodeURIComponent(searchParam)}`;
 
-    const res = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'x-rapidapi-host': RAPIDAPI_HOST,
-            'x-rapidapi-key': apiKey,
-        },
-    });
+    const res = await fetch(url, { method: 'GET', headers: apiHeaders() });
 
     if (!res.ok) {
         const text = await res.text().catch(() => '');
