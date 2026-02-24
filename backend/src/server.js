@@ -1176,6 +1176,25 @@ app.get('/api/tecdoc/vehicle-parts/:vehicleId', async (req, res) => {
     }
 });
 
+// TecDoc part description via Gemini AI
+app.get('/api/tecdoc/part-description', async (req, res) => {
+    const { partName, make, model, year } = req.query;
+    if (!partName) {
+        return res.status(400).json({ error: 'MISSING_PARAM', message: 'partName query parameter is required' });
+    }
+    try {
+        const vehicleData = (make || model || year) ? { make, model, year } : null;
+        const description = await geminiAiService.generatePartDescription(partName, vehicleData);
+        return res.json({ success: true, partName, description });
+    } catch (err) {
+        if (err && err.name === 'GeminiAiError') {
+            return res.status(err.statusCode || 500).json({ error: err.code, message: err.message });
+        }
+        console.error('Error generating part description:', err);
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to generate part description' });
+    }
+});
+
 // 404 handler
 app.use((req, res) => {
     res.status(404).json({

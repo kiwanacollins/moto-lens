@@ -698,7 +698,14 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
         borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
         elevation: 0,
         child: InkWell(
-          onTap: () => setState(() => _expanded = !_expanded),
+          onTap: () {
+            setState(() => _expanded = !_expanded);
+            if (!_expanded) return;
+            // Lazy-load description on first expand
+            context.read<VinToPartsProvider>().loadCategoryDescription(
+              widget.category.productName,
+            );
+          },
           borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
           child: Container(
             decoration: BoxDecoration(
@@ -753,7 +760,7 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
                   ),
                 ),
 
-                // Expanded content: image + OEM numbers
+                // Expanded content: image + description + OEM numbers
                 if (_expanded)
                   Container(
                     width: double.infinity,
@@ -790,6 +797,9 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
                               ),
                             ),
                           ),
+
+                        // AI-generated part description
+                        _buildDescription(provider, cat.productName),
 
                         // OEM numbers
                         Padding(
@@ -902,6 +912,59 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
         size: 18,
       ),
     );
+  }
+
+  /// Builds the AI-generated description block (loading / text / nothing)
+  Widget _buildDescription(VinToPartsProvider provider, String productName) {
+    final desc = provider.getCategoryDescription(productName);
+    final isLoading = provider.isCategoryDescriptionLoading(productName);
+
+    if (isLoading) {
+      return Padding(
+        padding: const EdgeInsets.only(
+          top: AppSpacing.sm,
+          bottom: AppSpacing.xs,
+        ),
+        child: Row(
+          children: [
+            const SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(
+                strokeWidth: 1.5,
+                valueColor: AlwaysStoppedAnimation<Color>(AppColors.zinc400),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              'Loading description...',
+              style: AppTypography.bodySmall.copyWith(
+                color: AppColors.zinc400,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (desc != null && desc.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(
+          top: AppSpacing.sm,
+          bottom: AppSpacing.xs,
+        ),
+        child: Text(
+          desc,
+          style: AppTypography.bodySmall.copyWith(
+            color: AppColors.gunmetalGray,
+            height: 1.4,
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }
 

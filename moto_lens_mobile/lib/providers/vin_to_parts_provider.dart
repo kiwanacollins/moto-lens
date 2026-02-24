@@ -235,6 +235,37 @@ class VinToPartsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ── Part category descriptions (Gemini AI) ────────────────
+
+  /// Maps productName → brief description (loaded lazily)
+  final Map<String, String?> _categoryDescriptions = {};
+
+  /// null = not fetched, empty string = failed/unavailable
+  String? getCategoryDescription(String productName) =>
+      _categoryDescriptions[productName];
+
+  final Set<String> _descLoading = {};
+  bool isCategoryDescriptionLoading(String productName) =>
+      _descLoading.contains(productName);
+
+  /// Lazily load an AI-generated description for a part category
+  Future<void> loadCategoryDescription(String productName) async {
+    if (_categoryDescriptions.containsKey(productName)) return;
+    _descLoading.add(productName);
+    _categoryDescriptions[productName] = null;
+    notifyListeners();
+
+    final desc = await _service.getPartDescription(
+      partName: productName,
+      make: _manufacturer.isNotEmpty ? _manufacturer : null,
+      model: _selectedVehicle?.modelName,
+    );
+
+    _categoryDescriptions[productName] = desc ?? '';
+    _descLoading.remove(productName);
+    notifyListeners();
+  }
+
   /// Reset back to VIN input
   void reset() {
     _step = VinToPartsStep.input;
@@ -249,6 +280,8 @@ class VinToPartsProvider extends ChangeNotifier {
     _partsSearchQuery = '';
     _categoryImages.clear();
     _imageLoading.clear();
+    _categoryDescriptions.clear();
+    _descLoading.clear();
     notifyListeners();
   }
 }

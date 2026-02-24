@@ -33,6 +33,37 @@ class TecDocService {
     return json.decode(response.body);
   }
 
+  /// Fetch a brief AI-generated description for a part category
+  Future<String?> getPartDescription({
+    required String partName,
+    String? make,
+    String? model,
+    String? year,
+  }) async {
+    try {
+      final params = <String, String>{
+        'partName': partName,
+        if (make != null) 'make': make,
+        if (model != null) 'model': model,
+        if (year != null) 'year': year,
+      };
+      final query = params.entries
+          .map(
+            (e) =>
+                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+          )
+          .join('&');
+      final response = await _api.get('/tecdoc/part-description?$query');
+      final data = json.decode(response.body);
+      if (data['success'] == true) {
+        return data['description'] as String?;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Fetch a part image via SerpAPI (uses existing /parts/images endpoint)
   Future<String?> getPartImage({
     required String partName,

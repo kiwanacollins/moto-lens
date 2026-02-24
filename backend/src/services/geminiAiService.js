@@ -430,6 +430,22 @@ function parsePartsList(text) {
 }
 
 /**
+ * Generate a brief, mechanic-friendly description of a car part
+ * @param {string} partName - Name of the part (e.g. "Oil Filter")
+ * @param {Object} [vehicleData] - Optional vehicle context
+ * @returns {Promise<string>} 2-3 sentence description
+ */
+export async function generatePartDescription(partName, vehicleData) {
+    const vehicleContext = vehicleData
+        ? ` as used on a ${vehicleData.year || ''} ${vehicleData.make || ''} ${vehicleData.model || ''}`.trim()
+        : '';
+
+    const prompt = `In 2-3 sentences, describe what a "${partName}"${vehicleContext} does in a vehicle. Be specific, technical, and practical — write for a working mechanic, not a consumer. No bullet points, no headings, no filler.`;
+
+    return await callGeminiAPI(prompt);
+}
+
+/**
  * Custom error class for Gemini AI errors
  */
 export class GeminiAiError extends Error {
@@ -445,6 +461,7 @@ export default {
     generateVehicleSummary,
     identifyPart,
     generateSparePartsSummary,
+    generatePartDescription,
     generateResponse,
     GeminiAiError,
     SYSTEM_PROMPT
