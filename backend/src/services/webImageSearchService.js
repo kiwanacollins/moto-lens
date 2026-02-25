@@ -64,7 +64,7 @@ export async function searchVehicleImages(vehicleData) {
                 tbs: 'isz:m', // Medium images (faster to load than large)
                 no_cache: false
             },
-            timeout: 6000 // Reduced from 8 seconds
+            timeout: 45000
         });
 
         const results = response.data.images_results || [];
@@ -155,7 +155,7 @@ export async function searchPartImages(partName, vehicleData = {}) {
                 api_key: serpApiKey,
                 safe: 'active'
             },
-            timeout: 8000
+            timeout: 15000
         });
 
         const results = response.data.images_results || [];
