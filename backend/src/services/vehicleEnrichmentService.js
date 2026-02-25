@@ -179,7 +179,7 @@ class VehicleEnrichmentService {
     getCachedEnrichment(cacheKey) {
         // TEMPORARILY DISABLED: Force fresh enrichment calls
         return null;
-        
+
         /* Original cache logic (re-enable later)
         const cached = this.enrichmentCache.get(cacheKey);
         if (!cached) return null;
@@ -269,10 +269,12 @@ class VehicleEnrichmentService {
      * Creates a detailed prompt for AI vehicle specification prediction
      */
     createEnrichmentPrompt(make, model, year, currentData) {
+        // Strip VIN identifier fields — AI should never return these (inaccurate)
+        const { vin, wmi, vds, vis, vinValid, checksum, _raw, _source, ...safeData } = currentData;
         return `You are an automotive database expert. Based on the vehicle information provided, predict the most likely technical specifications.
 
 Vehicle: ${year} ${make} ${model}
-Current VIN decode data: ${JSON.stringify(currentData, null, 2)}
+Current decode data: ${JSON.stringify(safeData, null, 2)}
 
 Please provide ONLY a JSON response with these exact fields (use realistic specifications based on the vehicle):
 
@@ -318,10 +320,14 @@ RESPOND ONLY WITH THE JSON OBJECT, NO OTHER TEXT.`;
 
             const parsed = JSON.parse(cleanedResponse);
 
+            // VIN identifier fields must NEVER come from AI (inaccurate)
+            const VIN_FIELDS = ['vin', 'wmi', 'vds', 'vis', 'vinValid', 'checksum', '_raw', '_source'];
+
             // If we have specific fields to enrich, only validate those
             // Include 'model' in the default list since some VIN decoders fail to return it
-            const targetFields = fieldsToEnrich.length > 0 ? fieldsToEnrich :
-                ['model', 'engine', 'bodyType', 'transmission', 'drivetrain', 'trim', 'fuelType', 'displacement', 'cylinders', 'horsepower', 'torque', 'doors', 'seats'];
+            const targetFields = (fieldsToEnrich.length > 0 ? fieldsToEnrich :
+                ['model', 'engine', 'bodyType', 'transmission', 'drivetrain', 'trim', 'fuelType', 'displacement', 'cylinders', 'horsepower', 'torque', 'doors', 'seats']
+            ).filter(f => !VIN_FIELDS.includes(f));
 
             const validatedData = {};
 
@@ -351,7 +357,6 @@ RESPOND ONLY WITH THE JSON OBJECT, NO OTHER TEXT.`;
         // Define deterministic specifications for common German vehicles
         const vehicleSpecs = this.getDeterministicSpecs(make, model, year);
 
-        // Special handling when model is missing - need to infer from VIN pattern
         const vehicleDescription = model ? `${year} ${make} ${model}` : `${year} ${make} (model unknown - please identify based on typical ${make} vehicles from that year)`;
 
         return `You are an automotive specification database. Provide the EXACT technical specifications for this vehicle.
