@@ -24,7 +24,7 @@ function apiHeaders() {
 async function decodeVin(vinNo) {
     const url = `https://${RAPIDAPI_HOST}/vin/tecdoc-vin-check/${encodeURIComponent(vinNo)}`;
 
-    const res = await fetch(url, { method: 'GET', headers: apiHeaders(), signal: AbortSignal.timeout(20000) });
+    const res = await fetch(url, { method: 'GET', headers: apiHeaders(), signal: AbortSignal.timeout(45000) });
 
     if (!res.ok) {
         const text = await res.text().catch(() => '');
@@ -68,7 +68,7 @@ async function getModelTypes(modelId, { langId = '4', countryFilterId = '63' } =
         `/lang-id/${encodeURIComponent(langId)}` +
         `/country-filter-id/${encodeURIComponent(countryFilterId)}`;
 
-    const res = await fetch(url, { method: 'GET', headers: apiHeaders(), signal: AbortSignal.timeout(20000) });
+    const res = await fetch(url, { method: 'GET', headers: apiHeaders(), signal: AbortSignal.timeout(45000) });
 
     if (!res.ok) {
         const text = await res.text().catch(() => '');
@@ -111,7 +111,7 @@ async function getVehicleParts(vehicleId, { langId = '4', searchParam = '-' } = 
         `/lang-id/${encodeURIComponent(langId)}` +
         `/search-param/${encodeURIComponent(searchParam)}`;
 
-    const res = await fetch(url, { method: 'GET', headers: apiHeaders(), signal: AbortSignal.timeout(20000) });
+    const res = await fetch(url, { method: 'GET', headers: apiHeaders(), signal: AbortSignal.timeout(45000) });
 
     if (!res.ok) {
         const text = await res.text().catch(() => '');

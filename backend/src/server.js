@@ -1117,6 +1117,10 @@ app.get('/api/tecdoc/vin-to-parts/:vin', async (req, res) => {
         if (err && err.name === 'TecDocError') {
             return res.status(err.statusCode || 500).json({ error: 'TECDOC_ERROR', message: err.message });
         }
+        if (err && (err.name === 'TimeoutError' || err.name === 'AbortError')) {
+            console.error('TecDoc API timeout for VIN:', vin);
+            return res.status(504).json({ error: 'TECDOC_TIMEOUT', message: 'Parts catalog service is slow. Please try again.' });
+        }
         console.error('Error in VIN-to-parts:', err);
         return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to lookup parts by VIN' });
     }
@@ -1137,6 +1141,9 @@ app.get('/api/tecdoc/vin/decode/:vin', async (req, res) => {
     } catch (err) {
         if (err && err.name === 'TecDocError') {
             return res.status(err.statusCode || 500).json({ error: 'TECDOC_ERROR', message: err.message });
+        }
+        if (err && (err.name === 'TimeoutError' || err.name === 'AbortError')) {
+            return res.status(504).json({ error: 'TECDOC_TIMEOUT', message: 'Parts catalog service is slow. Please try again.' });
         }
         console.error('Error decoding VIN via TecDoc:', err);
         return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to decode VIN' });
@@ -1169,6 +1176,9 @@ app.get('/api/tecdoc/vehicle-parts/:vehicleId', async (req, res) => {
     } catch (err) {
         if (err && err.name === 'TecDocError') {
             return res.status(err.statusCode || 500).json({ error: 'TECDOC_ERROR', message: err.message });
+        }
+        if (err && (err.name === 'TimeoutError' || err.name === 'AbortError')) {
+            return res.status(504).json({ error: 'TECDOC_TIMEOUT', message: 'Parts catalog service is slow. Please try again.' });
         }
         console.error('Error getting vehicle parts:', err);
         return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to get vehicle parts' });
