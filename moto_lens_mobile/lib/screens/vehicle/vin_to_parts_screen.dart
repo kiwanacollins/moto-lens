@@ -652,12 +652,6 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
   @override
   void initState() {
     super.initState();
-    // Trigger lazy image load on first build
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<VinToPartsProvider>().loadCategoryImage(
-        widget.category.productName,
-      );
-    });
   }
 
   @override
@@ -678,10 +672,10 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
           onTap: () {
             setState(() => _expanded = !_expanded);
             if (!_expanded) return;
-            // Lazy-load description on first expand
-            context.read<VinToPartsProvider>().loadCategoryDescription(
-              widget.category.productName,
-            );
+            // Lazy-load image and description on first expand
+            final p = context.read<VinToPartsProvider>();
+            p.loadCategoryImage(widget.category.productName);
+            p.loadCategoryDescription(widget.category.productName);
           },
           borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
           child: Container(
@@ -696,13 +690,8 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
                   padding: const EdgeInsets.all(AppSpacing.md),
                   child: Row(
                     children: [
-                      // Thumbnail or icon
-                      _buildThumbnail(
-                        hasImage,
-                        isLoading,
-                        imageUrl,
-                        cat.productName,
-                      ),
+                      // Category icon (image only shown when expanded)
+                      _iconFallback(cat.productName),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Column(
@@ -753,8 +742,37 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Part image (larger) when expanded
-                        if (hasImage)
+                        // Part image (loaded on expand via SerpAPI)
+                        if (isLoading)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: AppSpacing.sm,
+                              bottom: AppSpacing.md,
+                            ),
+                            child: Container(
+                              height: 160,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: AppColors.zinc100,
+                                borderRadius: BorderRadius.circular(
+                                  AppSpacing.radiusMedium,
+                                ),
+                              ),
+                              child: const Center(
+                                child: SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.electricBlue,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        else if (hasImage)
                           Padding(
                             padding: const EdgeInsets.only(
                               top: AppSpacing.sm,
@@ -831,48 +849,6 @@ class _PartCategoryCardState extends State<_PartCategoryCard> {
         ),
       ),
     );
-  }
-
-  /// Builds the 38x38 leading widget: image thumbnail, loading shimmer, or icon fallback
-  Widget _buildThumbnail(
-    bool hasImage,
-    bool isLoading,
-    String? imageUrl,
-    String productName,
-  ) {
-    if (hasImage) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Image.network(
-          imageUrl!,
-          width: 42,
-          height: 42,
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _iconFallback(productName),
-        ),
-      );
-    }
-    if (isLoading) {
-      return Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: AppColors.zinc100,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: const Center(
-          child: SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.electricBlue),
-            ),
-          ),
-        ),
-      );
-    }
-    return _iconFallback(productName);
   }
 
   Widget _iconFallback(String productName) {
