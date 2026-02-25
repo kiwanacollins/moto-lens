@@ -20,3 +20,7 @@ open -a Simulator
 
 flutter run -d 00008101-001E10420C00801E
 
+
+
+ssh kiwana@207.180.249.87
+cd /home/kiwana/moto-lens && git pull && cd backend && npm install --production && pm2 restart moto-lens-api

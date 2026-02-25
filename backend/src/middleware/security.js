@@ -130,7 +130,7 @@ export const productionCorsOptions = {
 // Global API rate limit (per IP)
 export const globalRateLimit = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // 100 requests per 15 minutes
+    max: 600, // 300 requests per 15 minutes
     message: {
         success: false,
         error: 'Too many requests',
@@ -199,7 +199,7 @@ export const emailVerificationRateLimit = rateLimit({
 // VIN decode rate limit (protect API quotas)
 export const vinDecodeRateLimit = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 30, // 30 VIN decodes per 15 minutes
+    max: 60, // 60 VIN/tecdoc requests per 15 minutes
     message: {
         success: false,
         error: 'Too many VIN decode requests',
