@@ -372,13 +372,13 @@ app.get('/api/parts/images', async (req, res) => {
 
             // Decode VIN to get vehicle data
             vehicleData = await multiProviderVinService.decodeVIN(validation.vin);
-        } else if (make && model && year) {
-            // Use provided vehicle data
-            vehicleData = { make, model, year: parseInt(year) };
+        } else if (make && model) {
+            // Use provided vehicle data (year is optional)
+            vehicleData = { make, model, ...(year ? { year: parseInt(year) } : {}) };
         } else {
             return res.status(400).json({
                 error: 'INVALID_REQUEST',
-                message: 'Either VIN or vehicle data (make, model, year) is required'
+                message: 'Either VIN or vehicle data (make, model) is required'
             });
         }
 
