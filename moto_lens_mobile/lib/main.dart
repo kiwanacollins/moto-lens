@@ -272,6 +272,12 @@ class MainApp extends StatelessWidget {
             ],
           ),
           backgroundColor: AppColors.background,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => Navigator.pushNamed(context, '/notes'),
+            backgroundColor: AppColors.electricBlue,
+            shape: const CircleBorder(),
+            child: const Icon(Icons.edit, color: Colors.white, size: 26),
+          ),
           body: OfflineBannerWrapper(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.lg),
@@ -354,23 +360,14 @@ class MainApp extends StatelessWidget {
                       Expanded(
                         child: _buildGridCard(
                           context,
-                          icon: Icons.note_alt_outlined,
-                          title: 'Take Notes',
-                          subtitle: 'Save locally',
-                          onTap: () => Navigator.pushNamed(context, '/notes'),
+                          icon: Icons.build_circle_outlined,
+                          title: 'VIN to Parts',
+                          subtitle: 'OEM catalog lookup',
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/vin-to-parts'),
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-
-                  // VIN-to-Parts full-width card
-                  _buildGridCard(
-                    context,
-                    icon: Icons.build_circle_outlined,
-                    title: 'VIN to Parts',
-                    subtitle: 'OEM catalog lookup',
-                    onTap: () => Navigator.pushNamed(context, '/vin-to-parts'),
                   ),
                 ],
               ),
