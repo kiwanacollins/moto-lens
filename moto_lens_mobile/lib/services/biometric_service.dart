@@ -45,11 +45,7 @@ class BiometricService {
       if (!enrolled) return false;
 
       final enabled = await _storageService.isBiometricEnabled();
-      if (!enabled) return false;
-
-      // Check if refresh token exists (can be used even if access token expired)
-      final hasRefreshToken = await _storageService.hasRefreshToken();
-      return hasRefreshToken;
+      return enabled;
     } catch (_) {
       return false;
     }
