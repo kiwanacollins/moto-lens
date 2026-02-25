@@ -1,8 +1,8 @@
 /**
  * Multi-Provider VIN Service
- * 
+ *
  * Robust VIN decoding with multiple API providers and intelligent fallback
- * Primary: Vincario VIN Decode API v3.2
+ * Primary: TecDoc Catalog decoder-v5 (RapidAPI)
  * Fallback: NHTSA vPIC (free, government-backed)
  * Secondary Fallback: Zyla Labs (additional coverage)
  * Enhancement: Gemini AI for missing data
@@ -16,13 +16,13 @@ import zylaVinService from './zylaVinService.js';
  * VIN decoding strategy configuration
  */
 const PROVIDERS = {
-    VINCARIO: 'vincario',
+    VINCARIO: 'tecdoc',
     NHTSA: 'nhtsa',
     ZYLA: 'zyla'
 };
 
 const STRATEGY_CONFIG = {
-    // Try Vincario first (primary), fallback to NHTSA (free), then Zyla if needed
+    // Try TecDoc first (primary), fallback to NHTSA (free), then Zyla if needed
     providers: [PROVIDERS.VINCARIO, PROVIDERS.NHTSA, PROVIDERS.ZYLA],
 
     // Conditions for trying fallback provider
@@ -61,9 +61,9 @@ export async function decodeVIN(vin) {
 
             switch (provider) {
                 case PROVIDERS.VINCARIO:
-                    // Only try Vincario if API credentials are configured
-                    if (!process.env.VINCARIO_API_KEY || !process.env.VINCARIO_SECRET_KEY) {
-                        console.log(`⏭️ Skipping ${provider} - API credentials not configured`);
+                    // Only try TecDoc if API key is configured
+                    if (!process.env.TECDOC_RAPIDAPI_KEY) {
+                        console.log(`⏭️ Skipping ${provider} - TECDOC_RAPIDAPI_KEY not configured`);
                         continue;
                     }
                     result = await vincarioVinService.decodeVIN(vin);
@@ -123,7 +123,7 @@ export async function decodeVIN(vin) {
     }
 
     // All providers failed
-    const primaryError = errors.find(e => e.provider === PROVIDERS.VINCARIO) || errors[0];
+    const primaryError = errors.find(e => e.provider === 'tecdoc') || errors[0];
     throw new VINDecodeError(
         `All VIN providers failed. Primary error: ${primaryError?.error || 'Unknown error'}`,
         primaryError?.code || 'ALL_PROVIDERS_FAILED',
