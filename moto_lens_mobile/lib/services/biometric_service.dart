@@ -73,6 +73,8 @@ class BiometricService {
     try {
       final bool didAuthenticate = await _localAuth.authenticate(
         localizedReason: reason,
+        biometricOnly: true,           // fingerprint/face only — no PIN/password fallback
+        persistAcrossBackgrounding: true, // keep auth alive if app briefly loses focus
         authMessages: const <AuthMessages>[
           AndroidAuthMessages(
             signInTitle: 'Biometric Authentication',
