@@ -5,7 +5,7 @@
  * API Documentation: https://vincario.com/api-docs/3.2/
  *
  * Authentication: HMAC-style control sum
- *   control_sum = sha1(VIN + "|" + "decode" + "|" + VINCARIO_SECRET_KEY).substring(0, 8)
+ *   control_sum = sha1(VIN + "|decode|" + VINCARIO_API_KEY + "|" + VINCARIO_SECRET_KEY).substring(0, 10)
  * Request URL: https://api.vindecoder.eu/3.2/{VINCARIO_API_KEY}/{control_sum}/decode/{VIN}.json
  *
  * Credentials are read from VINCARIO_API_KEY and VINCARIO_SECRET_KEY env vars.
@@ -18,15 +18,16 @@ const VINCARIO_API_BASE = 'https://api.vindecoder.eu/3.2';
 /**
  * Compute the Vincario request control sum.
  * @param {string} vin - Uppercase 17-char VIN
+ * @param {string} apiKey - VINCARIO_API_KEY
  * @param {string} secretKey - VINCARIO_SECRET_KEY
- * @returns {string} First 8 hex characters of SHA-1 digest
+ * @returns {string} First 10 hex characters of SHA-1 digest
  */
-function buildControlSum(vin, secretKey) {
+function buildControlSum(vin, apiKey, secretKey) {
     return crypto
         .createHash('sha1')
-        .update(`${vin}|decode|${secretKey}`)
+        .update(`${vin}|decode|${apiKey}|${secretKey}`)
         .digest('hex')
-        .substring(0, 8);
+        .substring(0, 10);
 }
 
 /**
@@ -55,7 +56,7 @@ export async function decodeVIN(vin) {
     }
 
     const vinUpper = vin.toUpperCase();
-    const controlSum = buildControlSum(vinUpper, secretKey);
+    const controlSum = buildControlSum(vinUpper, apiKey, secretKey);
     const url = `${VINCARIO_API_BASE}/${apiKey}/${controlSum}/decode/${encodeURIComponent(vinUpper)}.json`;
     console.log(`🔍 Vincario: Decoding VIN ${vinUpper}`);
 
@@ -162,7 +163,7 @@ export function parseVehicleData(rawResponse, originalVin = null) {
         make,
         model: f['Model'] || null,
         year,
-        trim: f['Trim'] || f['Version'] || null,
+        trim: f['Vehicle Specification'] || f['Trim'] || f['Version'] || null,
 
         // Technical specifications
         engine,
@@ -179,21 +180,21 @@ export function parseVehicleData(rawResponse, originalVin = null) {
         checksum: null,
 
         // Additional vehicle details
-        style: f['Trim'] || f['Version'] || null,
-        doors: parseInteger(f['Number Of Doors'] || f['Doors']),
-        seats: parseInteger(f['Number Of Seats'] || f['Seats']),
-        fuelType: f['Fuel Type'] || null,
-        displacement: parseInteger(f['Engine Displacement (ccm)'] || f['Engine Displacement']),
-        cylinders: parseInteger(f['Number Of Cylinders'] || f['Cylinders']),
-        horsepower: parseFloat(f['Power (HP)'] || f['Engine Power (HP)']) || null,
-        torque: parseFloat(f['Torque (Nm)']) || null,
+        style: f['Vehicle Specification'] || f['Trim'] || f['Version'] || null,
+        doors: parseInteger(f['Number of Doors']),
+        seats: parseInteger(f['Number of Seats']),
+        fuelType: f['Fuel Type - Primary'] || f['Fuel Type'] || null,
+        displacement: parseInteger(f['Engine Displacement (ccm)']),
+        cylinders: null,
+        horsepower: parseFloat(f['Engine Power (HP)']) || null,
+        torque: null,
 
         // Physical specifications
         length: parseFloat(f['Length (mm)']) || null,
         width: parseFloat(f['Width (mm)']) || null,
         height: parseFloat(f['Height (mm)']) || null,
         wheelbase: parseFloat(f['Wheelbase (mm)']) || null,
-        weight: parseFloat(f['Curb Weight (kg)'] || f['Weight (kg)']) || null,
+        weight: parseFloat(f['Weight Empty (kg)']) || null,
 
         // Location data
         plantCity: f['Assembly Plant City'] || null,
@@ -219,16 +220,18 @@ function buildEngineDescription(f) {
         components.push(`${dispL}L`);
     }
 
-    const cylinders = parseInteger(f['Number Of Cylinders'] || f['Cylinders']);
-    if (cylinders > 0) components.push(`${cylinders}-cylinder`);
+    // Extract cylinder count from Engine Type (e.g. "4-Stroke / 6 / Row-T-DI" → 6)
+    const engineType = f['Engine Type'] || '';
+    const cylMatch = engineType.match(/\/ (\d+) \//);
+    if (cylMatch) components.push(`${cylMatch[1]}-cylinder`);
 
-    const fuel = (f['Fuel Type'] || '').toLowerCase();
+    const fuel = (f['Fuel Type - Primary'] || f['Fuel Type'] || '').toLowerCase();
     if (fuel.includes('diesel')) components.push('diesel');
     else if (fuel.includes('gasoline') || fuel.includes('petrol')) components.push('petrol');
     else if (fuel.includes('electric')) components.push('electric');
     else if (fuel.includes('hybrid')) components.push('hybrid');
 
-    const hp = parseFloat(f['Power (HP)'] || f['Engine Power (HP)']);
+    const hp = parseFloat(f['Engine Power (HP)']);
     if (hp > 0) components.push(`${Math.round(hp)}hp`);
 
     return components.length > 0 ? components.join(' ') : null;
@@ -249,7 +252,7 @@ function determineOrigin(make) {
 function parseYear(yearValue) {
     if (!yearValue) return null;
     const year = parseInt(yearValue);
-    return (year >= 1900 && year <= 2030) ? year : null;
+    return (year >= 1900 && year <= 2040) ? year : null;
 }
 
 function parseInteger(value) {
