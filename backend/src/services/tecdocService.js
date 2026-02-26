@@ -27,14 +27,28 @@ async function tecdocFetch(url, label) {
     const res = await fetch(url, { method: 'GET', headers: apiHeaders(), signal: AbortSignal.timeout(FETCH_TIMEOUT) });
     console.log(`📡 TecDoc ${label} response: ${res.status} ${res.statusText}`);
 
+    // Read raw text first to diagnose parsing issues
+    const text = await res.text().catch(() => '');
+
     if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        console.error(`❌ TecDoc ${label} error: ${text}`);
-        throw new TecDocError(`TecDoc ${label} failed (${res.status}): ${text}`, res.status);
+        console.error(`❌ TecDoc ${label} error: ${text.substring(0, 500)}`);
+        throw new TecDocError(`TecDoc ${label} failed (${res.status}): ${text.substring(0, 200)}`, res.status);
     }
 
-    const json = await res.json().catch(() => null);
-    return json;
+    if (!text || text.trim().length === 0) {
+        console.error(`❌ TecDoc ${label} returned empty body`);
+        return null;
+    }
+
+    console.log(`📦 TecDoc ${label} raw (first 500 chars): ${text.substring(0, 500)}`);
+
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        console.error(`❌ TecDoc ${label} JSON parse error: ${e.message}`);
+        console.error(`📦 Full raw response: ${text.substring(0, 1000)}`);
+        return null;
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
