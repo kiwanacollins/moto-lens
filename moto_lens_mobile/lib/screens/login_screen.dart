@@ -45,8 +45,14 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
   /// Check if biometric login is available on this device
   Future<void> _checkBiometricAvailability() async {
     final available = await _biometricService.isBiometricLoginAvailable();
+    if (!available) {
+      if (mounted) setState(() => _biometricAvailable = false);
+      return;
+    }
+    // Also ensure tokens exist — biometric is useless without them
+    final hasTokens = await SecureStorageService().hasValidTokens();
     if (mounted) {
-      setState(() => _biometricAvailable = available);
+      setState(() => _biometricAvailable = available && hasTokens);
     }
   }
 
@@ -161,6 +167,19 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
 
   /// Handle biometric login (fingerprint/face)
   Future<void> _handleBiometricLogin() async {
+    // Double-check tokens still exist before attempting
+    final hasTokens = await SecureStorageService().hasValidTokens();
+    if (!hasTokens) {
+      if (mounted) {
+        setState(() => _biometricAvailable = false);
+        ErrorSnackBar.show(
+          context,
+          'Session expired. Please sign in with your password.',
+        );
+      }
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
@@ -175,18 +194,19 @@ class _LoginScreenState extends State<LoginScreen> with AuthenticationMixin {
         if (success && mounted) {
           // Navigate to home after successful biometric login
           Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-        } else if (!success && mounted) {
-          // Tokens expired or invalid, fall back to regular login
+        } else if (mounted) {
+          // Tokens expired or invalid, hide biometric button and fall back
+          setState(() => _biometricAvailable = false);
           ErrorSnackBar.show(
             context,
             'Session expired. Please sign in with your password.',
           );
         }
       } else if (!authenticated && mounted) {
-        // User cancelled or authentication failed
+        // User cancelled or authentication failed — stay on login screen
         ErrorSnackBar.show(
           context,
-          'Biometric authentication cancelled or failed.',
+          'Biometric authentication cancelled.',
         );
       }
     } catch (e) {
