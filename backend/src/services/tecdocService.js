@@ -34,13 +34,16 @@ async function decodeVin(vinNo) {
         throw new TecDocError(`TecDoc VIN decode failed (${res.status}): ${text}`, res.status);
     }
 
-    const json = await res.json();
-    console.log(`📦 TecDoc VIN decode raw keys:`, Object.keys(json));
+    const json = await res.json().catch(() => null);
+    console.log(`📦 TecDoc VIN decode raw response:`, JSON.stringify(json).substring(0, 800));
+
+    if (!json || typeof json !== 'object') {
+        throw new TecDocError('No vehicle data returned for this VIN', 404);
+    }
 
     // TecDoc API may return data at top level or nested under .data
-    const data = json?.data || json;
-    if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) {
-        console.error(`❌ TecDoc returned empty data for VIN: ${vinNo}`, JSON.stringify(json).substring(0, 500));
+    const data = json.data ?? json;
+    if (!data || typeof data !== 'object') {
         throw new TecDocError('No vehicle data returned for this VIN', 404);
     }
 
