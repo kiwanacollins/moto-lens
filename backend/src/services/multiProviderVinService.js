@@ -2,10 +2,9 @@
  * Multi-Provider VIN Service
  *
  * Robust VIN decoding with multiple API providers and intelligent fallback
- * Primary: TecDoc Catalog decoder-v5 (RapidAPI)
+ * Primary: Vincario v3.2 — European specialist VIN decoder
  * Fallback: NHTSA vPIC (free, government-backed)
  * Secondary Fallback: Zyla Labs (additional coverage)
- * Enhancement: Gemini AI for missing data
  */
 
 import vincarioVinService from './vincarioVinService.js';
@@ -16,13 +15,13 @@ import zylaVinService from './zylaVinService.js';
  * VIN decoding strategy configuration
  */
 const PROVIDERS = {
-    VINCARIO: 'tecdoc',
+    VINCARIO: 'vincario',
     NHTSA: 'nhtsa',
     ZYLA: 'zyla'
 };
 
 const STRATEGY_CONFIG = {
-    // Try TecDoc first (primary), fallback to NHTSA (free), then Zyla if needed
+    // Try Vincario first (primary European decoder), fallback to NHTSA (free), then Zyla
     providers: [PROVIDERS.VINCARIO, PROVIDERS.NHTSA, PROVIDERS.ZYLA],
 
     // Conditions for trying fallback provider
@@ -61,9 +60,9 @@ export async function decodeVIN(vin) {
 
             switch (provider) {
                 case PROVIDERS.VINCARIO:
-                    // Only try TecDoc if API key is configured
-                    if (!process.env.TECDOC_RAPIDAPI_KEY) {
-                        console.log(`⏭️ Skipping ${provider} - TECDOC_RAPIDAPI_KEY not configured`);
+                    // Only try Vincario if credentials are configured
+                    if (!process.env.VINCARIO_API_KEY || !process.env.VINCARIO_SECRET_KEY) {
+                        console.log(`⏭️ Skipping ${provider} - VINCARIO_API_KEY or VINCARIO_SECRET_KEY not configured`);
                         continue;
                     }
                     result = await vincarioVinService.decodeVIN(vin);

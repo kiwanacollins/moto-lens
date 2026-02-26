@@ -1,44 +1,46 @@
 /**
- * TecDoc Catalog VIN Decoder v5 Service
+ * Vincario VIN Decoder API v3.2 Service
  *
- * VIN decoding via the TecDoc Catalog RapidAPI endpoint.
- * API: https://rapidapi.com/ronhartman/api/tecdoc-catalog
- * Endpoint: GET /vin/decoder-v5/{VIN}
+ * VIN decoding via the Vincario API — specialist European vehicle decoder.
+ * API Documentation: https://vincario.com/api-docs/3.2/
  *
- * Response contains three content objects:
- *  - vin-data-1: WMI/VDS/VIS breakdown, region, country, manufacturer, modelYear
- *  - vin-data-2: Full NHTSA-style vehicle specification
- *  - vin-data-3: Manufacturer information array
+ * Authentication: HMAC-style control sum
+ *   control_sum = sha1(VIN + "|" + "decode" + "|" + VINCARIO_SECRET_KEY).substring(0, 8)
+ * Request URL: https://api.vindecoder.eu/3.2/{VINCARIO_API_KEY}/{control_sum}/decode/{VIN}.json
  *
- * API key is read from TECDOC_RAPIDAPI_KEY env var.
+ * Credentials are read from VINCARIO_API_KEY and VINCARIO_SECRET_KEY env vars.
  */
 
-const RAPIDAPI_HOST = 'tecdoc-catalog.p.rapidapi.com';
+import crypto from 'crypto';
+
+const VINCARIO_API_BASE = 'https://api.vindecoder.eu/3.2';
 
 /**
- * Safely parse the JSON `content` string from a vin-data-* object.
- * Returns an empty object / array on parse failure.
+ * Compute the Vincario request control sum.
+ * @param {string} vin - Uppercase 17-char VIN
+ * @param {string} secretKey - VINCARIO_SECRET_KEY
+ * @returns {string} First 8 hex characters of SHA-1 digest
  */
-function parseContent(dataObj) {
-    if (!dataObj || !dataObj.content) return null;
-    try {
-        return JSON.parse(dataObj.content);
-    } catch {
-        return null;
-    }
+function buildControlSum(vin, secretKey) {
+    return crypto
+        .createHash('sha1')
+        .update(`${vin}|decode|${secretKey}`)
+        .digest('hex')
+        .substring(0, 8);
 }
 
 /**
- * Decode a VIN using TecDoc Catalog decoder-v5
+ * Decode a VIN using the Vincario API v3.2
  * @param {string} vin - 17-character Vehicle Identification Number
- * @returns {Promise<Object>} Raw API response (keyed by vin-data-1/2/3)
+ * @returns {Promise<Object>} Raw API response ({ decode: [...] })
  */
 export async function decodeVIN(vin) {
-    const apiKey = process.env.TECDOC_RAPIDAPI_KEY;
+    const apiKey = process.env.VINCARIO_API_KEY;
+    const secretKey = process.env.VINCARIO_SECRET_KEY;
 
-    if (!apiKey) {
+    if (!apiKey || !secretKey) {
         throw new VINDecodeError(
-            'TecDoc RapidAPI key is not configured. Please set TECDOC_RAPIDAPI_KEY',
+            'Vincario API credentials are not configured. Please set VINCARIO_API_KEY and VINCARIO_SECRET_KEY.',
             'API_CREDENTIALS_MISSING',
             500
         );
@@ -52,25 +54,27 @@ export async function decodeVIN(vin) {
         );
     }
 
-    const url = `https://${RAPIDAPI_HOST}/vin/decoder-v5/${encodeURIComponent(vin.toUpperCase())}`;
-    console.log(`🔍 TecDoc decoder-v5: Decoding VIN ${vin}`);
+    const vinUpper = vin.toUpperCase();
+    const controlSum = buildControlSum(vinUpper, secretKey);
+    const url = `${VINCARIO_API_BASE}/${apiKey}/${controlSum}/decode/${encodeURIComponent(vinUpper)}.json`;
+    console.log(`🔍 Vincario: Decoding VIN ${vinUpper}`);
 
     let response;
     try {
         response = await fetch(url, {
             method: 'GET',
             headers: {
-                'x-rapidapi-host': RAPIDAPI_HOST,
-                'x-rapidapi-key': apiKey,
+                'Accept': 'application/json',
+                'User-Agent': 'GermanCarMedic/1.0.0',
             },
             signal: AbortSignal.timeout(15000),
         });
     } catch (error) {
         if (error.name === 'TimeoutError' || error.name === 'AbortError') {
-            throw new VINDecodeError('TecDoc API request timed out', 'TIMEOUT', 504);
+            throw new VINDecodeError('Vincario API request timed out', 'TIMEOUT', 504);
         }
         throw new VINDecodeError(
-            `Unable to connect to TecDoc API: ${error.message}`,
+            `Unable to connect to Vincario API: ${error.message}`,
             'CONNECTION_ERROR',
             503
         );
@@ -80,59 +84,74 @@ export async function decodeVIN(vin) {
         const body = await response.text().catch(() => '');
         if (response.status === 401 || response.status === 403) {
             throw new VINDecodeError(
-                'TecDoc API authentication failed - check TECDOC_RAPIDAPI_KEY',
+                'Vincario API authentication failed — check VINCARIO_API_KEY and VINCARIO_SECRET_KEY',
                 'AUTH_FAILED',
                 response.status
             );
         }
         if (response.status === 404) {
-            throw new VINDecodeError('VIN not found in TecDoc database', 'VIN_NOT_FOUND', 404);
+            throw new VINDecodeError('VIN not found in Vincario database', 'VIN_NOT_FOUND', 404);
         }
         if (response.status === 429) {
-            throw new VINDecodeError('TecDoc API rate limit exceeded', 'RATE_LIMITED', 429);
+            throw new VINDecodeError('Vincario API rate limit exceeded', 'RATE_LIMITED', 429);
         }
         throw new VINDecodeError(
-            `TecDoc API returned status ${response.status}: ${body}`,
+            `Vincario API returned status ${response.status}: ${body}`,
             'API_ERROR',
             response.status
         );
     }
 
     const data = await response.json();
-    if (!data) {
-        throw new VINDecodeError('Empty response from TecDoc API', 'EMPTY_RESPONSE', 500);
+    if (!data || !Array.isArray(data.decode)) {
+        throw new VINDecodeError('Empty or unexpected response from Vincario API', 'EMPTY_RESPONSE', 500);
     }
 
-    console.log(`✅ TecDoc decoder-v5: Successfully decoded VIN`);
+    console.log(`✅ Vincario: Successfully decoded VIN (${data.decode.length} fields)`);
     return data;
 }
 
 /**
- * Parse TecDoc decoder-v5 response into the standard VehicleData format.
- * Only the `content` objects from vin-data-1, vin-data-2 and vin-data-3 are used.
+ * Convert the Vincario decode array into a lookup map keyed by label.
+ * @param {Array} decodeArray - Array of { label, value } objects
+ * @returns {Object} Map of label → value
+ */
+function buildFieldMap(decodeArray) {
+    const map = {};
+    for (const item of decodeArray) {
+        if (item && item.label != null) {
+            map[item.label] = item.value ?? null;
+        }
+    }
+    return map;
+}
+
+/**
+ * Parse Vincario API v3.2 response into the standard VehicleData format.
  *
- * @param {Object} rawResponse - Raw TecDoc API response
+ * @param {Object} rawResponse - Raw Vincario API response ({ decode: [...] })
  * @param {string} originalVin - The original VIN submitted
  * @returns {Object} Normalised VehicleData object
  */
 export function parseVehicleData(rawResponse, originalVin = null) {
-    // Extract and parse the three content payloads
-    const d1 = parseContent(rawResponse['vin-data-1']) || {};
-    const d2 = parseContent(rawResponse['vin-data-2']) || {};
-    const d3Array = parseContent(rawResponse['vin-data-3']);
-    const manuInfo = Array.isArray(d3Array) && d3Array.length > 0
-        ? (d3Array[0]?.information || {})
-        : {};
+    if (!rawResponse || !Array.isArray(rawResponse.decode)) {
+        throw new VINDecodeError(
+            'Invalid Vincario response structure',
+            'INVALID_RESPONSE',
+            500
+        );
+    }
 
-    const vinToUse = originalVin || d1.vin || d2.vehicle_descriptor || '';
+    const f = buildFieldMap(rawResponse.decode);
+
+    const vinToUse = originalVin || f['VIN'] || '';
     const vinValid = vinToUse.length === 17;
+    const make = f['Make'] || f['Manufacturer'] || 'Unknown';
 
-    // Build engine description from vin-data-2 fields
-    const engine = buildEngineDescription(d2);
+    // Engine description assembled from Vincario fields
+    const engine = buildEngineDescription(f);
 
-    // modelYear from vin-data-1 is [startYear, endYear]; use start year unless vin-data-2 is more specific
-    const year = parseYear(d2.model_year) ||
-        (Array.isArray(d1.modelYear) && d1.modelYear.length > 0 ? d1.modelYear[0] : null);
+    const year = parseYear(f['Model Year']);
 
     return {
         // Core identification
@@ -140,75 +159,76 @@ export function parseVehicleData(rawResponse, originalVin = null) {
         vinValid,
 
         // Basic vehicle information
-        make: d2.make || d1.manufacturer || 'Unknown',
-        model: d2.model || null,
+        make,
+        model: f['Model'] || null,
         year,
-        trim: d2.series || null,
+        trim: f['Trim'] || f['Version'] || null,
 
         // Technical specifications
         engine,
-        bodyType: d2.body_class || d2.vehicle_type || null,
-        transmission: d2.transmission_style || null,
-        drivetrain: null,
+        bodyType: f['Body'] || f['Body Type'] || null,
+        transmission: f['Transmission'] || f['Gearbox'] || null,
+        drivetrain: f['Drive'] || f['Drive Type'] || null,
 
         // Manufacturer information
-        manufacturer: d2.manufacturer_name || manuInfo.Manufacturer || d1.manufacturer || 'Unknown',
-        origin: manuInfo.Country || d1.country || determineOrigin(d2.make || d1.manufacturer),
+        manufacturer: f['Manufacturer'] || make,
+        origin: f['Country of Origin'] || f['Assembly Plant Country'] || determineOrigin(make),
 
         // VIN metadata
-        wmi: d1.wmi || vinToUse.substring(0, 3) || '',
-        checksum: d2.error_text ? d2.error_text.startsWith('0') : null,
+        wmi: vinToUse.substring(0, 3) || '',
+        checksum: null,
 
         // Additional vehicle details
-        style: d2.series || null,
-        doors: parseInteger(d2.doors),
-        seats: null,
-        fuelType: d2['fuel_type_-_primary'] || null,
-        displacement: parseFloat(d2['displacement_(cc)']) || null,
-        cylinders: parseInteger(d2.engine_number_of_cylinders),
-        horsepower: parseFloat(d2.engine_brake_hp_from || d2['engine_brake_(hp)_from']) || null,
-        torque: null,
+        style: f['Trim'] || f['Version'] || null,
+        doors: parseInteger(f['Number Of Doors'] || f['Doors']),
+        seats: parseInteger(f['Number Of Seats'] || f['Seats']),
+        fuelType: f['Fuel Type'] || null,
+        displacement: parseInteger(f['Engine Displacement (ccm)'] || f['Engine Displacement']),
+        cylinders: parseInteger(f['Number Of Cylinders'] || f['Cylinders']),
+        horsepower: parseFloat(f['Power (HP)'] || f['Engine Power (HP)']) || null,
+        torque: parseFloat(f['Torque (Nm)']) || null,
 
         // Physical specifications
-        length: null,
-        width: null,
-        height: null,
-        wheelbase: null,
-        weight: null,
+        length: parseFloat(f['Length (mm)']) || null,
+        width: parseFloat(f['Width (mm)']) || null,
+        height: parseFloat(f['Height (mm)']) || null,
+        wheelbase: parseFloat(f['Wheelbase (mm)']) || null,
+        weight: parseFloat(f['Curb Weight (kg)'] || f['Weight (kg)']) || null,
 
         // Location data
-        plantCity: d2.plant_city || null,
-        plantCountry: d2.plant_country || null,
+        plantCity: f['Assembly Plant City'] || null,
+        plantCountry: f['Assembly Plant Country'] || null,
 
         // Source attribution
-        _source: 'tecdoc-decoder-v5',
+        _source: 'vincario-3.2',
 
-        // Raw content payloads for debugging (only in development)
-        _raw: process.env.NODE_ENV === 'development'
-            ? { d1, d2, d3: d3Array }
-            : undefined,
+        // Raw fields for debugging (only in development)
+        _raw: process.env.NODE_ENV === 'development' ? f : undefined,
     };
 }
 
 /**
- * Build engine description string from vin-data-2 fields.
+ * Build engine description string from Vincario fields.
  */
-function buildEngineDescription(d2) {
+function buildEngineDescription(f) {
     const components = [];
 
-    const dispL = parseFloat(d2['displacement_(l)']);
-    if (dispL > 0) components.push(`${dispL.toFixed(1)}L`);
+    const dispCcm = parseInteger(f['Engine Displacement (ccm)'] || f['Engine Displacement']);
+    if (dispCcm > 0) {
+        const dispL = (dispCcm / 1000).toFixed(1);
+        components.push(`${dispL}L`);
+    }
 
-    const cylinders = parseInteger(d2.engine_number_of_cylinders);
+    const cylinders = parseInteger(f['Number Of Cylinders'] || f['Cylinders']);
     if (cylinders > 0) components.push(`${cylinders}-cylinder`);
 
-    const fuel = (d2['fuel_type_-_primary'] || '').toLowerCase();
+    const fuel = (f['Fuel Type'] || '').toLowerCase();
     if (fuel.includes('diesel')) components.push('diesel');
-    else if (fuel.includes('gasoline') || fuel.includes('petrol')) components.push('gasoline');
+    else if (fuel.includes('gasoline') || fuel.includes('petrol')) components.push('petrol');
     else if (fuel.includes('electric')) components.push('electric');
     else if (fuel.includes('hybrid')) components.push('hybrid');
 
-    const hp = parseFloat(d2.engine_brake_hp_from || d2['engine_brake_(hp)_from']);
+    const hp = parseFloat(f['Power (HP)'] || f['Engine Power (HP)']);
     if (hp > 0) components.push(`${Math.round(hp)}hp`);
 
     return components.length > 0 ? components.join(' ') : null;

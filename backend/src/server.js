@@ -177,7 +177,7 @@ app.get('/api/vin/decode/:vin', async (req, res, next) => {
             });
         }
 
-        // Call multi-provider VIN service (NHTSA primary, Vincario fallback)
+        // Call multi-provider VIN service (Vincario primary, NHTSA fallback)
         const apiResponse = await multiProviderVinService.decodeVIN(validation.vin);
         const vehicle = multiProviderVinService.parseVehicleData(apiResponse);
 

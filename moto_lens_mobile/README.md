@@ -8,8 +8,6 @@ flutter run --release -d RZ8T31WE39E
 flutter run -d emulator-5554
 
 
-flutter run --release -d RZ8T31WE39E
-
 
 
 
