@@ -393,16 +393,13 @@ async function vinToParts(vinNo) {
         throw new TecDocError('No vehicle variants found for this model', 404);
     }
 
-    // Step 5 – fetch parts for the selected vehicle
-    const partsData = await getVehicleParts(selectedVehicle.vehicleId);
-
+    // Return vehicle info only — parts are fetched on-demand via search
     return {
         vin: vinNo,
         manufacturer,
         modelName,
         selectedVehicle,
         availableVehicles: modelTypes.vehicles,
-        parts: partsData,
     };
 }
 

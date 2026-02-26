@@ -1166,12 +1166,13 @@ app.get('/api/tecdoc/model-types/:modelId', async (req, res) => {
     }
 });
 
-// Step 3: Get parts by vehicleId
+// Step 3: Get parts by vehicleId (with optional search keyword)
 app.get('/api/tecdoc/vehicle-parts/:vehicleId', async (req, res) => {
     const { vehicleId } = req.params;
+    const searchParam = req.query.q || '-';
 
     try {
-        const result = await tecdocService.getVehicleParts(vehicleId);
+        const result = await tecdocService.getVehicleParts(vehicleId, { searchParam });
         return res.json({ success: true, ...result });
     } catch (err) {
         if (err && err.name === 'TecDocError') {

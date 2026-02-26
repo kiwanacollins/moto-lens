@@ -48,7 +48,14 @@ class TecDocPartCategory {
 }
 
 /// The different stages of the VIN-to-Parts flow
-enum VinToPartsStep { input, loading, vehicleSelect, partsResult, error }
+enum VinToPartsStep {
+  input,
+  loading,
+  vehicleSelect,
+  partsSearch,
+  partsResult,
+  error,
+}
 
 /// Provider for VIN-to-Parts feature state
 class VinToPartsProvider extends ChangeNotifier {
@@ -139,15 +146,8 @@ class VinToPartsProvider extends ChangeNotifier {
           .map((v) => TecDocVehicle.fromJson(v as Map<String, dynamic>))
           .toList();
 
-      // Parse parts
-      final partsData = result['parts'] as Map<String, dynamic>? ?? {};
-      _totalParts = (partsData['totalParts'] ?? 0) as int;
-      final cats = partsData['categories'] as List<dynamic>? ?? [];
-      _partCategories = cats
-          .map((c) => TecDocPartCategory.fromJson(c as Map<String, dynamic>))
-          .toList();
-
-      _step = VinToPartsStep.partsResult;
+      // Go to parts search step (no parts fetched yet)
+      _step = VinToPartsStep.partsSearch;
       notifyListeners();
     } on NetworkException catch (e) {
       _errorMessage = e.message;
@@ -167,17 +167,33 @@ class VinToPartsProvider extends ChangeNotifier {
   /// Fetch parts for a different vehicle variant
   Future<void> selectVehicle(TecDocVehicle vehicle) async {
     _selectedVehicle = vehicle;
-    _step = VinToPartsStep.loading;
-    _loadingMessage = 'Loading parts for ${vehicle.typeEngineName}...';
+    _partCategories = [];
+    _totalParts = 0;
     _partsSearchQuery = '';
+    _step = VinToPartsStep.partsSearch;
+    notifyListeners();
+  }
+
+  /// Search parts by keyword for the selected vehicle
+  bool _isSearching = false;
+  bool get isSearching => _isSearching;
+
+  Future<void> searchParts(String query) async {
+    if (_selectedVehicle == null || query.trim().isEmpty) return;
+
+    _isSearching = true;
+    _partsSearchQuery = query.trim();
     notifyListeners();
 
     try {
-      final result = await _service.getVehicleParts(vehicle.vehicleId);
+      final result = await _service.searchVehicleParts(
+        _selectedVehicle!.vehicleId,
+        _partsSearchQuery,
+      );
 
       if (result['success'] != true) {
-        _errorMessage = result['message'] ?? 'Failed to load parts';
-        _step = VinToPartsStep.error;
+        _errorMessage = result['message'] ?? 'Failed to search parts';
+        _isSearching = false;
         notifyListeners();
         return;
       }
@@ -189,12 +205,20 @@ class VinToPartsProvider extends ChangeNotifier {
           .toList();
 
       _step = VinToPartsStep.partsResult;
+      _isSearching = false;
       notifyListeners();
     } catch (e) {
-      _errorMessage = 'Failed to load parts: $e';
+      _isSearching = false;
+      _errorMessage = 'Failed to search parts: $e';
       _step = VinToPartsStep.error;
       notifyListeners();
     }
+  }
+
+  /// Go back to search from results
+  void backToSearch() {
+    _step = VinToPartsStep.partsSearch;
+    notifyListeners();
   }
 
   /// Show vehicle selection list

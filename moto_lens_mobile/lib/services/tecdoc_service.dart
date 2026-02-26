@@ -27,9 +27,10 @@ class TecDocService {
     return json.decode(response.body);
   }
 
-  /// Step 3: Get parts for a given vehicleId
-  Future<Map<String, dynamic>> getVehicleParts(int vehicleId) async {
-    final response = await _api.get('/tecdoc/vehicle-parts/$vehicleId');
+  /// Step 3: Search parts for a given vehicleId by keyword
+  Future<Map<String, dynamic>> searchVehicleParts(int vehicleId, String query) async {
+    final encoded = Uri.encodeQueryComponent(query);
+    final response = await _api.get('/tecdoc/vehicle-parts/$vehicleId?q=$encoded');
     return json.decode(response.body);
   }
 

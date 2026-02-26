@@ -31,7 +31,9 @@ class VinToPartsScreen extends StatelessWidget {
                   size: 20,
                 ),
                 onPressed: () {
-                  if (provider.step == VinToPartsStep.partsResult ||
+                  if (provider.step == VinToPartsStep.partsResult) {
+                    provider.backToSearch();
+                  } else if (provider.step == VinToPartsStep.partsSearch ||
                       provider.step == VinToPartsStep.vehicleSelect) {
                     provider.reset();
                   } else {
@@ -48,7 +50,8 @@ class VinToPartsScreen extends StatelessWidget {
               ),
               centerTitle: true,
               actions: [
-                if (provider.step == VinToPartsStep.partsResult)
+                if (provider.step == VinToPartsStep.partsResult ||
+                    provider.step == VinToPartsStep.partsSearch)
                   IconButton(
                     icon: const Icon(
                       Icons.restart_alt,
@@ -80,6 +83,8 @@ class VinToPartsScreen extends StatelessWidget {
         );
       case VinToPartsStep.vehicleSelect:
         return _VehicleSelectView(key: const ValueKey('vehicleSelect'));
+      case VinToPartsStep.partsSearch:
+        return _PartsSearchView(key: const ValueKey('partsSearch'));
       case VinToPartsStep.partsResult:
         return _PartsResultView(key: const ValueKey('partsResult'));
       case VinToPartsStep.error:
@@ -409,6 +414,290 @@ class _VehicleSelectView extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Parts search input (after VIN decoded, before parts fetched)
+// ─────────────────────────────────────────────────────────────
+
+class _PartsSearchView extends StatefulWidget {
+  const _PartsSearchView({super.key});
+
+  @override
+  State<_PartsSearchView> createState() => _PartsSearchViewState();
+}
+
+class _PartsSearchViewState extends State<_PartsSearchView> {
+  final _searchController = TextEditingController();
+  final _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final query = _searchController.text.trim();
+    if (query.isEmpty) return;
+    context.read<VinToPartsProvider>().searchParts(query);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<VinToPartsProvider>();
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.lg,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Vehicle info card
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+              border: Border.all(color: AppColors.zinc200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: AppColors.electricBlue.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.directions_car,
+                        color: AppColors.electricBlue,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            provider.manufacturer,
+                            style: AppTypography.bodySmall.copyWith(
+                              color: AppColors.electricBlue,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            provider.selectedVehicle?.typeEngineName ??
+                                provider.modelName,
+                            style: AppTypography.bodyLarge.copyWith(
+                              color: AppColors.carbonBlack,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (provider.vehicles.length > 1)
+                      TextButton.icon(
+                        onPressed: provider.showVehicleSelection,
+                        icon: const Icon(Icons.swap_horiz, size: 16),
+                        label: const Text('Change'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.electricBlue,
+                          textStyle: AppTypography.bodySmall,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                          ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.zinc100,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    'VIN: ${provider.vin}',
+                    style: TextStyle(
+                      fontFamily: AppTypography.monoFontFamily,
+                      fontSize: 12,
+                      color: AppColors.gunmetalGray,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
+          // Search icon
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: AppColors.electricBlue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Icon(
+              Icons.search,
+              size: 32,
+              color: AppColors.electricBlue,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
+          Text(
+            'Search OEM Parts',
+            style: AppTypography.h4.copyWith(color: AppColors.carbonBlack),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Search for specific parts by name — e.g. "oil filter", "brake pad", "air filter", "gasket".',
+            style: AppTypography.bodyMedium.copyWith(
+              color: AppColors.gunmetalGray,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
+          // Search field
+          TextField(
+            controller: _searchController,
+            focusNode: _focusNode,
+            textInputAction: TextInputAction.search,
+            style: AppTypography.bodyLarge.copyWith(
+              color: AppColors.carbonBlack,
+            ),
+            decoration: InputDecoration(
+              hintText: 'e.g. brake pad, oil filter...',
+              hintStyle: AppTypography.bodyMedium.copyWith(
+                color: AppColors.zinc400,
+              ),
+              prefixIcon: const Icon(
+                Icons.search,
+                color: AppColors.gunmetalGray,
+                size: 20,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+                borderSide: const BorderSide(color: AppColors.zinc200),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+                borderSide: const BorderSide(color: AppColors.zinc200),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+                borderSide: const BorderSide(
+                  color: AppColors.electricBlue,
+                  width: 2,
+                ),
+              ),
+            ),
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (_) => _submit(),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
+          // Search button
+          SizedBox(
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: provider.isSearching || _searchController.text.trim().isEmpty
+                  ? null
+                  : _submit,
+              icon: provider.isSearching
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.search, size: 20),
+              label: Text(provider.isSearching ? 'Searching...' : 'Search Parts'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.electricBlue,
+                foregroundColor: Colors.white,
+                disabledBackgroundColor: AppColors.zinc200,
+                disabledForegroundColor: AppColors.zinc400,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
+                ),
+                textStyle: AppTypography.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+
+          // Quick search suggestions
+          Text(
+            'Popular searches',
+            style: AppTypography.bodySmall.copyWith(
+              color: AppColors.gunmetalGray,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
+            children: [
+              'Oil filter',
+              'Air filter',
+              'Brake pad',
+              'Spark plug',
+              'Gasket',
+              'Belt',
+              'Bearing',
+              'Sensor',
+            ].map((label) {
+              return ActionChip(
+                label: Text(label),
+                labelStyle: AppTypography.bodySmall.copyWith(
+                  color: AppColors.carbonBlack,
+                ),
+                backgroundColor: AppColors.zinc50,
+                side: const BorderSide(color: AppColors.zinc200),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                onPressed: () {
+                  _searchController.text = label;
+                  setState(() {});
+                  context.read<VinToPartsProvider>().searchParts(label);
+                },
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
 // Parts result
 // ─────────────────────────────────────────────────────────────
 
@@ -420,14 +709,6 @@ class _PartsResultView extends StatefulWidget {
 }
 
 class _PartsResultViewState extends State<_PartsResultView> {
-  final _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<VinToPartsProvider>();
@@ -465,23 +746,40 @@ class _PartsResultViewState extends State<_PartsResultView> {
                       ),
                     ),
                   ),
-                  const Spacer(),
-                  // Change variant button
-                  if (provider.vehicles.length > 1)
-                    TextButton.icon(
-                      onPressed: provider.showVehicleSelection,
-                      icon: const Icon(Icons.swap_horiz, size: 16),
-                      label: const Text('Change'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.electricBlue,
-                        textStyle: AppTypography.bodySmall,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
+                  const SizedBox(width: AppSpacing.sm),
+                  if (provider.partsSearchQuery.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.zinc100,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '"${provider.partsSearchQuery}"',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.gunmetalGray,
+                          fontStyle: FontStyle.italic,
                         ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                     ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: provider.backToSearch,
+                    icon: const Icon(Icons.search, size: 16),
+                    label: const Text('New Search'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.electricBlue,
+                      textStyle: AppTypography.bodySmall,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 6),
@@ -522,65 +820,6 @@ class _PartsResultViewState extends State<_PartsResultView> {
                 ),
               ),
             ],
-          ),
-        ),
-
-        // Search bar
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.md,
-            AppSpacing.lg,
-            AppSpacing.xs,
-          ),
-          child: TextField(
-            controller: _searchController,
-            onChanged: provider.setPartsSearchQuery,
-            decoration: InputDecoration(
-              hintText: 'Search parts or OEM numbers...',
-              hintStyle: AppTypography.bodyMedium.copyWith(
-                color: AppColors.zinc400,
-              ),
-              prefixIcon: const Icon(
-                Icons.search,
-                color: AppColors.gunmetalGray,
-                size: 20,
-              ),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        size: 18,
-                        color: AppColors.zinc400,
-                      ),
-                      onPressed: () {
-                        _searchController.clear();
-                        provider.setPartsSearchQuery('');
-                      },
-                    )
-                  : null,
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-                borderSide: const BorderSide(color: AppColors.zinc200),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-                borderSide: const BorderSide(color: AppColors.zinc200),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-                borderSide: const BorderSide(
-                  color: AppColors.electricBlue,
-                  width: 1.5,
-                ),
-              ),
-            ),
           ),
         ),
 
