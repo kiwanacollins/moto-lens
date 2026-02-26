@@ -47,14 +47,14 @@ class ApiService {
   }
 
   /// Make authenticated GET request
-  Future<http.Response> get(String endpoint) async {
+  Future<http.Response> get(String endpoint, {Duration? customTimeout}) async {
     final url = Uri.parse('$apiUrl$endpoint');
     final headers = await _getAuthHeaders();
 
     try {
       final response = await _client
           .get(url, headers: headers)
-          .timeout(timeout);
+          .timeout(customTimeout ?? timeout);
 
       return await _handleResponse(response);
     } on SocketException catch (e) {
@@ -63,7 +63,7 @@ class ApiService {
       throw NetworkException('Secure connection failed: ${e.message}');
     } on TimeoutException catch (_) {
       throw NetworkException(
-        'Connection timeout - please check your internet connection',
+        'Request timed out. Please try again.',
       );
     } on HttpException catch (e) {
       throw NetworkException('Network error: ${e.message}');

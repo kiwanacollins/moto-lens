@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'api_service.dart';
 
+/// Longer timeout for TecDoc catalog calls (backend waits up to 45s for TecDoc API)
+const _tecdocTimeout = Duration(seconds: 60);
+
 /// Service for TecDoc VIN-to-Parts API calls
 class TecDocService {
   static final TecDocService _instance = TecDocService._internal();
@@ -11,7 +14,10 @@ class TecDocService {
 
   /// Full VIN-to-Parts chain: resolves VIN → model → vehicle → parts
   Future<Map<String, dynamic>> vinToParts(String vin) async {
-    final response = await _api.get('/tecdoc/vin-to-parts/$vin');
+    final response = await _api.get(
+      '/tecdoc/vin-to-parts/$vin',
+      customTimeout: _tecdocTimeout,
+    );
     return json.decode(response.body);
   }
 
@@ -28,9 +34,15 @@ class TecDocService {
   }
 
   /// Step 3: Search parts for a given vehicleId by keyword
-  Future<Map<String, dynamic>> searchVehicleParts(int vehicleId, String query) async {
+  Future<Map<String, dynamic>> searchVehicleParts(
+    int vehicleId,
+    String query,
+  ) async {
     final encoded = Uri.encodeQueryComponent(query);
-    final response = await _api.get('/tecdoc/vehicle-parts/$vehicleId?q=$encoded');
+    final response = await _api.get(
+      '/tecdoc/vehicle-parts/$vehicleId?q=$encoded',
+      customTimeout: _tecdocTimeout,
+    );
     return json.decode(response.body);
   }
 
