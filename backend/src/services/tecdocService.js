@@ -23,24 +23,35 @@ function apiHeaders() {
  */
 async function decodeVin(vinNo) {
     const url = `https://${RAPIDAPI_HOST}/vin/tecdoc-vin-check/${encodeURIComponent(vinNo)}`;
+    console.log(`🔍 TecDoc VIN decode: ${vinNo} → ${url}`);
 
     const res = await fetch(url, { method: 'GET', headers: apiHeaders(), signal: AbortSignal.timeout(45000) });
+    console.log(`📡 TecDoc VIN decode response: ${res.status} ${res.statusText}`);
 
     if (!res.ok) {
         const text = await res.text().catch(() => '');
+        console.error(`❌ TecDoc VIN decode error body: ${text}`);
         throw new TecDocError(`TecDoc VIN decode failed (${res.status}): ${text}`, res.status);
     }
 
     const json = await res.json();
-    const data = json?.data;
-    if (!data) {
+    console.log(`📦 TecDoc VIN decode raw keys:`, Object.keys(json));
+
+    // TecDoc API may return data at top level or nested under .data
+    const data = json?.data || json;
+    if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) {
+        console.error(`❌ TecDoc returned empty data for VIN: ${vinNo}`, JSON.stringify(json).substring(0, 500));
         throw new TecDocError('No vehicle data returned for this VIN', 404);
     }
 
-    const matchingModels = data.matchingModels?.array || [];
-    const matchingVehicles = data.matchingVehicles?.array || [];
-    const matchingManufacturers = data.matchingManufacturers?.array || [];
+    const matchingModels = data.matchingModels?.array || data.matchingModels || [];
+    const matchingVehicles = data.matchingVehicles?.array || data.matchingVehicles || [];
+    const matchingManufacturers = data.matchingManufacturers?.array || data.matchingManufacturers || [];
 
+    console.log(`📋 TecDoc models: ${matchingModels.length}, vehicles: ${matchingVehicles.length}, manufacturers: ${matchingManufacturers.length}`);
+    if (matchingModels.length === 0) {
+        console.error(`❌ No matching models. Raw data keys:`, Object.keys(data), 'Sample:', JSON.stringify(data).substring(0, 500));
+    }
     if (matchingModels.length === 0) {
         throw new TecDocError('VIN did not match any known model', 404);
     }
