@@ -1119,10 +1119,10 @@ app.get('/api/tecdoc/vin-to-parts/:vin', async (req, res) => {
         }
         if (err && (err.name === 'TimeoutError' || err.name === 'AbortError')) {
             console.error('TecDoc API timeout for VIN:', vin);
-            return res.status(504).json({ error: 'TECDOC_TIMEOUT', message: 'Parts catalog service is slow. Please try again.' });
+            return res.status(504).json({ error: 'TECDOC_TIMEOUT', message: 'The parts catalog is taking too long to respond. Please try again in a moment.' });
         }
         console.error('Error in VIN-to-parts:', err);
-        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Failed to lookup parts by VIN' });
+        return res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Something went wrong looking up parts. Please try again.' });
     }
 });
 

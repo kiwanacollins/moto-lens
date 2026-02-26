@@ -2,6 +2,12 @@ import 'package:flutter/foundation.dart';
 import '../services/tecdoc_service.dart';
 import '../services/api_service.dart';
 
+/// Strip "HTTP 404: " prefix from API error messages for cleaner display
+String _friendlyMessage(String raw) {
+  final match = RegExp(r'^HTTP \d{3}: (.+)$').firstMatch(raw);
+  return match != null ? match.group(1)! : raw;
+}
+
 /// Represents a vehicle variant returned by TecDoc
 class TecDocVehicle {
   final int vehicleId;
@@ -150,15 +156,15 @@ class VinToPartsProvider extends ChangeNotifier {
       _step = VinToPartsStep.partsSearch;
       notifyListeners();
     } on NetworkException catch (e) {
-      _errorMessage = e.message;
+      _errorMessage = _friendlyMessage(e.message);
       _step = VinToPartsStep.error;
       notifyListeners();
     } on ApiException catch (e) {
-      _errorMessage = e.message;
+      _errorMessage = _friendlyMessage(e.message);
       _step = VinToPartsStep.error;
       notifyListeners();
     } catch (e) {
-      _errorMessage = 'Unexpected error: $e';
+      _errorMessage = 'Something went wrong. Please try again.';
       _step = VinToPartsStep.error;
       notifyListeners();
     }
@@ -207,9 +213,19 @@ class VinToPartsProvider extends ChangeNotifier {
       _step = VinToPartsStep.partsResult;
       _isSearching = false;
       notifyListeners();
+    } on NetworkException catch (e) {
+      _isSearching = false;
+      _errorMessage = _friendlyMessage(e.message);
+      _step = VinToPartsStep.error;
+      notifyListeners();
+    } on ApiException catch (e) {
+      _isSearching = false;
+      _errorMessage = _friendlyMessage(e.message);
+      _step = VinToPartsStep.error;
+      notifyListeners();
     } catch (e) {
       _isSearching = false;
-      _errorMessage = 'Failed to search parts: $e';
+      _errorMessage = 'Something went wrong. Please try again.';
       _step = VinToPartsStep.error;
       notifyListeners();
     }

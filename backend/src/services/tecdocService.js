@@ -65,7 +65,7 @@ async function decodeVin(vinNo) {
     const json = await tecdocFetch(url, 'VIN decode');
 
     if (!json || typeof json !== 'object') {
-        throw new TecDocError('No vehicle data returned for this VIN', 404);
+        throw new TecDocError('This VIN was not found in the parts catalog. It may be a non-European vehicle or not yet listed.', 404);
     }
 
     console.log(`📦 TecDoc VIN decode keys: ${Object.keys(json).join(', ')}`);
@@ -104,7 +104,7 @@ async function decodeVin(vinNo) {
 
     if (!make) {
         console.error(`❌ Could not extract make from VIN decode`, { vinData1, vinData2 });
-        throw new TecDocError('Could not identify vehicle make from VIN', 404);
+        throw new TecDocError('Could not identify the vehicle make from this VIN. Please double-check and try again.', 404);
     }
 
     console.log(`✅ VIN decoded: ${modelYear} ${make} ${model || '(unknown model)'}`);
@@ -188,7 +188,7 @@ async function findManufacturerId(makeName, { typeId = '1', langId = '4', countr
     // Log available manufacturers for debugging
     const available = manufacturers.slice(0, 20).map(m => m.manuName || m.manufacturerName).join(', ');
     console.error(`❌ No match for "${searchName}". Available (first 20): ${available}`);
-    throw new TecDocError(`Manufacturer "${makeName}" not found in parts catalog`, 404);
+    throw new TecDocError(`The manufacturer "${makeName}" is not available in the parts catalog.`, 404);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -211,7 +211,7 @@ async function findModelId(manuId, modelName, year, { typeId = '1', langId = '4'
 
     if (!Array.isArray(models) || models.length === 0) {
         console.error(`❌ No models returned for manufacturer ${manuId}`);
-        throw new TecDocError('No models found for this manufacturer', 404);
+        throw new TecDocError('No models found for this manufacturer in the parts catalog.', 404);
     }
 
     console.log(`📋 TecDoc returned ${models.length} models for manufacturer ${manuId}`);
@@ -271,7 +271,7 @@ async function findModelId(manuId, modelName, year, { typeId = '1', langId = '4'
     // Log available models for debugging
     const available = models.slice(0, 15).map(m => m.modelName || m.modelSeriesName).join(', ');
     console.error(`❌ No match for model "${modelName}". Available (first 15): ${available}`);
-    throw new TecDocError(`Model "${modelName}" not found for this manufacturer in parts catalog`, 404);
+    throw new TecDocError(`The model "${modelName}" was not found for this manufacturer in the parts catalog.`, 404);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -390,7 +390,7 @@ async function vinToParts(vinNo) {
     }
 
     if (!selectedVehicle) {
-        throw new TecDocError('No vehicle variants found for this model', 404);
+        throw new TecDocError('No vehicle variants found for this model in the parts catalog.', 404);
     }
 
     // Return vehicle info only — parts are fetched on-demand via search
